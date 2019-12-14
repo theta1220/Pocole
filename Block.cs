@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
+using System.Linq;
 
 namespace Pocole
 {
@@ -102,27 +103,51 @@ namespace Pocole
                 }
                 if (blockCount == 0 && c == ';')
                 {
-                    var methodName = "";
-                    foreach (var _c in buf)
+                    try
                     {
-                        if (_c == ' ') { continue; }
-                        if (_c == '(') { break; }
-                        methodName += _c;
-                    }
+                        var name = buf.Split(' ')[0];
 
-                    // 関数の実行
-                    if (FindMethod(methodName) != null)
-                    {
-                        var caller = new MethodCaller();
-                        if (!caller.Initialize(this, buf)) { Log.InitError(); return false; }
-                        Runnables.Add(caller);
+                        // 変数の宣言か代入
+                        if (name == "var")
+                        {
+                            var setter = new ValueSetter();
+                            if (!setter.Initialize(this, buf)) { Log.InitError(); return false; }
+                            Runnables.Add(setter);
+                            Values.Add(setter.Value);
+                        }
+                        else
+                        {
+                            var valueName = buf.Replace(" ", "").Split('=')[0];
+                            if (FindValue(valueName) != null)
+                            {
+                                var setter = new ValueSetter();
+                                if (!setter.Initialize(this, buf)) { Log.InitError(); return false; }
+                                Runnables.Add(setter);
+                                Values.Add(setter.Value);
+                            }
+                            else
+                            {
+                                // 関数の実行
+                                var methodName = buf.Replace(" ", "").Split('(')[0];
+                                if (FindMethod(methodName) != null)
+                                {
+                                    var caller = new MethodCaller();
+                                    if (!caller.Initialize(this, buf)) { Log.InitError(); return false; }
+                                    Runnables.Add(caller);
+                                }
+                                // エラー
+                                else
+                                {
+                                    Log.Error("関数がみつかりませんでした: {0}", buf);
+                                    return false;
+                                }
+                            }
+                        }
                     }
-                    // 変数の宣言か代入
-                    else
+                    catch
                     {
-                        var setter = new ValueSetter();
-                        if (!setter.Initialize(this, buf)) { Log.InitError(); return false; }
-                        Runnables.Add(setter);
+                        Log.ParseError();
+                        return false;
                     }
                     buf = "";
                     continue;
@@ -151,26 +176,22 @@ namespace Pocole
 
         public Value FindValue(string name)
         {
-            foreach (var value in Values)
+            var target = Values.FirstOrDefault(method => method.Name == name);
+            if (target == null && Parent != null)
             {
-                if (value.Name == name)
-                {
-                    return value;
-                }
+                target = Parent.FindValue(name);
             }
-            return null;
+            return target;
         }
 
         public MethodDeclarer FindMethod(string name)
         {
-            foreach (var method in Methods)
+            var target = Methods.FirstOrDefault(method => method.Name == name);
+            if (target == null && Parent != null)
             {
-                if (method.Name == name)
-                {
-                    return method;
-                }
+                target = Parent.FindMethod(name);
             }
-            return null;
+            return target;
         }
     }
 }

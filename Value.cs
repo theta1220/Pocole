@@ -15,9 +15,15 @@ namespace Pocole
         public string Name { get; private set; }
         public object Object { get; private set; }
 
-        public bool Initialize(string name, string value)
+        public bool Initialize(string name)
         {
             Name = name;
+            return true;
+        }
+
+        public bool Initialize(string name, string value)
+        {
+            if (!Initialize(name)) { Log.InitError(); return false; }
             Object = value;
 
             if (Regex.IsMatch(value, "[0-9]"))

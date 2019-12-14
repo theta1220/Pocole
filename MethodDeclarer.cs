@@ -21,6 +21,7 @@ namespace Pocole
             catch
             {
                 Log.ParseError();
+                return false;
             }
 
             return true;

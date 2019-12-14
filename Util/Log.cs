@@ -40,7 +40,11 @@ namespace Pocole
         }
         public static void InitError()
         {
-            _Print("Error", "初期化に失敗しちゃったなり", 3);
+            _Print("InitError", "初期化に失敗しちゃったなり", 3);
+        }
+        public static void ParseError()
+        {
+            _Print("ParseError", "パースに失敗しちゃったなり", 3);
         }
     }
 }

@@ -51,30 +51,12 @@ namespace Pocole
                             // メソッドの宣言
                             else
                             {
-                                var commandName = "";
-                                var content = "";
-                                var start = false;
-                                foreach (var _c in buf)
-                                {
-                                    if (_c == ' ')
-                                    {
-                                        start = true;
-                                        continue;
-                                    }
-                                    if (start)
-                                    {
-                                        content += _c;
-                                    }
-                                    else
-                                    {
-                                        commandName += _c;
-                                    }
-                                }
+                                var commandName = buf.Split(' ')[0];
                                 if (commandName == "func")
                                 {
                                     var declarer = new MethodDeclarer();
 
-                                    if (!declarer.Initialize(this, content)) { Log.InitError(); return false; }
+                                    if (!declarer.Initialize(this, buf)) { Log.InitError(); return false; }
                                     stack.Push(declarer);
                                     Log.Info("メソッドが登録されました:{0}", declarer.Name);
                                 }

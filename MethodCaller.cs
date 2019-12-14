@@ -5,6 +5,9 @@ namespace Pocole
         public new bool Initialize(Block parent, string source)
         {
             if (!base.Initialize(parent, source)) { Log.InitError(); return false; }
+
+            
+
             return true;
         }
 
@@ -12,7 +15,5 @@ namespace Pocole
         {
             RunningLog();
         }
-
-
     }
 }

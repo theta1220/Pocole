@@ -7,14 +7,21 @@ namespace Pocole
         {
             if (!base.Initialize(parent, text, SemanticType.MethodDeclarer)) { Log.InitError(); return false; }
 
-            var methodNameBuf = "";
-            foreach (var c in text)
+            // func hoge(){ ... }
+            try
             {
-                if (c == ' ') continue;
-                if (c == '(') break;
-                methodNameBuf += c;
+                Name = text.Split('(')[0].Split(' ')[1];
+                var header = text.Split(' ')[0];
+                if(header != "func")
+                {
+                    Log.Error("ParseError: 関数の宣言じゃないものが渡ってきました : {0}", text);
+                    return false;
+                }
             }
-            Name = methodNameBuf;
+            catch
+            {
+                Log.ParseError();
+            }
 
             return true;
         }

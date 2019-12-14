@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+
 namespace Pocole.Util
 {
     public static class String
@@ -28,6 +30,11 @@ namespace Pocole.Util
                 }
             }
             return false;
+        }
+
+        public static string GetFirstSplit(string source, char split)
+        {
+            return source.Split(split)[0];
         }
     }
 }

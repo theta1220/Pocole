@@ -15,11 +15,17 @@ namespace Pocole
             Name = Util.String.SplitOnce(source.Replace(" ", ""), '(')[0];
             Args = Util.String.Remove(Util.String.Extract(source.Replace(" ", ""), '(', ')'), ' ').Split(',');
 
-            Runnables.Add(Parent.FindMethod(Name));
+            var method = Parent.FindMethod(Name);
+            if (method == null)
+            {
+                Log.Error("対象のメソッドが見つかりませんでした: {0}", Name);
+                return false;
+            }
+            Runnables.Add(method);
             return true;
         }
 
-        protected override void Activate()
+        public override void OnEntered()
         {
             var method = Parent.FindMethod(Name);
             if (method == null)
@@ -32,7 +38,21 @@ namespace Pocole
             {
                 objs.Add(Util.Calc.Execute(Parent, arg, Value.GetValueType(arg, Parent)));
             }
-            method.SetArgs(objs.ToArray());
+            if (!method.SetArgs(objs.ToArray()))
+            {
+                Log.Error("SetArgsに失敗");
+            }
+        }
+
+        public override void OnLeaved()
+        {
+            var method = Parent.FindMethod(Name);
+            if (method == null)
+            {
+                Log.Error("メソッドの呼び出しに失敗しました: {0}", Name);
+                return;
+            }
+            method.OnLeave();
         }
 
         protected override void Run()

@@ -50,7 +50,6 @@ namespace Pocole
                 var value = new Value();
                 if (!value.Initialize(name)) { Log.InitError(); return false; }
                 value.SetValue(arg);
-                Log.Info("add value: {0}, {1}", value.Name, value.Object.ToString());
                 Block.AddValue(value);
             }
             return true;

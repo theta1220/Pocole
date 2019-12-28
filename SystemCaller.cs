@@ -44,14 +44,12 @@ namespace Pocole
                     var values = Parent.FindValues(arg);
                     foreach (var val in values)
                     {
-                        Log.Info("args:{0}/{1}", arg.ToString(), val.Object.ToString());
                         args.Add(val.Object);
                     }
                 }
                 else
                 {
                     var value = Util.Calc.Execute(Parent, arg, Value.GetValueType(arg));
-                    Log.Info("arg:{0}/{1}", arg.ToString(), value.ToString());
                     args.Add(value);
                 }
             }
@@ -74,7 +72,6 @@ namespace Pocole
             var list = new List<object>();
             var text = "";
             var count = 0;
-            Log.Info("argscount:{0}", args.Length);
             foreach (var arg in args)
             {
                 count++;
@@ -85,7 +82,7 @@ namespace Pocole
                 }
                 list.Add(arg);
             }
-            Log.Info(string.Format("これはスクリプトからよばれたLog:{0}", text), list.ToArray());
+            Log.Info(text, list.ToArray());
         }
     }
 }

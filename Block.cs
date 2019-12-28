@@ -162,6 +162,11 @@ namespace Pocole
         {
         }
 
+        public override void OnLeaved()
+        {
+            Values.Clear();
+        }
+
         public void AddValue(Value value)
         {
             Values.Add(value);

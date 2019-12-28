@@ -9,7 +9,7 @@ namespace Pocole
         public List<Runnable> Runnables { get; private set; } = new List<Runnable>();
         public Block Parent { get; private set; } = null;
 
-        private bool _isActivated = false;
+        private bool _isOnEnterExecuted = false;
 
         public bool Initialize(Block parent, string source)
         {
@@ -18,44 +18,45 @@ namespace Pocole
             return true;
         }
 
-        public virtual bool Execute()
+        public bool Execute()
         {
             if (IsCompleted())
             {
                 RunningLog();
+                OnLeave();
                 return false;
             }
-            if (ExecuteCount == 0 && !_isActivated)
+            if (ExecuteCount == 0 && !_isOnEnterExecuted)
             {
-                _isActivated = true;
-                Activate();
+                OnEnter();
             }
             Runnables[ExecuteCount].Run();
             if (!Runnables[ExecuteCount].Execute())
             {
-                Runnables[ExecuteCount].ExecuteCount = 0;
-                Runnables[ExecuteCount]._isActivated = false;
-                Runnables[ExecuteCount].Finalize();
                 ExecuteCount++;
             }
             return true;
         }
 
         protected abstract void Run();
+        public virtual void OnEntered() { }
+        public virtual void OnLeaved() { }
 
-        protected virtual void Activate()
+        public void OnEnter()
         {
+            OnEntered();
+            _isOnEnterExecuted = true;
+            ExecuteCount = 0;
         }
 
-        protected void Finalize()
+        public void OnLeave()
         {
-            foreach (var run in Runnables)
-            {
-                run.Finalize();
-            }
+            OnLeaved();
+            _isOnEnterExecuted = false;
+            ExecuteCount = 0;
         }
 
-        protected void RunningLog()
+        private void RunningLog()
         {
             // Log.Info("{0}: ExecuteCount:{1}/{2}", GetType().Name, ExecuteCount, Runnables.Count);
             Log.Info("{0}::{1}/{2}::{3}", GetType().Name, ExecuteCount, Runnables.Count, Source);

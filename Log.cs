@@ -31,20 +31,31 @@ namespace Pocole
         }
         private static void _Print(string title, string text, int stack, params object[] args)
         {
-            var info = string.Format("[Pocole {0}]:{1}/{2}({3}): ",
+            var info = string.Format("[Pocole {0}]:{1}/{2}({3})",
                 title,
                 Util.Reflect.GetCallerClassName(stack),
                 Util.Reflect.GetCallerMethodName(stack),
                 Util.Reflect.GetCallerMethodLineNo(stack));
-            Console.WriteLine(info + text, args);
+            var message = string.Format("{0}: {1}", info, text);
+            Console.WriteLine(message, args);
         }
         public static void InitError()
         {
-            _Print("InitError", "初期化に失敗しちゃったなり", 3);
+            _Print("InitError", "初期化に失敗しちゃったなり", 3, null);
         }
         public static void ParseError()
         {
-            _Print("ParseError", "パースに失敗しちゃったなり", 3);
+            _Print("ParseError", "パースに失敗しちゃったなり", 3, null);
+        }
+        public static void ParseError(string source)
+        {
+            var message = string.Format("パースに失敗しちゃったなり:{0}", source);
+            _Print("ParseError", message, 3, null);
+        }
+        public static void ParseError(System.Exception e, string source)
+        {
+            ParseError(source);
+            _Print("Exeption", e.Message, 3, null);
         }
     }
 }

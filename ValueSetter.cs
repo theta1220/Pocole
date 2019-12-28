@@ -1,8 +1,18 @@
 namespace Pocole
 {
+    public enum ValueSetterType
+    {
+        Invalid,
+        Declare,
+        Assign,
+    }
+
     public class ValueSetter : Runnable
     {
-        public Value Value { get; private set; } = new Value();
+        public ValueSetterType ValueSetterType { get; private set; } = ValueSetterType.Invalid;
+        public string Name { get; private set; }
+        public string Formula { get; private set; }
+
         public new bool Initialize(Block parent, string source)
         {
             if (!base.Initialize(parent, source)) { Log.InitError(); return false; }
@@ -14,18 +24,23 @@ namespace Pocole
                 // 宣言
                 if (name == "var")
                 {
-                    name = source.Split(' ')[1].Replace(" ", "").Split('=')[0];
+                    var buf = Util.String.SplitOnce(source, ' ')[1].Replace(" ", "").Split('=');
+                    Name = buf[0];
+                    Formula = buf[1];
+                    ValueSetterType = ValueSetterType.Declare;
                 }
                 // 代入
                 else
                 {
-                    name = source.Replace(" ", "").Split('=')[0];
+                    var buf = source.Replace(" ", "").Split('=');
+                    Name = buf[0];
+                    Formula = buf[1];
+                    ValueSetterType = ValueSetterType.Assign;
                 }
-                if (!Value.Initialize(name)) { Log.InitError(); return false; }
             }
-            catch
+            catch (System.Exception e)
             {
-                Log.ParseError();
+                Log.Error(e.Message);
                 return false;
             }
             return true;
@@ -33,7 +48,24 @@ namespace Pocole
 
         protected override void Run()
         {
-            RunningLog();
+            Value target = null;
+            if (ValueSetterType == ValueSetterType.Declare)
+            {
+                target = new Value();
+                if (!target.Initialize(Name)) { Log.InitError(); return; }
+                Parent.AddValue(target);
+            }
+            else if (ValueSetterType == ValueSetterType.Assign)
+            {
+                target = Parent.FindValue(Name);
+            }
+            else
+            {
+                Log.Error("ValueSetterTypeがInvalid");
+            }
+            var valueType = Value.GetValueType(Formula, Parent);
+            var value = Util.Calc.Execute(Parent, Formula, valueType);
+            target.SetValue(value, valueType);
         }
     }
 }

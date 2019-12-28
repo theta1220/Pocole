@@ -8,7 +8,6 @@ namespace Pocole
 
     public class Process : SemanticBlock
     {
-
         public string Name { get; private set; }
         public ProcessType ProcessType { get; private set; }
 
@@ -21,7 +20,6 @@ namespace Pocole
 
         protected override void Run()
         {
-            RunningLog();
         }
     }
 }

@@ -105,7 +105,6 @@ namespace Pocole
 
         protected override void Run()
         {
-            RunningLog();
         }
     }
 }

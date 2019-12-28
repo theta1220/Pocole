@@ -59,7 +59,6 @@ namespace Pocole
 
                                     if (!declarer.Initialize(this, buf)) { Log.InitError(); return false; }
                                     stack.Push(declarer);
-                                    Log.Info("メソッドが登録されました:{0}", declarer.Name);
                                 }
                                 else
                                 {
@@ -83,7 +82,7 @@ namespace Pocole
                         if (stack.Count > 0)
                         {
                             var semantic = stack.Pop();
-                            semantic.Block = block;
+                            semantic.AddBlock(block);
                             if (semantic.SemanticType == SemanticType.MethodDeclarer)
                             {
                                 Methods.Add((MethodDeclarer)semantic);
@@ -107,46 +106,41 @@ namespace Pocole
                     {
                         var name = buf.Split(' ')[0];
 
-                        // 変数の宣言か代入
+                        // 変数の宣言
                         if (name == "var")
                         {
                             var setter = new ValueSetter();
                             if (!setter.Initialize(this, buf)) { Log.InitError(); return false; }
                             Runnables.Add(setter);
-                            Values.Add(setter.Value);
                         }
                         else
                         {
-                            var valueName = buf.Replace(" ", "").Split('=')[0];
-                            if (FindValue(valueName) != null)
+                            // メソッド
+                            var methodName = buf.Replace(" ", "").Split('(')[0];
+                            if (methodName == "SystemCall")
+                            {
+                                var caller = new SystemCaller();
+                                if (!caller.Initialize(this, buf)) { Log.InitError(); return false; }
+                                Runnables.Add(caller);
+                            }
+                            else if (FindMethod(methodName) != null)
+                            {
+                                var caller = new MethodCaller();
+                                if (!caller.Initialize(this, buf)) { Log.InitError(); return false; }
+                                Runnables.Add(caller);
+                            }
+                            // やっぱり変数
+                            else
                             {
                                 var setter = new ValueSetter();
                                 if (!setter.Initialize(this, buf)) { Log.InitError(); return false; }
                                 Runnables.Add(setter);
-                                Values.Add(setter.Value);
-                            }
-                            else
-                            {
-                                // 関数の実行
-                                var methodName = buf.Replace(" ", "").Split('(')[0];
-                                if (FindMethod(methodName) != null)
-                                {
-                                    var caller = new MethodCaller();
-                                    if (!caller.Initialize(this, buf)) { Log.InitError(); return false; }
-                                    Runnables.Add(caller);
-                                }
-                                // エラー
-                                else
-                                {
-                                    Log.Error("関数がみつかりませんでした: {0}", buf);
-                                    return false;
-                                }
                             }
                         }
                     }
-                    catch
+                    catch (System.Exception e)
                     {
-                        Log.ParseError();
+                        Log.ParseError(e, buf);
                         return false;
                     }
                     buf = "";
@@ -166,7 +160,6 @@ namespace Pocole
 
         protected override void Run()
         {
-            RunningLog();
         }
 
         public void AddValue(Value value)
@@ -176,12 +169,22 @@ namespace Pocole
 
         public Value FindValue(string name)
         {
-            var target = Values.FirstOrDefault(method => method.Name == name);
+            var target = Values.FirstOrDefault(value => value.Name == name);
             if (target == null && Parent != null)
             {
                 target = Parent.FindValue(name);
             }
             return target;
+        }
+
+        public Value[] FindValues(string name)
+        {
+            var target = Values.FindAll(value => value.Name == name);
+            if (target.Count == 0 && Parent != null)
+            {
+                target = Parent.FindValues(name).ToList();
+            }
+            return target.ToArray();
         }
 
         public MethodDeclarer FindMethod(string name)

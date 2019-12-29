@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Linq;
@@ -12,7 +11,7 @@ namespace Pocole.Util
             public Node Parent { get; private set; }
         }
 
-        public static object Execute(Block parentBlock, string source, Type type)
+        public static object Execute(Block parentBlock, string source, System.Type type)
         {
             source = source.Replace(" ", "");
 
@@ -62,7 +61,7 @@ namespace Pocole.Util
                 buf += c;
             }
 
-            char? splitChar = GetNextOperator(parsed);
+            var splitChar = GetNextOperator(parsed);
             var split = String.SplitOnceTail(parsed, splitChar);
 
             // 変数
@@ -74,7 +73,7 @@ namespace Pocole.Util
 
             if (type == typeof(int))
             {
-                if (splitChar != null)
+                if (splitChar != "")
                 {
                     if (split.Length != 2)
                     {
@@ -84,10 +83,10 @@ namespace Pocole.Util
                     var ans = 0;
                     var r = (int)Execute(parentBlock, split[1], type);
                     var l = (int)Execute(parentBlock, split[0], type);
-                    if (splitChar == '+') ans = r + l;
-                    if (splitChar == '-') ans = r - l;
-                    if (splitChar == '*') ans = r * l;
-                    if (splitChar == '/') ans = r / l;
+                    if (splitChar == "+") ans = r + l;
+                    if (splitChar == "-") ans = r - l;
+                    if (splitChar == "*") ans = r * l;
+                    if (splitChar == "/") ans = r / l;
                     return ans;
                 }
                 else
@@ -105,7 +104,7 @@ namespace Pocole.Util
             }
             if (type == typeof(string))
             {
-                if (splitChar == '+') return (string)Execute(parentBlock, split[0], type) + (string)Execute(parentBlock, split[1], type);
+                if (splitChar == "+") return (string)Execute(parentBlock, split[0], type) + (string)Execute(parentBlock, split[1], type);
                 else return Util.String.Extract(parsed, '"');
             }
             else
@@ -115,17 +114,21 @@ namespace Pocole.Util
             }
         }
 
-        private static char? GetNextOperator(string source)
+        private static string GetNextOperator(string source)
         {
             source = new string(source.Reverse().ToArray());
 
+            if (source.Contains("=="))
+            {
+                return "==";
+            }
             if (String.ContainsAny(source, "+-"))
             {
                 foreach (var c in source)
                 {
                     if (String.ContainsAny(c, "+-"))
                     {
-                        return c;
+                        return c.ToString();
                     }
                 }
             }
@@ -135,11 +138,11 @@ namespace Pocole.Util
                 {
                     if (String.ContainsAny(c, "*/"))
                     {
-                        return c;
+                        return c.ToString();
                     }
                 }
             }
-            return null;
+            return "";
         }
     }
 }

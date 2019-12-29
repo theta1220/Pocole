@@ -127,6 +127,40 @@ namespace Pocole.Util
             return res.ToArray();
         }
 
+        public static string[] SplitOnceTail(string source, string splitChar)
+        {
+            if (!source.Contains(splitChar) || splitChar == "")
+            {
+                return new string[] { source };
+            }
+            var res = new List<string>();
+            int match = 0;
+            var buf = "";
+            for (var i = source.Length - 1; i >= 0; i--)
+            {
+                if (source.Length - i >= splitChar.Length)
+                {
+                    var find = source.Substring(i, splitChar.Length);
+                    if (find == splitChar && match == 0)
+                    {
+                        match++;
+                        res.Add(buf.Substring(splitChar.Length - 1));
+                        buf = "";
+                        continue;
+                    }
+                }
+                if (i == 0)
+                {
+                    buf = source[i] + buf;
+                    res.Add(buf);
+                    buf = "";
+                    continue;
+                }
+                buf = source[i] + buf;
+            }
+            return res.ToArray();
+        }
+
         public static int MatchCharAnyCount(string source, string chars)
         {
             var res = 0;

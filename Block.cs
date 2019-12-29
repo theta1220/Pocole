@@ -10,6 +10,7 @@ namespace Pocole
     {
         public List<Value> Values { get; private set; } = new List<Value>();
         public List<MethodDeclarer> Methods { get; private set; } = new List<MethodDeclarer>();
+        public bool LastIfResult { get; set; } = false;
 
         public new bool Initialize(Block parent, string text)
         {

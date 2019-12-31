@@ -149,7 +149,6 @@ namespace Pocole.Util
                 {
                     Log.Error("比較演算子として厳しいです:{0} split:{1}", splitChar, String.ArrayToString(split));
                     throw new System.Exception(string.Format("比較演算子として正しくないものが渡ってきました{0}", splitChar));
-                    return null;
                 }
             }
             if (type == typeof(string))

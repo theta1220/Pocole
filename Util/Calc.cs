@@ -102,6 +102,56 @@ namespace Pocole.Util
                     }
                 }
             }
+            if (type == typeof(bool))
+            {
+                if (ContainsCompareOperator(splitChar))
+                {
+                    if (split.Length != 2)
+                    {
+                        Log.Error("右辺と左辺がないと計算できない");
+                        return null;
+                    }
+                    var ans = false;
+                    var rType = Value.GetValueType(split[1], parentBlock);
+                    var lType = Value.GetValueType(split[0], parentBlock);
+                    // 型の違う者同士は比較しないことにする
+                    if (rType != lType)
+                    {
+                        return false;
+                    }
+                    var r = Execute(parentBlock, split[1], rType);
+                    var l = Execute(parentBlock, split[0], lType);
+                    if (rType == typeof(int))
+                    {
+                        if (splitChar == "==") ans = (int)r == (int)l;
+                        else if (splitChar == "!=") ans = (int)r != (int)l;
+                        else if (splitChar == "<") ans = (int)r < (int)l;
+                        else if (splitChar == ">") ans = (int)r > (int)l;
+                        else if (splitChar == "<=") ans = (int)r <= (int)l;
+                        else if (splitChar == ">=") ans = (int)r >= (int)l;
+                        else { Log.Error("{0}型で 比較できる演算子ではない:{1}", rType.ToString(), splitChar); return false; }
+                    }
+                    else if (rType == typeof(string))
+                    {
+                        if (splitChar == "==") ans = (string)r == (string)l;
+                        else if (splitChar == "!=") ans = (string)r != (string)l;
+                        else { Log.Error("{0}型で 比較できる演算子ではない:{1}", rType.ToString(), splitChar); return false; }
+                    }
+                    else
+                    {
+                        Log.Error("{0}型は、そもそも比較できない", rType.ToString());
+                        return false;
+                    }
+
+                    return ans;
+                }
+                else
+                {
+                    Log.Error("比較演算子として厳しいです:{0} split:{1}", splitChar, String.ArrayToString(split));
+                    throw new System.Exception(string.Format("比較演算子として正しくないものが渡ってきました{0}", splitChar));
+                    return null;
+                }
+            }
             if (type == typeof(string))
             {
                 if (splitChar == "+") return (string)Execute(parentBlock, split[0], type) + (string)Execute(parentBlock, split[1], type);
@@ -114,17 +164,20 @@ namespace Pocole.Util
             }
         }
 
-        private static string GetNextOperator(string source)
+        public static string GetNextOperator(string source)
         {
-            source = new string(source.Reverse().ToArray());
+            var reverse = new string(source.Reverse().ToArray());
 
-            if (source.Contains("=="))
+            if (source.Contains("==")) return "==";
+            if (source.Contains("!=")) return "!=";
+            if (source.Contains(">=")) return ">=";
+            if (source.Contains("<=")) return "<=";
+            if (source.Contains(">")) return ">";
+            if (source.Contains("<")) return "<";
+
+            if (String.ContainsAny(reverse, "+-"))
             {
-                return "==";
-            }
-            if (String.ContainsAny(source, "+-"))
-            {
-                foreach (var c in source)
+                foreach (var c in reverse)
                 {
                     if (String.ContainsAny(c, "+-"))
                     {
@@ -132,9 +185,9 @@ namespace Pocole.Util
                     }
                 }
             }
-            if (String.ContainsAny(source, "*/"))
+            if (String.ContainsAny(reverse, "*/"))
             {
-                foreach (var c in source)
+                foreach (var c in reverse)
                 {
                     if (String.ContainsAny(c, "*/"))
                     {
@@ -143,6 +196,20 @@ namespace Pocole.Util
                 }
             }
             return "";
+        }
+
+        public static bool ContainsCompareOperator(string source)
+        {
+            if (source.Contains("==") ||
+            source.Contains("!=") ||
+            source.Contains("<=") ||
+            source.Contains(">=") ||
+            source.Contains("<") ||
+            source.Contains(">"))
+            {
+                return true;
+            }
+            return false;
         }
     }
 }

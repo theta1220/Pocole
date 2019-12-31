@@ -82,7 +82,7 @@ namespace Pocole
                 }
                 list.Add(arg);
             }
-            Log.Info(text, list.ToArray());
+            Log.Info(string.Format("{0}", text), list.ToArray());
         }
     }
 }

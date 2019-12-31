@@ -54,8 +54,8 @@ namespace Pocole
             source = source.Replace(" ", "");
             var value = Util.String.SplitAny(source, "+-*/");
 
-            var res = 0;
-            if (int.TryParse(value[0], out res))
+            var resInt = 0;
+            if (int.TryParse(value[0], out resInt))
             {
                 return typeof(int);
             }

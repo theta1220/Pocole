@@ -19,46 +19,50 @@ namespace Pocole
 
             var name = Util.String.Remove(Util.String.SplitOnce(text, '(')[0], ' ');
             if (name == "if") ProcessType = ProcessType.If;
-            if (name == "elseif") ProcessType = ProcessType.ElseIf;
-            if (name == "else") ProcessType = ProcessType.Else;
+            else if (name == "elseif") ProcessType = ProcessType.ElseIf;
+            else ProcessType = ProcessType.Else;
             Formula = Util.String.Remove(Util.String.Extract(text, '(', ')'), ' ');
             return true;
         }
 
-        protected override void Run()
+        public override void OnEntered()
         {
             if (ProcessType == ProcessType.Else)
             {
                 if (Parent.LastIfResult)
                 {
-                    Runnables.Clear();
+                    SkipExecute();
                 }
             }
             else
             {
-                var type = Value.GetValueType(Formula);
-                var ans = Util.Calc.Execute(Parent, Formula, type);
-                var res = false;
-                if (type == typeof(int)) { res = (int)ans > 0; }
-                if (type == typeof(string)) { res = ((string)ans).Length > 0; }
 
                 if (ProcessType == ProcessType.If)
                 {
+                    var res = (bool)Util.Calc.Execute(Parent, Formula, typeof(bool));
                     if (!res)
                     {
-                        Runnables.Clear();
+                        SkipExecute();
                     }
+                    Parent.LastIfResult = res;
                 }
                 else if (ProcessType == ProcessType.ElseIf)
                 {
-                    if (!res || Parent.LastIfResult)
+                    if (Parent.LastIfResult)
                     {
-                        Runnables.Clear();
+                        SkipExecute();
+                    }
+                    else
+                    {
+                        var res = (bool)Util.Calc.Execute(Parent, Formula, typeof(bool));
+                        if (!res)
+                        {
+                            SkipExecute();
+                        }
+                        Parent.LastIfResult = res;
                     }
                 }
-                Parent.LastIfResult = res;
             }
-
         }
     }
 }

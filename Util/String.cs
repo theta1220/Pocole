@@ -318,5 +318,22 @@ namespace Pocole.Util
             }
             return buf;
         }
+
+        public static string ArrayToString(object[] arr)
+        {
+            var str = "[";
+            var count = 0;
+            foreach (var elm in arr)
+            {
+                str += elm.ToString();
+                if (arr.Length > count + 1)
+                {
+                    str += ", ";
+                }
+                count++;
+            }
+            str += "]";
+            return str;
+        }
     }
 }

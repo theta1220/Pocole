@@ -52,11 +52,6 @@ namespace Pocole
                 Log.Error("メソッドの呼び出しに失敗しました: {0}", Name);
                 return;
             }
-            method.OnLeave();
-        }
-
-        protected override void Run()
-        {
         }
     }
 }

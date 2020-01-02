@@ -34,6 +34,7 @@ namespace Pocole
                 return;
             }
             var objs = new List<object>();
+            // Log.Debug("Name:{0} / Args:{1},count{2}", Name, Util.String.ArrayToString(Args), Args.Length);
             foreach (var arg in Args)
             {
                 objs.Add(Util.Calc.Execute(Parent, arg, Value.GetValueType(arg, Parent)));

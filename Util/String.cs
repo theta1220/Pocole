@@ -344,7 +344,10 @@ namespace Pocole.Util
                 }
                 buf += c;
             }
-            list.Add(buf);
+            if (buf != "")
+            {
+                list.Add(buf);
+            }
             return list.ToArray();
         }
 

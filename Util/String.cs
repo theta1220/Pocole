@@ -44,13 +44,18 @@ namespace Pocole.Util
             return false;
         }
 
-        public static bool ContainsAny(string source, string chars)
+        public static bool ContainsAny(string source, string chars, bool ignoreString = true)
         {
+            bool inString = false;
             foreach (var c in source)
             {
+                if (c == '"')
+                {
+                    inString = !inString;
+                }
                 foreach (var target in chars)
                 {
-                    if (c == target)
+                    if ((ignoreString ? !inString : true) && c == target)
                     {
                         return true;
                     }
@@ -306,7 +311,7 @@ namespace Pocole.Util
             var inString = false;
             foreach (var c in source)
             {
-                if (c == ('"'))
+                if (c == '"')
                 {
                     inString = !inString;
                 }
@@ -317,6 +322,30 @@ namespace Pocole.Util
                 buf += c;
             }
             return buf;
+        }
+
+        //! 文字列を意識してsplitしてくれる
+        public static string[] Split(string source, char split)
+        {
+            var list = new List<string>();
+            var buf = "";
+            var isString = false;
+            foreach (var c in source)
+            {
+                if (c == '"')
+                {
+                    isString = !isString;
+                }
+                if (!isString && c == split)
+                {
+                    list.Add(buf);
+                    buf = "";
+                    continue;
+                }
+                buf += c;
+            }
+            list.Add(buf);
+            return list.ToArray();
         }
 
         public static string ArrayToString(object[] arr)

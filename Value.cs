@@ -5,7 +5,7 @@ namespace Pocole
 {
     public class Value
     {
-        public Type ValueType { get; private set; }
+        public Type ValueType { get { return Object.GetType(); } }
         public string Name { get; private set; }
         public object Object { get; private set; }
 
@@ -25,8 +25,6 @@ namespace Pocole
             if (!Initialize(name)) { Log.InitError(); return false; }
             Object = value;
 
-            ValueType = GetValueType(value);
-
             if (ValueType == typeof(int))
             {
                 Object = int.Parse(value);
@@ -40,7 +38,6 @@ namespace Pocole
 
         public void SetValue(object Value, Type type)
         {
-            ValueType = type;
             SetValue(Value);
         }
 

@@ -65,7 +65,7 @@ namespace Pocole
 
         private void RunningLog()
         {
-            // Log.Info("{0}{1}::{2}/{3}::{4}", GetIndent(), GetType().Name, ExecuteCount, Runnables.Count, Source.Substring(0, System.Math.Clamp(Source.Length, 0, 20)).Replace("\n", ""));
+            // Log.Debug("{0}{1}::{2}/{3}::{4}", GetIndent(), GetType().Name, ExecuteCount, Runnables.Count, Source.Substring(0, System.Math.Clamp(Source.Length, 0, 20)).Replace("\n", ""));
         }
 
         public bool IsCompleted()

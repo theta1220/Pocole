@@ -13,7 +13,7 @@ namespace Pocole.Util
 
         public static object Execute(Block parentBlock, string source, System.Type type)
         {
-            source = source.Replace(" ", "");
+            source = String.Remove(source, ' ');
 
             // 括弧を計算
             var buf = "";
@@ -80,14 +80,35 @@ namespace Pocole.Util
                         Log.Error("右辺と左辺がないと計算できない");
                         return null;
                     }
-                    var ans = 0;
-                    var r = (int)Execute(parentBlock, split[1], type);
-                    var l = (int)Execute(parentBlock, split[0], type);
-                    if (splitChar == "+") ans = r + l;
-                    if (splitChar == "-") ans = r - l;
-                    if (splitChar == "*") ans = r * l;
-                    if (splitChar == "/") ans = r / l;
-                    return ans;
+
+                    try
+                    {
+                        var ans = 0;
+                        var r = (int)Execute(parentBlock, split[1], type);
+                        var l = (int)Execute(parentBlock, split[0], type);
+                        if (splitChar == "+") ans = r + l;
+                        if (splitChar == "-") ans = r - l;
+                        if (splitChar == "*") ans = r * l;
+                        if (splitChar == "/") ans = r / l;
+                        return ans;
+                    }
+                    catch
+                    {
+                        Log.Debug("splitChar:{0}", splitChar);
+                        foreach (var sp in split)
+                        {
+                            Log.Debug(sp.ToString());
+                        }
+                        if (parentBlock != null)
+                        {
+                            var value = parentBlock.FindValue(parsed);
+                            if (value != null)
+                            {
+                                Log.Debug("value:{0}", value.Name);
+                            }
+                        }
+                        throw new System.Exception(string.Format("計算中に\"{0}\"をintにParseしようとして失敗", parsed));
+                    }
                 }
                 else
                 {
@@ -97,8 +118,7 @@ namespace Pocole.Util
                     }
                     catch
                     {
-                        Log.Error("\"{0}\"をintにParseしようとして失敗", parsed);
-                        return null;
+                        throw new System.Exception(string.Format("\"{0}\"をintにParseしようとして失敗", parsed));
                     }
                 }
             }
@@ -153,13 +173,12 @@ namespace Pocole.Util
             }
             if (type == typeof(string))
             {
-                if (splitChar == "+") return (string)Execute(parentBlock, split[0], type) + (string)Execute(parentBlock, split[1], type);
+                if (splitChar == "+") return (string)Execute(parentBlock, split[1], type) + (string)Execute(parentBlock, split[0], type);
                 else return Util.String.Extract(parsed, '"');
             }
             else
             {
-                Log.Error("え？");
-                return null;
+                throw new System.Exception(string.Format("理解できないtypeを演算しようとした:{0}", source));
             }
         }
 

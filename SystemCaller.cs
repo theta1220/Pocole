@@ -13,7 +13,7 @@ namespace Pocole
         public new bool Initialize(Block parent, string source)
         {
             if (!base.Initialize(parent, source)) { Log.InitError(); return false; }
-            var args = Util.String.Remove(Util.String.Extract(source.Replace(" ", ""), '(', ')'), ' ').Split(',');
+            var args = Util.String.Split(Util.String.Extract(Util.String.Remove(source, ' '), '(', ')'), ',');
 
             var count = 0;
             var list = new List<string>();
@@ -29,6 +29,11 @@ namespace Pocole
                 {
                     list.Add(arg);
                 }
+            }
+            if (Name == "")
+            {
+                Log.Error("呼び出すメソッド名が不明です:{0}", source);
+                throw new Exception("no name system call");
             }
             Args = list.ToArray();
             return true;

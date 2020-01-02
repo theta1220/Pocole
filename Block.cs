@@ -21,6 +21,9 @@ namespace Pocole
             var buf = "";
             var stack = new Stack<SemanticBlock>();
 
+            // ブロックの中はあとで読みたいので一旦ここにとっておく
+            var blocks = new Dictionary<SemanticBlock, string>();
+
             foreach (var c in text)
             {
                 if (c == '"')
@@ -77,13 +80,9 @@ namespace Pocole
                     blockCount--;
                     if (blockCount == 0)
                     {
-                        var block = new Block();
-                        if (!block.Initialize(this, buf)) { Log.InitError(); return false; }
-
                         if (stack.Count > 0)
                         {
                             var semantic = stack.Pop();
-                            semantic.AddBlock(block);
                             if (semantic.SemanticType == SemanticType.MethodDeclarer)
                             {
                                 Methods.Add((MethodDeclarer)semantic);
@@ -92,9 +91,12 @@ namespace Pocole
                             {
                                 Runnables.Add(semantic);
                             }
+                            blocks.Add(semantic, buf);
                         }
                         else
                         {
+                            var block = new Block();
+                            if (!block.Initialize(this, buf)) { Log.InitError(); return false; }
                             Runnables.Add(block);
                         }
                         buf = "";
@@ -148,6 +150,13 @@ namespace Pocole
                     continue;
                 }
                 buf += c;
+            }
+
+            foreach (var pair in blocks)
+            {
+                var block = new Block();
+                if (!block.Initialize(this, pair.Value)) { Log.InitError(); return false; }
+                pair.Key.AddBlock(block);
             }
 
             if (blockCount != 0)

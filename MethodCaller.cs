@@ -13,7 +13,7 @@ namespace Pocole
             if (!base.Initialize(parent, source)) { Log.InitError(); return false; }
 
             Name = Util.String.SplitOnce(source.Replace(" ", ""), '(')[0];
-            Args = Util.String.Remove(Util.String.Extract(source.Replace(" ", ""), '(', ')'), ' ').Split(',');
+            Args = Util.String.Split(Util.String.Extract(Util.String.Remove(source, ' '), '(', ')'), ',');
 
             var method = Parent.FindMethod(Name);
             if (method == null)
@@ -41,15 +41,6 @@ namespace Pocole
             if (!method.SetArgs(objs.ToArray()))
             {
                 Log.Error("SetArgsに失敗");
-            }
-        }
-
-        public override void OnLeaved()
-        {
-            var method = Parent.FindMethod(Name);
-            if (method == null)
-            {
-                Log.Error("メソッドの呼び出しに失敗しました: {0}", Name);
                 return;
             }
         }

@@ -47,10 +47,14 @@ namespace Pocole
                 {
                     name = ArgNames[i];
                 }
-                var value = new Value();
-                if (!value.Initialize(name)) { Log.InitError(); return false; }
-                value.SetValue(arg);
-                Block.AddValue(value);
+                var findValue = Parent.FindValue(name);
+                if (findValue == null)
+                {
+                    var value = new Value();
+                    if (!value.Initialize(name)) { Log.InitError(); return false; }
+                    value.SetValue(arg, arg.GetType());
+                    Block.AddValue(value);
+                }
             }
             return true;
         }

@@ -58,6 +58,10 @@ namespace Pocole
             else if (ValueSetterType == ValueSetterType.Assign)
             {
                 target = Parent.FindValue(Name);
+                if (target == null)
+                {
+                    Log.Error("変数が見つかりませんでした:{0}", Name);
+                }
             }
             else
             {

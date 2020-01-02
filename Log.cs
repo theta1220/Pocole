@@ -10,6 +10,11 @@ namespace Pocole
             Console.ForegroundColor = ConsoleColor.White;
             _Print("Info", text, 3, null);
         }
+        public static void Debug(string text)
+        {
+            Console.ForegroundColor = ConsoleColor.Yellow;
+            _Print("Debug", text, 3, null);
+        }
         public static void Warn(string text)
         {
             Console.ForegroundColor = ConsoleColor.Yellow;
@@ -24,6 +29,11 @@ namespace Pocole
         {
             Console.ForegroundColor = ConsoleColor.White;
             _Print("Info", text, 3, args);
+        }
+        public static void Debug(string text, params object[] args)
+        {
+            Console.ForegroundColor = ConsoleColor.Yellow;
+            _Print("Debug", text, 3, args);
         }
         public static void Warn(string text, params object[] args)
         {

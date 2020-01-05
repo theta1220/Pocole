@@ -353,19 +353,48 @@ namespace Pocole.Util
 
         public static string ArrayToString(object[] arr)
         {
-            var str = "[";
+            var str = "\n";
             var count = 0;
             foreach (var elm in arr)
             {
-                str += elm.ToString();
+                str += string.Format("{0}:{1}", count, elm.ToString());
                 if (arr.Length > count + 1)
                 {
-                    str += ", ";
+                    str += '\n';
                 }
                 count++;
             }
-            str += "]";
             return str;
         }
+
+        //! Blockが読みたい単位で分割してくれる
+        public static string[] SplitSource(string source)
+        {
+            bool inString = false;
+            int blockCount = 0;
+            var list = new List<string>();
+            var buf = "";
+            var count = 0;
+
+            foreach (var c in source)
+            {
+                count++;
+                if (c == '"') { inString = !inString; }
+                if (c == '{') { blockCount++; }
+                if (c == '}') { blockCount--; }
+
+                if (!inString && c == '\n') { continue; }
+
+                if ((blockCount == 0 && (c == '}' || c == ';')) || count >= source.Length)
+                {
+                    list.Add(buf + c);
+                    buf = "";
+                    continue;
+                }
+                buf += c;
+            }
+            return list.ToArray();
+        }
+
     }
 }

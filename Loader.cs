@@ -16,13 +16,13 @@ namespace Pocole
 
         public string RemoveExtraText(string text)
         {
-            text = _RemoveIndent(text);
-            text = _RemoveOnlyNewLine(text);
-            text = _RemoveComment(text);
+            text = RemoveIndent(text);
+            text = RemoveOnlyNewLine(text);
+            text = RemoveComment(text);
             return text;
         }
 
-        private string _RemoveComment(string text)
+        private string RemoveComment(string text)
         {
             var lines = text.Split('\n');
             var res = "";
@@ -47,7 +47,7 @@ namespace Pocole
             return res;
         }
 
-        private string _RemoveOnlyNewLine(string text)
+        private string RemoveOnlyNewLine(string text)
         {
             var res = "";
             var prev = '\n';
@@ -63,7 +63,7 @@ namespace Pocole
             return res;
         }
 
-        private string _RemoveIndent(string text)
+        private string RemoveIndent(string text)
         {
             var lines = text.Split('\n');
             var resLines = new List<string>();

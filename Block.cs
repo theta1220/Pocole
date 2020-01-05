@@ -10,6 +10,7 @@ namespace Pocole
     {
         public List<Value> Values { get; private set; } = new List<Value>();
         public List<MethodDeclarer> Methods { get; private set; } = new List<MethodDeclarer>();
+        public List<Class> Classes { get; private set; } = new List<Class>();
         public bool LastIfResult { get; set; } = false;
 
         public new bool Initialize(Block parent, string text)
@@ -60,9 +61,14 @@ namespace Pocole
                                 if (commandName == "func")
                                 {
                                     var declarer = new MethodDeclarer();
-
                                     if (!declarer.Initialize(this, buf)) { Log.InitError(); return false; }
                                     stack.Push(declarer);
+                                }
+                                else if (commandName == "class")
+                                {
+                                    var classBlock = new Class();
+                                    if (!classBlock.Initialize(this, buf)) { Log.InitError(); return false; }
+                                    stack.Push(classBlock);
                                 }
                                 else
                                 {
@@ -87,6 +93,10 @@ namespace Pocole
                             {
                                 Methods.Add((MethodDeclarer)semantic);
                             }
+                            else if (semantic.SemanticType == SemanticType.Class)
+                            {
+                                Classes.Add((Class)semantic);
+                            }
                             else
                             {
                                 Runnables.Add(semantic);
@@ -108,6 +118,7 @@ namespace Pocole
                     try
                     {
                         var name = buf.Split(' ')[0];
+                        var classDef = FindClass(name);
 
                         // 変数の宣言
                         if (name == "var")
@@ -115,6 +126,11 @@ namespace Pocole
                             var setter = new ValueSetter();
                             if (!setter.Initialize(this, buf)) { Log.InitError(); return false; }
                             Runnables.Add(setter);
+                        }
+                        // クラスインスタンスの宣言
+                        else if (classDef != null)
+                        {
+
                         }
                         else
                         {
@@ -208,6 +224,16 @@ namespace Pocole
             if (target == null && Parent != null)
             {
                 target = Parent.FindMethod(name);
+            }
+            return target;
+        }
+
+        public Class FindClass(string name)
+        {
+            var target = Classes.FirstOrDefault(classDef => classDef.Name == name);
+            if (target == null && Parent != null)
+            {
+                target = Parent.FindClass(name);
             }
             return target;
         }

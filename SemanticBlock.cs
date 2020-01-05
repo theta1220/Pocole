@@ -4,6 +4,7 @@ namespace Pocole
     {
         Process,
         MethodDeclarer,
+        Class,
     }
 
     public abstract class SemanticBlock : Runnable

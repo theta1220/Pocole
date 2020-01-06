@@ -17,175 +17,42 @@ namespace Pocole
         {
             if (!base.Initialize(parent, text)) { Log.InitError(); return false; }
 
-            int blockCount = 0;
-            bool isLoadingString = false;
-            var buf = "";
-            var stack = new Stack<SemanticBlock>();
+            var sources = Util.String.SplitSource(text);
 
-            // ブロックの中はあとで読みたいので一旦ここにとっておく
-            var blocks = new Dictionary<SemanticBlock, string>();
-
-            foreach (var c in text)
+            foreach (var source in sources)
             {
-                if (c == '"')
+                if (Util.String.MatchHead("var ", source))
                 {
-                    isLoadingString = !isLoadingString;
+                    var valueSetter = new ValueSetter();
+                    if (!valueSetter.Initialize(this, source)) { Log.InitError(); return false; }
+                    Runnables.Add(valueSetter);
                 }
-                if (isLoadingString)
+                else if (Util.String.MatchHead("func ", source))
                 {
-                    buf += c;
-                    continue;
+                    var method = new MethodDeclarer();
+                    if (!method.Initialize(this, source)) { Log.InitError(); return false; }
+                    Methods.Add(method);
                 }
-                if (c == '\n')
+                else if (Util.String.MatchHead("if", source) || Util.String.MatchHead("else if", source) || Util.String.MatchHead("else", source))
                 {
-                    continue;
+                    var process = new Process();
+                    if (!process.Initialize(this, source)) { Log.InitError(); return false; }
+                    Runnables.Add(process);
                 }
-                if (c == '{')
+                else if (Util.String.MatchHead("class", source))
                 {
-                    blockCount++;
-                    if (blockCount == 1)
-                    {
-                        if (buf.Length > 0)
-                        {
-                            // if / else if / else
-                            if (Util.String.ContainsAny(buf, "if", "else if", "else"))
-                            {
-                                var process = new Process();
-                                if (!process.Initialize(this, buf)) { Log.InitError(); return false; }
-                                stack.Push(process);
-                            }
-                            // メソッドの宣言
-                            else
-                            {
-                                var commandName = buf.Split(' ')[0];
-                                if (commandName == "func")
-                                {
-                                    var declarer = new MethodDeclarer();
-                                    if (!declarer.Initialize(this, buf)) { Log.InitError(); return false; }
-                                    stack.Push(declarer);
-                                }
-                                else if (commandName == "class")
-                                {
-                                    var classBlock = new Class();
-                                    if (!classBlock.Initialize(this, buf)) { Log.InitError(); return false; }
-                                    stack.Push(classBlock);
-                                }
-                                else
-                                {
-                                    Log.Error("SyntaxError:得も知れぬコマンド:{0}", commandName);
-                                    return false;
-                                }
-                            }
-                        }
-                        buf = "";
-                        continue;
-                    }
+                    var classDef = new Class();
+                    if (!classDef.Initialize(this, source)) { Log.InitError(); return false; }
+                    Classes.Add(classDef);
                 }
-                if (c == '}')
+                else
                 {
-                    blockCount--;
-                    if (blockCount == 0)
-                    {
-                        if (stack.Count > 0)
-                        {
-                            var semantic = stack.Pop();
-                            if (semantic.SemanticType == SemanticType.MethodDeclarer)
-                            {
-                                Methods.Add((MethodDeclarer)semantic);
-                            }
-                            else if (semantic.SemanticType == SemanticType.Class)
-                            {
-                                Classes.Add((Class)semantic);
-                            }
-                            else
-                            {
-                                Runnables.Add(semantic);
-                            }
-                            blocks.Add(semantic, buf);
-                        }
-                        else
-                        {
-                            var block = new Block();
-                            if (!block.Initialize(this, buf)) { Log.InitError(); return false; }
-                            Runnables.Add(block);
-                        }
-                        buf = "";
-                        continue;
-                    }
+                    var term = new Term();
+                    if (!term.Initialize(this, source)) { Log.InitError(); return false; }
+                    Runnables.Add(term);
                 }
-                if (blockCount == 0 && c == ';')
-                {
-                    try
-                    {
-                        var name = buf.Split(' ')[0];
-                        var classDef = FindClass(name);
-
-                        // 変数の宣言
-                        if (name == "var")
-                        {
-                            var setter = new ValueSetter();
-                            if (!setter.Initialize(this, buf)) { Log.InitError(); return false; }
-                            Runnables.Add(setter);
-                        }
-                        // クラスインスタンスの宣言
-                        else if (classDef != null)
-                        {
-
-                        }
-                        else
-                        {
-                            // メソッド
-                            var methodName = buf.Replace(" ", "").Split('(')[0];
-                            if (methodName == "SystemCall")
-                            {
-                                var caller = new SystemCaller();
-                                if (!caller.Initialize(this, buf)) { Log.InitError(); return false; }
-                                Runnables.Add(caller);
-                            }
-                            else if (FindMethod(methodName) != null)
-                            {
-                                var caller = new MethodCaller();
-                                if (!caller.Initialize(this, buf)) { Log.InitError(); return false; }
-                                Runnables.Add(caller);
-                            }
-                            // やっぱり変数
-                            else
-                            {
-                                var setter = new ValueSetter();
-                                if (!setter.Initialize(this, buf)) { Log.InitError(); return false; }
-                                Runnables.Add(setter);
-                            }
-                        }
-                    }
-                    catch (System.Exception e)
-                    {
-                        Log.ParseError(e, buf);
-                        return false;
-                    }
-                    buf = "";
-                    continue;
-                }
-                buf += c;
             }
-
-            foreach (var pair in blocks)
-            {
-                var block = new Block();
-                if (!block.Initialize(this, pair.Value)) { Log.InitError(); return false; }
-                pair.Key.AddBlock(block);
-            }
-
-            if (blockCount != 0)
-            {
-                Log.Error("SyntaxError: ブロックの定義がおかしいです blockCount = {0}", blockCount);
-                return false;
-            }
-
             return true;
-        }
-
-        protected override void Run()
-        {
         }
 
         public override void OnLeaved()

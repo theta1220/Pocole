@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Pocole.Util
 {
@@ -395,6 +396,36 @@ namespace Pocole.Util
             }
             return list.ToArray();
         }
+
+        //! 先頭がパターンとマッチするか
+        public static bool MatchHead(string pattern, string source)
+        {
+            for (var i = 0; i < pattern.Length; i++)
+            {
+                if (pattern[i] != source[i])
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        //! ある文字がヒットするまでの文字を切り取ってくれる （結果にmarkは含まない)
+        public static string Substring(string source, char mark)
+        {
+            var res = "";
+            foreach (var c in source)
+            {
+                if (c == mark)
+                {
+                    return res;
+                }
+                res += c;
+            }
+            return res;
+        }
+
+
 
     }
 }

@@ -36,11 +36,6 @@ namespace Pocole
             return true;
         }
 
-        public void SetValue(object Value, Type type)
-        {
-            SetValue(Value);
-        }
-
         public void SetValue(object value)
         {
             Object = value;

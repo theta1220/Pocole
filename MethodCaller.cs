@@ -13,15 +13,13 @@ namespace Pocole
             if (!base.Initialize(parent, source)) { Log.InitError(); return false; }
 
             Name = Util.String.SplitOnce(source.Replace(" ", ""), '(')[0];
-            Args = Util.String.Split(Util.String.Extract(Util.String.Remove(source, ' '), '(', ')'), ',');
+            var remove = Util.String.Remove(source, ' ');
+            Log.Info(remove);
+            var argStr = Util.String.Extract(remove, '(', ')');
+            Log.Info(argStr);
+            Args = Util.String.Split(argStr, ',');
 
-            var method = Parent.FindMethod(Name);
-            if (method == null)
-            {
-                Log.Error("対象のメソッドが見つかりませんでした: {0}", Name);
-                return false;
-            }
-            Runnables.Add(method);
+            Log.Info(Util.String.ArrayToString(Args));
             return true;
         }
 
@@ -33,8 +31,9 @@ namespace Pocole
                 Log.Error("メソッドの呼び出しに失敗しました: {0}", Name);
                 return;
             }
+            Runnables.Add(method);
+
             var objs = new List<object>();
-            // Log.Debug("Name:{0} / Args:{1},count{2}", Name, Util.String.ArrayToString(Args), Args.Length);
             foreach (var arg in Args)
             {
                 objs.Add(Util.Calc.Execute(Parent, arg, Value.GetValueType(arg, Parent)));

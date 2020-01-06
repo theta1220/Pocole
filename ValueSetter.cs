@@ -69,7 +69,7 @@ namespace Pocole
             }
             var valueType = Value.GetValueType(Formula, Parent);
             var value = Util.Calc.Execute(Parent, Formula, valueType);
-            target.SetValue(value, valueType);
+            target.SetValue(value);
         }
     }
 }

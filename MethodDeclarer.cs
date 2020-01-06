@@ -8,33 +8,30 @@ namespace Pocole
         public string Name { get; private set; }
         public string[] ArgNames { get; private set; }
 
-        public new bool Initialize(Block parent, string text)
+        public new bool Initialize(Block parent, string source)
         {
-            if (!base.Initialize(parent, text, SemanticType.MethodDeclarer)) { Log.InitError(); return false; }
+            if (!base.Initialize(parent, source, SemanticType.MethodDeclarer)) { Log.InitError(); return false; }
 
             // func hoge(){ ... }
-            try
+            var header = source.Split(' ')[0];
+            if (header != "func")
             {
-                var header = text.Split(' ')[0];
-                if (header != "func")
-                {
-                    Log.Error("ParseError: 関数の宣言じゃないものが渡ってきました : {0}", text);
-                    return false;
-                }
-                Name = text.Split('(')[0].Split(' ')[1];
-                ArgNames = Util.String.Extract(text.Replace(" ", ""), '(', ')').Split(',');
-            }
-            catch
-            {
-                Log.ParseError();
+                Log.Error("ParseError: 関数の宣言じゃないものが渡ってきました : {0}", source);
                 return false;
             }
+            Name = source.Split('(')[0].Split(' ')[1];
+            ArgNames = Util.String.Extract(Util.String.Remove(source, ' '), '(', ')').Split(',');
+
+            var block = new Block();
+            if (!block.Initialize(parent, Util.String.Extract(source, '{', '}'))) { Log.InitError(); return false; }
+            AddBlock(block);
 
             return true;
         }
 
         public bool SetArgs(object[] args)
         {
+            Log.Info(Util.String.ArrayToString(args));
             for (var i = 0; i < args.Length; i++)
             {
                 var arg = args[i];
@@ -52,7 +49,7 @@ namespace Pocole
                 {
                     var value = new Value();
                     if (!value.Initialize(name)) { Log.InitError(); return false; }
-                    value.SetValue(arg, arg.GetType());
+                    value.SetValue(arg);
                     Block.AddValue(value);
                 }
             }

@@ -7,11 +7,11 @@ namespace Pocole
         public string Source { get; protected set; } = "";
         public int ExecuteCount { get; private set; } = 0;
         public List<Runnable> Runnables { get; private set; } = new List<Runnable>();
-        public Block Parent { get; private set; } = null;
+        public Runnable Parent { get; private set; } = null;
 
         private bool _isEntered = false;
 
-        public bool Initialize(Block parent, string source)
+        public bool Initialize(Runnable parent, string source)
         {
             Parent = parent;
             Source = source;
@@ -25,14 +25,14 @@ namespace Pocole
                 OnEnter();
             }
             ExecuteRun();
+            if (Runnables.Count > 0 && Runnables.Count > ExecuteCount && !Runnables[ExecuteCount].Execute())
+            {
+                ExecuteCount++;
+            }
             if (IsCompleted())
             {
                 OnLeave();
                 return false;
-            }
-            if (!Runnables[ExecuteCount].Execute())
-            {
-                ExecuteCount++;
             }
             return true;
         }
@@ -41,13 +41,13 @@ namespace Pocole
         public virtual void OnEntered() { }
         public virtual void OnLeaved() { }
 
-        public void ExecuteRun()
+        private void ExecuteRun()
         {
             RunningLog();
             Run();
         }
 
-        public void OnEnter()
+        private void OnEnter()
         {
             _isEntered = true;
             OnEntered();
@@ -55,7 +55,7 @@ namespace Pocole
             // Log.Warn("    {0}---->{1}", GetIndent(), GetType().Name);
         }
 
-        public void OnLeave()
+        private void OnLeave()
         {
             _isEntered = false;
             OnLeaved();
@@ -65,7 +65,7 @@ namespace Pocole
 
         private void RunningLog()
         {
-            Log.Debug("{0}{1}::{2}/{3}::{4}", GetIndent(), GetType().Name, ExecuteCount, Runnables.Count, Source.Substring(0, System.Math.Clamp(Source.Length, 0, 30)).Replace("\n", ""));
+            // Log.Debug("{0}{1}::{2}/{3}::{4}", GetIndent(), GetType().Name, ExecuteCount, Runnables.Count, Source.Substring(0, System.Math.Clamp(Source.Length, 0, 30)).Replace("\n", ""));
         }
 
         public bool IsCompleted()
@@ -100,6 +100,16 @@ namespace Pocole
             var indent = "";
             for (var i = 0; i < count; i++) indent += "    ";
             return indent;
+        }
+
+        public Block GetParentBlock()
+        {
+            if (Parent == null) { return null; }
+            if (Parent.GetType() == typeof(Block))
+            {
+                return (Block)Parent;
+            }
+            return Parent.GetParentBlock();
         }
     }
 }

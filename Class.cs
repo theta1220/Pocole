@@ -3,7 +3,7 @@ namespace Pocole
     public class Class : SemanticBlock
     {
         public string Name { get; private set; }
-        public new bool Initialize(Block parent, string source)
+        public new bool Initialize(Runnable parent, string source)
         {
             if (!base.Initialize(parent, source, SemanticType.Class)) { Log.InitError(); return false; }
 

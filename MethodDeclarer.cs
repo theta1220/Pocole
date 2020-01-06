@@ -8,17 +8,11 @@ namespace Pocole
         public string Name { get; private set; }
         public string[] ArgNames { get; private set; }
 
-        public new bool Initialize(Block parent, string source)
+        public new bool Initialize(Runnable parent, string source)
         {
             if (!base.Initialize(parent, source, SemanticType.MethodDeclarer)) { Log.InitError(); return false; }
 
             // func hoge(){ ... }
-            var header = source.Split(' ')[0];
-            if (header != "func")
-            {
-                Log.Error("ParseError: 関数の宣言じゃないものが渡ってきました : {0}", source);
-                return false;
-            }
             Name = source.Split('(')[0].Split(' ')[1];
             ArgNames = Util.String.Extract(Util.String.Remove(source, ' '), '(', ')').Split(',');
 
@@ -31,7 +25,6 @@ namespace Pocole
 
         public bool SetArgs(object[] args)
         {
-            Log.Info(Util.String.ArrayToString(args));
             for (var i = 0; i < args.Length; i++)
             {
                 var arg = args[i];
@@ -44,7 +37,7 @@ namespace Pocole
                 {
                     name = ArgNames[i];
                 }
-                var findValue = Parent.FindValue(name);
+                var findValue = GetParentBlock().FindValue(name);
                 if (findValue == null)
                 {
                     var value = new Value();

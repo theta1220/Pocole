@@ -13,15 +13,20 @@ namespace Pocole
         public ProcessType ProcessType { get; private set; }
         public string Formula { get; private set; }
 
-        public new bool Initialize(Block parent, string text)
+        public new bool Initialize(Runnable parent, string source)
         {
-            if (!base.Initialize(parent, text, SemanticType.Process)) { Log.InitError(); return false; }
+            if (!base.Initialize(parent, source, SemanticType.Process)) { Log.InitError(); return false; }
 
-            var name = Util.String.Remove(Util.String.SplitOnce(text, '(')[0], ' ');
+            var name = Util.String.Remove(Util.String.SplitOnce(source, '(')[0], ' ');
             if (name == "if") ProcessType = ProcessType.If;
             else if (name == "elseif") ProcessType = ProcessType.ElseIf;
             else ProcessType = ProcessType.Else;
-            Formula = Util.String.Remove(Util.String.Extract(text, '(', ')'), ' ');
+            Formula = Util.String.Remove(Util.String.Extract(source, '(', ')'), ' ');
+
+            var block = new Block();
+            if (!block.Initialize(parent, Util.String.Extract(source, '{', '}'))) { Log.InitError(); return false; }
+            AddBlock(block);
+
             return true;
         }
 
@@ -29,7 +34,7 @@ namespace Pocole
         {
             if (ProcessType == ProcessType.Else)
             {
-                if (Parent.LastIfResult)
+                if (GetParentBlock().LastIfResult)
                 {
                     SkipExecute();
                 }
@@ -39,27 +44,27 @@ namespace Pocole
 
                 if (ProcessType == ProcessType.If)
                 {
-                    var res = (bool)Util.Calc.Execute(Parent, Formula, typeof(bool));
+                    var res = (bool)Util.Calc.Execute(GetParentBlock(), Formula, typeof(bool));
                     if (!res)
                     {
                         SkipExecute();
                     }
-                    Parent.LastIfResult = res;
+                    GetParentBlock().LastIfResult = res;
                 }
                 else if (ProcessType == ProcessType.ElseIf)
                 {
-                    if (Parent.LastIfResult)
+                    if (GetParentBlock().LastIfResult)
                     {
                         SkipExecute();
                     }
                     else
                     {
-                        var res = (bool)Util.Calc.Execute(Parent, Formula, typeof(bool));
+                        var res = (bool)Util.Calc.Execute(GetParentBlock(), Formula, typeof(bool));
                         if (!res)
                         {
                             SkipExecute();
                         }
-                        Parent.LastIfResult = res;
+                        GetParentBlock().LastIfResult = res;
                     }
                 }
             }

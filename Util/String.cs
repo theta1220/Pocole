@@ -282,7 +282,7 @@ namespace Pocole.Util
 
                             if (blockCount == 0)
                             {
-                                continue;
+                                break;
                             }
                         }
                     }
@@ -386,9 +386,11 @@ namespace Pocole.Util
 
                 if (!inString && c == '\n') { continue; }
 
-                if ((blockCount == 0 && (c == '}' || c == ';')) || count >= source.Length)
+                if (!inString && (blockCount == 0 && (c == '}' || c == ';')) || count >= source.Length)
                 {
-                    list.Add(buf + c);
+                    if (c == ';') { list.Add(buf); }
+                    else { list.Add(buf + c); }
+
                     buf = "";
                     continue;
                 }

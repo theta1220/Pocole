@@ -4,7 +4,7 @@ namespace Pocole
 {
     public class Term : Runnable
     {
-        public new bool Initialize(Block parent, string source)
+        public new bool Initialize(Runnable parent, string source)
         {
             if (!base.Initialize(parent, source)) { Log.InitError(); return false; }
 
@@ -19,26 +19,33 @@ namespace Pocole
             if (methodName == "SystemCall")
             {
                 var system = new SystemCaller();
-                if (!system.Initialize(Parent, Source)) { Log.InitError(); return; }
+                if (!system.Initialize(this, Source)) { Log.InitError(); return; }
                 Runnables.Add(system);
             }
-            else if (Parent.FindMethod(methodName) != null)
+            else if (GetParentBlock().FindMethod(methodName) != null)
             {
                 var caller = new MethodCaller();
-                if (!caller.Initialize(Parent, Source)) { Log.InitError(); return; }
+                if (!caller.Initialize(this, Source)) { Log.InitError(); return; }
                 Runnables.Add(caller);
             }
-            else if (Parent.FindValue(valueName) != null)
+            else if (GetParentBlock().FindValue(valueName) != null)
             {
                 var setter = new ValueSetter();
-                if (!setter.Initialize(Parent, Source)) { Log.InitError(); return; }
+                if (!setter.Initialize(this, Source)) { Log.InitError(); return; }
                 Runnables.Add(setter);
             }
             else
             {
-                Log.Error("読めないコード:{0}", Source);
+                var setter = new ValueSetter();
+                if (!setter.Initialize(this, Source)) { Log.InitError(); return; }
+                Runnables.Add(setter);
                 return;
             }
+        }
+
+        public override void OnLeaved()
+        {
+            Runnables.Clear();
         }
 
         //! ... Hoge(args)... のような文字列から メソッド名を取り出してくれる

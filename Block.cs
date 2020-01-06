@@ -13,7 +13,7 @@ namespace Pocole
         public List<Class> Classes { get; private set; } = new List<Class>();
         public bool LastIfResult { get; set; } = false;
 
-        public new bool Initialize(Block parent, string text)
+        public new bool Initialize(Runnable parent, string text)
         {
             if (!base.Initialize(parent, text)) { Log.InitError(); return false; }
 
@@ -21,13 +21,7 @@ namespace Pocole
 
             foreach (var source in sources)
             {
-                if (Util.String.MatchHead("var ", source))
-                {
-                    var valueSetter = new ValueSetter();
-                    if (!valueSetter.Initialize(this, source)) { Log.InitError(); return false; }
-                    Runnables.Add(valueSetter);
-                }
-                else if (Util.String.MatchHead("func ", source))
+                if (Util.String.MatchHead("func ", source))
                 {
                     var method = new MethodDeclarer();
                     if (!method.Initialize(this, source)) { Log.InitError(); return false; }
@@ -68,9 +62,9 @@ namespace Pocole
         public Value FindValue(string name)
         {
             var target = Values.FirstOrDefault(value => value.Name == name);
-            if (target == null && Parent != null)
+            if (target == null && GetParentBlock() != null)
             {
-                target = Parent.FindValue(name);
+                target = GetParentBlock().FindValue(name);
             }
             return target;
         }
@@ -78,9 +72,9 @@ namespace Pocole
         public Value[] FindValues(string name)
         {
             var target = Values.FindAll(value => value.Name == name);
-            if (target.Count == 0 && Parent != null)
+            if (target.Count == 0 && GetParentBlock() != null)
             {
-                target = Parent.FindValues(name).ToList();
+                target = GetParentBlock().FindValues(name).ToList();
             }
             return target.ToArray();
         }
@@ -88,9 +82,9 @@ namespace Pocole
         public MethodDeclarer FindMethod(string name)
         {
             var target = Methods.FirstOrDefault(method => method.Name == name);
-            if (target == null && Parent != null)
+            if (target == null && GetParentBlock() != null)
             {
-                target = Parent.FindMethod(name);
+                target = GetParentBlock().FindMethod(name);
             }
             return target;
         }
@@ -98,9 +92,9 @@ namespace Pocole
         public Class FindClass(string name)
         {
             var target = Classes.FirstOrDefault(classDef => classDef.Name == name);
-            if (target == null && Parent != null)
+            if (target == null && GetParentBlock() != null)
             {
-                target = Parent.FindClass(name);
+                target = GetParentBlock().FindClass(name);
             }
             return target;
         }

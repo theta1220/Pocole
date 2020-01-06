@@ -10,7 +10,7 @@ namespace Pocole
         public string Name { get; private set; }
         public string[] Args { get; private set; }
 
-        public new bool Initialize(Block parent, string source)
+        public new bool Initialize(Runnable parent, string source)
         {
             if (!base.Initialize(parent, source)) { Log.InitError(); return false; }
             var args = Util.String.Split(Util.String.Extract(Util.String.Remove(source, ' '), '(', ')'), ',');
@@ -46,7 +46,7 @@ namespace Pocole
             {
                 if (arg == "args")
                 {
-                    var values = Parent.FindValues(arg);
+                    var values = GetParentBlock().FindValues(arg);
                     foreach (var val in values)
                     {
                         args.Add(val.Object);
@@ -54,7 +54,7 @@ namespace Pocole
                 }
                 else
                 {
-                    var value = Util.Calc.Execute(Parent, arg, Value.GetValueType(arg));
+                    var value = Util.Calc.Execute(GetParentBlock(), arg, Value.GetValueType(arg));
                     args.Add(value);
                 }
             }

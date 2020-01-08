@@ -236,7 +236,7 @@ namespace Pocole.Util
             return buf;
         }
 
-        public static string Extract(string source, char start, char end, bool ignoreString = true)
+        public static string Extract(string source, char start, char end, bool withBracket = false)
         {
             var buf = "";
             var blockCount = 0;
@@ -247,53 +247,26 @@ namespace Pocole.Util
                 {
                     inString = !inString;
                 }
-                if (c == start)
+                if (c == start && !inString)
                 {
-                    if (ignoreString)
-                    {
-                        if (!inString)
-                        {
-                            blockCount++;
+                    blockCount++;
 
-                            if (blockCount == 1)
-                            {
-                                continue;
-                            }
-                        }
-                    }
-                    else
+                    if (blockCount == 1 && !withBracket)
                     {
-                        blockCount++;
-
-                        if (blockCount == 1)
-                        {
-                            continue;
-                        }
+                        continue;
                     }
                 }
-                if (c == end)
+                if (c == end && !inString)
                 {
+                    blockCount--;
 
-                    if (ignoreString)
+                    if (blockCount == 0)
                     {
-                        if (!inString)
+                        if (withBracket)
                         {
-                            blockCount--;
-
-                            if (blockCount == 0)
-                            {
-                                break;
-                            }
+                            buf += c;
                         }
-                    }
-                    else
-                    {
-                        blockCount--;
-
-                        if (blockCount == 0)
-                        {
-                            break;
-                        }
+                        break;
                     }
                 }
                 if (blockCount > 0)
@@ -302,6 +275,27 @@ namespace Pocole.Util
                 }
             }
 
+            return buf;
+        }
+
+        //! 文字列の部分を削除
+        public static string RemoveString(string source)
+        {
+            var buf = "";
+            var isString = false;
+            foreach (var c in source)
+            {
+                if (c == '"')
+                {
+                    isString = !isString;
+                    continue;
+                }
+                if (isString)
+                {
+                    continue;
+                }
+                buf += c;
+            }
             return buf;
         }
 
@@ -426,8 +420,6 @@ namespace Pocole.Util
             }
             return res;
         }
-
-
 
     }
 }

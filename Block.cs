@@ -11,6 +11,7 @@ namespace Pocole
         public List<Value> Values { get; private set; } = new List<Value>();
         public List<MethodDeclarer> Methods { get; private set; } = new List<MethodDeclarer>();
         public List<Class> Classes { get; private set; } = new List<Class>();
+        public List<Class> ClassInstances { get; private set; } = new List<Class>();
         public bool LastIfResult { get; set; } = false;
 
         public new bool Initialize(Runnable parent, string text)
@@ -52,6 +53,7 @@ namespace Pocole
         public override void OnLeaved()
         {
             Values.Clear();
+            ClassInstances.Clear();
         }
 
         public void AddValue(Value value)
@@ -59,8 +61,18 @@ namespace Pocole
             Values.Add(value);
         }
 
+        public void AddClassInstance(Class instance)
+        {
+            ClassInstances.Add(instance);
+        }
+
         public Value FindValue(string name)
         {
+            if (Util.String.RemoveString(name).Contains("."))
+            {
+                var split = Util.String.SplitOnce(name, '.');
+                return FindClassInstance(split[0]).GetMemberValue(split[1]);
+            }
             var target = Values.FirstOrDefault(value => value.Name == name);
             if (target == null && GetParentBlock() != null)
             {
@@ -81,6 +93,11 @@ namespace Pocole
 
         public MethodDeclarer FindMethod(string name)
         {
+            if (Util.String.RemoveString(name).Contains("."))
+            {
+                var split = Util.String.SplitOnce(name, '.');
+                return FindClassInstance(split[0]).GetMemberMethod(split[1]);
+            }
             var target = Methods.FirstOrDefault(method => method.Name == name);
             if (target == null && GetParentBlock() != null)
             {
@@ -95,6 +112,16 @@ namespace Pocole
             if (target == null && GetParentBlock() != null)
             {
                 target = GetParentBlock().FindClass(name);
+            }
+            return target;
+        }
+
+        public Class FindClassInstance(string name)
+        {
+            var target = ClassInstances.FirstOrDefault(instance => instance.Name == name);
+            if (target == null && GetParentBlock() != null)
+            {
+                target = GetParentBlock().FindClassInstance(name);
             }
             return target;
         }

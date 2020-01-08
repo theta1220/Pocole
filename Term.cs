@@ -15,6 +15,7 @@ namespace Pocole
         {
             var methodName = ExtractMethodName(Source);
             var valueName = ExtractValueName(Source);
+            var className = ExtractClassName(Source);
 
             if (methodName == "SystemCall")
             {
@@ -33,6 +34,12 @@ namespace Pocole
                 var setter = new ValueSetter();
                 if (!setter.Initialize(this, Source)) { Log.InitError(); return; }
                 Runnables.Add(setter);
+            }
+            else if (GetParentBlock().FindClass(className) != null)
+            {
+                var instantiator = new ClassInstantiator();
+                if (!instantiator.Initialize(this, Source)) { Log.InitError(); return; }
+                Runnables.Add(instantiator);
             }
             else
             {
@@ -60,6 +67,12 @@ namespace Pocole
         {
             var buf = Util.String.Split(Util.String.Substring(source, '='), ' ');
             return Util.String.Remove(buf.Last(), ' ');
+        }
+
+        //! Hoge hoge; のような文字列からクラス名を取り出してくれる
+        public static string ExtractClassName(string source)
+        {
+            return Util.String.Remove(Util.String.Split(source, ' ').First(), ' ');
         }
     }
 }

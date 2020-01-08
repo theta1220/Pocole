@@ -37,6 +37,11 @@ namespace Pocole
             return true;
         }
 
+        public void ForceExecute()
+        {
+            while (Execute()) { }
+        }
+
         protected virtual void Run() { }
         public virtual void OnEntered() { }
         public virtual void OnLeaved() { }

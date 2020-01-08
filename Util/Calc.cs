@@ -107,6 +107,7 @@ namespace Pocole.Util
 
         private static string GetNextOperator(string source)
         {
+            source = Util.String.RemoveString(source);
             var reverse = new string(source.Reverse().ToArray());
 
             if (source.Contains("==")) return "==";

@@ -47,9 +47,14 @@ namespace Pocole
             var value = Util.String.SplitAny(source, "+-*/");
 
             var resInt = 0;
+            var resBool = false;
             if (int.TryParse(value[0], out resInt))
             {
                 return typeof(int);
+            }
+            if (bool.TryParse(value[0], out resBool))
+            {
+                return typeof(bool);
             }
             else if (parentBlock != null && parentBlock.FindValue(value[0]) != null)
             {

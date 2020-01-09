@@ -5,6 +5,7 @@ namespace Pocole
         Process,
     }
 
+    [System.Serializable]
     public abstract class SemanticBlock : Runnable
     {
         public SemanticType SemanticType { get; private set; }

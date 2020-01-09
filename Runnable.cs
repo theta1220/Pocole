@@ -1,13 +1,15 @@
+using System;
 using System.Collections.Generic;
 
 namespace Pocole
 {
+    [Serializable]
     public abstract class Runnable
     {
         public string Source { get; protected set; } = "";
         public int ExecuteCount { get; private set; } = 0;
         public List<Runnable> Runnables { get; private set; } = new List<Runnable>();
-        public Runnable Parent { get; private set; } = null;
+        public Runnable Parent { get; set; } = null;
 
         private bool _isEntered = false;
 

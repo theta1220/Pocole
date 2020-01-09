@@ -1,15 +1,14 @@
+using System;
 using System.Linq;
 
 namespace Pocole
 {
+    [Serializable]
     public class Class : Block
     {
-        public string ClassSource { get; private set; }
-
         public new bool Initialize(Runnable parent, string source)
         {
             Name = source.Split('{')[0].Split(' ')[1];
-            ClassSource = source;
             if (!base.Initialize(parent, Util.String.Extract(source, '{', '}'))) { Log.InitError(); return false; }
             return true;
         }
@@ -21,9 +20,9 @@ namespace Pocole
 
         public Class Instantiate(Runnable parent, string name)
         {
-            var instance = new Class();
-            if (!instance.Initialize(parent, ClassSource)) { Log.InitError(); return null; }
+            var instance = Util.Object.DeepCopy(this);
             instance.Name = name;
+            instance.ForceExecute();
             return instance;
         }
 

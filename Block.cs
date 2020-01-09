@@ -6,6 +6,7 @@ using System.Linq;
 
 namespace Pocole
 {
+    [Serializable]
     public class Block : Runnable
     {
         public string Name { get; protected set; }
@@ -41,7 +42,15 @@ namespace Pocole
                 {
                     var classDef = new Class();
                     if (!classDef.Initialize(this, source)) { Log.InitError(); return false; }
-                    Classes.Add(classDef);
+                    var already = FindClass(classDef.Name);
+                    if (already == null)
+                    {
+                        Classes.Add(classDef);
+                    }
+                    else
+                    {
+                        already.Using(classDef);
+                    }
                 }
                 else if (Util.String.MatchHead("using", source))
                 {
@@ -81,12 +90,14 @@ namespace Pocole
             ClassInstances.Add(instance);
         }
 
-        public virtual Value FindValue(string name)
+        public Value FindValue(string name)
         {
             if (Util.String.RemoveString(name).Contains("."))
             {
                 var split = Util.String.SplitOnce(name, '.');
-                return FindClassInstance(split[0]).GetMemberValue(split[1]);
+                var instance = FindClassInstance(split[0]);
+                if (instance != null) return instance.GetMemberValue(split[1]);
+                return null;
             }
             var target = Values.FirstOrDefault(value => value.Name == name);
             if (target == null && GetParentBlock() != null)

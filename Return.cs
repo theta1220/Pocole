@@ -1,5 +1,6 @@
 namespace Pocole
 {
+    [System.Serializable]
     public class Return : Runnable
     {
         public string Formula { get; private set; }

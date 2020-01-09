@@ -13,7 +13,7 @@ namespace Pocole
         {
             if (!base.Initialize(parent, source)) { Log.InitError(); return false; }
 
-            Name = Util.String.SplitOnce(source.Replace(" ", ""), '(')[0];
+            Name = Util.String.Substring(source.Replace(" ", ""), '(');
             Args = Util.String.Split(Util.String.Extract(Util.String.Remove(source, ' '), '(', ')'), ',');
 
             return true;

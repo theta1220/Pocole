@@ -5,6 +5,7 @@ using System;
 
 namespace Pocole
 {
+    [Serializable]
     public class SystemCaller : Runnable
     {
         public string Name { get; private set; }
@@ -98,6 +99,10 @@ namespace Pocole
         private void _PrintClassTree(Block parent, int tree)
         {
             Log.Info("{0}{1}", GetIndent(tree), parent.Name);
+            foreach (var method in parent.Methods)
+            {
+                Log.Debug("{0}- {1}", GetIndent(tree), method.Name);
+            }
             foreach (var classDef in parent.Classes)
             {
                 _PrintClassTree(classDef, tree + 1);

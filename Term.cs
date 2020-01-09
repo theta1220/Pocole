@@ -1,7 +1,9 @@
+using System;
 using System.Linq;
 
 namespace Pocole
 {
+    [Serializable]
     public class Term : Runnable
     {
         public new bool Initialize(Runnable parent, string source)

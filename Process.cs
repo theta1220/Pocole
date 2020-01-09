@@ -7,6 +7,7 @@ namespace Pocole
         Else,
     }
 
+    [System.Serializable]
     public class Process : SemanticBlock
     {
         public string Name { get; private set; }

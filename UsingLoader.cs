@@ -1,7 +1,9 @@
+using System;
 using System.Linq;
 
 namespace Pocole
 {
+    [Serializable]
     public class UsingLoader : Runnable
     {
         public string Name { get; private set; }

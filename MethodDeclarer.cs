@@ -1,8 +1,10 @@
 using System.Collections.Generic;
 using System.Linq;
+using System;
 
 namespace Pocole
 {
+    [Serializable]
     public class MethodDeclarer : Block
     {
         public string[] ArgNames { get; private set; }

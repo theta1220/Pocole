@@ -3,6 +3,7 @@ using System.Text.RegularExpressions;
 
 namespace Pocole
 {
+    [Serializable]
     public class Value
     {
         public Type ValueType { get { return Object.GetType(); } }

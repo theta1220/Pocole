@@ -3,6 +3,7 @@ using System.Linq;
 
 namespace Pocole
 {
+    [System.Serializable]
     public class ClassInstantiator : Runnable
     {
         public new bool Initialize(Runnable parent, string source)
@@ -16,7 +17,6 @@ namespace Pocole
             var className = Util.String.Split(Source, ' ').First();
             var instanceName = Util.String.Split(Source, ' ').Last();
             var instance = GetParentBlock().FindClass(className).Instantiate(Parent, instanceName);
-            instance.ForceExecute();
             GetParentBlock().AddClassInstance(instance);
         }
     }

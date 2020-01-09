@@ -7,6 +7,7 @@ namespace Pocole
         Assign,
     }
 
+    [System.Serializable]
     public class ValueSetter : Runnable
     {
         public ValueSetterType ValueSetterType { get; private set; } = ValueSetterType.Invalid;

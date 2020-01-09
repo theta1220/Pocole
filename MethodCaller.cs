@@ -7,6 +7,7 @@ namespace Pocole
     {
         public string Name { get; private set; }
         public string[] Args { get; private set; }
+        public MethodDeclarer Method { get { return GetParentBlock().FindMethod(Name); } }
 
         public new bool Initialize(Runnable parent, string source)
         {
@@ -20,20 +21,19 @@ namespace Pocole
 
         public override void OnEntered()
         {
-            var method = GetParentBlock().FindMethod(Name);
-            if (method == null)
+            if (Method == null)
             {
                 Log.Error("メソッドの呼び出しに失敗しました: {0}", Name);
                 return;
             }
-            Runnables.Add(method);
+            Runnables.Add(Method);
 
             var objs = new List<object>();
             foreach (var arg in Args)
             {
                 objs.Add(Util.Calc.Execute(GetParentBlock(), arg, Value.GetValueType(arg, GetParentBlock())));
             }
-            if (!method.SetArgs(objs.ToArray()))
+            if (!Method.SetArgs(objs.ToArray()))
             {
                 Log.Error("SetArgsに失敗");
                 return;

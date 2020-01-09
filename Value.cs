@@ -43,7 +43,7 @@ namespace Pocole
 
         public static Type GetValueType(string source, Block parentBlock = null)
         {
-            source = source.Replace(" ", "");
+            source = Util.String.Remove(source, ' ');
             var value = Util.String.SplitAny(source, "+-*/");
 
             var resInt = 0;
@@ -55,6 +55,10 @@ namespace Pocole
             if (bool.TryParse(value[0], out resBool))
             {
                 return typeof(bool);
+            }
+            else if (parentBlock != null && parentBlock.FindMethod(Util.String.Substring(value[0], '(')) != null)
+            {
+                return parentBlock.FindMethod(Util.String.Substring(value[0], '(')).ReturnType;
             }
             else if (parentBlock != null && parentBlock.FindValue(value[0]) != null)
             {

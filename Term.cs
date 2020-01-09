@@ -14,7 +14,6 @@ namespace Pocole
         public override void OnEntered()
         {
             var methodName = ExtractMethodName(Source);
-            var valueName = ExtractValueName(Source);
             var className = ExtractClassName(Source);
 
             if (methodName == "SystemCall")
@@ -23,17 +22,17 @@ namespace Pocole
                 if (!system.Initialize(this, Source)) { Log.InitError(); return; }
                 Runnables.Add(system);
             }
-            else if (GetParentBlock().FindMethod(methodName) != null)
-            {
-                var caller = new MethodCaller();
-                if (!caller.Initialize(this, Source)) { Log.InitError(); return; }
-                Runnables.Add(caller);
-            }
-            else if (GetParentBlock().FindValue(valueName) != null)
+            else if (IsSetter(Source))
             {
                 var setter = new ValueSetter();
                 if (!setter.Initialize(this, Source)) { Log.InitError(); return; }
                 Runnables.Add(setter);
+            }
+            else if (IsMethod(Source))
+            {
+                var caller = new MethodCaller();
+                if (!caller.Initialize(this, Source)) { Log.InitError(); return; }
+                Runnables.Add(caller);
             }
             else if (GetParentBlock().FindClass(className) != null)
             {
@@ -43,10 +42,7 @@ namespace Pocole
             }
             else
             {
-                var setter = new ValueSetter();
-                if (!setter.Initialize(this, Source)) { Log.InitError(); return; }
-                Runnables.Add(setter);
-                return;
+                throw new System.Exception(string.Format("理解できないTerm {0}", Source));
             }
         }
 
@@ -67,6 +63,16 @@ namespace Pocole
         {
             var buf = Util.String.Split(Util.String.Substring(source, '='), ' ');
             return Util.String.Remove(buf.Last(), ' ');
+        }
+
+        public static bool IsSetter(string source)
+        {
+            return Util.String.RemoveString(source).Contains("=");
+        }
+
+        public static bool IsMethod(string source)
+        {
+            return Util.String.RemoveString(source).Contains("(");
         }
 
         //! Hoge hoge; のような文字列からクラス名を取り出してくれる

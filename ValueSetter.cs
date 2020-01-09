@@ -22,7 +22,7 @@ namespace Pocole
             // 宣言
             if (name == "var")
             {
-                var buf = Util.String.SplitOnce(source, ' ')[1].Replace(" ", "").Split('=');
+                var buf = Util.String.Remove(Util.String.SplitOnce(source, ' ')[1], ' ').Split('=');
                 Name = buf[0];
                 Formula = buf[1];
                 ValueSetterType = ValueSetterType.Declare;
@@ -30,7 +30,7 @@ namespace Pocole
             // 代入
             else
             {
-                var buf = source.Replace(" ", "").Split('=');
+                var buf = Util.String.Remove(source, ' ').Split('=');
                 Name = buf[0];
                 Formula = buf[1];
                 ValueSetterType = ValueSetterType.Assign;

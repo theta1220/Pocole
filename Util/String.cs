@@ -190,10 +190,13 @@ namespace Pocole.Util
             var res = new List<string>();
             var buf = "";
             var count = 0;
+            var inString = false;
             foreach (var c in source)
             {
                 count++;
-                if (ContainsAny(c.ToString(), chars) || count == source.Length)
+                if (c == '"') inString = !inString;
+
+                if ((!inString && ContainsAny(c.ToString(), chars)) || count == source.Length)
                 {
                     if (count == source.Length)
                     {

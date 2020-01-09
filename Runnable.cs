@@ -116,5 +116,15 @@ namespace Pocole
             }
             return Parent.GetParentBlock();
         }
+
+        public MethodDeclarer GetParentMethod()
+        {
+            if (Parent == null) { return null; }
+            if (Parent is MethodDeclarer)
+            {
+                return (MethodDeclarer)Parent;
+            }
+            return Parent.GetParentMethod();
+        }
     }
 }

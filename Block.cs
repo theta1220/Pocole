@@ -13,6 +13,7 @@ namespace Pocole
         public List<Class> Classes { get; private set; } = new List<Class>();
         public List<Class> ClassInstances { get; private set; } = new List<Class>();
         public bool LastIfResult { get; set; } = false;
+        public object ReturnedValue { get; set; }
 
         public new bool Initialize(Runnable parent, string text)
         {
@@ -45,6 +46,12 @@ namespace Pocole
                     var loader = new UsingLoader();
                     if (!loader.Initialize(this, source)) { Log.InitError(); return false; }
                     loader.ForceExecute();
+                }
+                else if (Util.String.MatchHead("return", source))
+                {
+                    var returnee = new Return();
+                    if (!returnee.Initialize(this, source)) { Log.InitError(); return false; }
+                    Runnables.Add(returnee);
                 }
                 else
                 {
@@ -119,6 +126,11 @@ namespace Pocole
 
         public Class FindClass(string name)
         {
+            if (Util.String.RemoveString(name).Contains("."))
+            {
+                var split = Util.String.SplitOnce(name, '.');
+                return FindClass(split[0]).FindClass(split[1]);
+            }
             var target = Classes.FirstOrDefault(classDef => classDef.Name == name);
             if (target == null && GetParentBlock() != null)
             {

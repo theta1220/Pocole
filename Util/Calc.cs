@@ -15,8 +15,11 @@ namespace Pocole.Util
         {
             source = String.Remove(source, ' ');
 
+            // 関数を計算
+            var parsed = ExecuteMethod(parentBlock, source, type);
+
             // 括弧を計算
-            var parsed = ExecuteCalc(parentBlock, source, type);
+            parsed = ExecuteCalc(parentBlock, parsed, type);
 
             // 変数を探す
             var findValue = parentBlock.FindValue(parsed);
@@ -27,6 +30,24 @@ namespace Pocole.Util
             if (type == typeof(string)) return ExecuteCalcString(parentBlock, parsed);
 
             throw new System.Exception(string.Format("理解できない計算式を演算しようとした:{0}", source));
+        }
+
+        public static string ExecuteMethod(Block parentBlock, string source, System.Type type)
+        {
+            source = Util.String.Remove(source, ' ');
+            var formulas = Util.String.SplitAny(source, "+-*/");
+
+            foreach (var formula in formulas)
+            {
+                if (IsMethodString(formula))
+                {
+                    var caller = new MethodCaller();
+                    if (!caller.Initialize(parentBlock, formula)) { Log.InitError(); return ""; }
+                    caller.ForceExecute();
+                    source = source.Replace(formula, caller.Method.ReturnedValue.ToString());
+                }
+            }
+            return source;
         }
 
         public static string ExecuteCalc(Block parentBlock, string source, System.Type type)
@@ -137,6 +158,16 @@ namespace Pocole.Util
             source.Contains("<") ||
             source.Contains(">")) return true;
 
+            return false;
+        }
+
+        private static bool IsMethodString(string source)
+        {
+            var buf = Util.String.Substring(source, '(');
+            if (buf.Length > 0 && Util.String.Contains(source, "("))
+            {
+                return true;
+            }
             return false;
         }
     }

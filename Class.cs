@@ -44,12 +44,12 @@ namespace Pocole
             {
                 var instanceName = Util.String.SplitOnce(name, '.').First();
                 var memberName = Util.String.SplitOnce(name, '.').Last();
-                var target = (Class)FindValue(instanceName).Object;
-                if (target == null)
+                var value = FindValue(instanceName);
+                if (value == null)
                 {
-                    target = FindClass(instanceName);
+                    return FindClass(instanceName).GetMemberMethod(memberName);
                 }
-                target.GetMemberMethod(memberName);
+                return (value.Object as Class).GetMemberMethod(memberName);
             }
             return FindMethod(name);
         }

@@ -8,6 +8,7 @@ namespace Pocole
 {
     public class Block : Runnable
     {
+        public string Name { get; protected set; }
         public List<Value> Values { get; private set; } = new List<Value>();
         public List<MethodDeclarer> Methods { get; private set; } = new List<MethodDeclarer>();
         public List<Class> Classes { get; private set; } = new List<Class>();
@@ -15,10 +16,11 @@ namespace Pocole
         public bool LastIfResult { get; set; } = false;
         public object ReturnedValue { get; set; }
 
-        public new bool Initialize(Runnable parent, string text)
+        public bool Initialize(Runnable parent, string text, string name = "")
         {
             if (!base.Initialize(parent, text)) { Log.InitError(); return false; }
 
+            if (name.Length > 0) Name = name;
             var sources = Util.String.SplitSource(text);
 
             foreach (var source in sources)
@@ -45,7 +47,7 @@ namespace Pocole
                 {
                     var loader = new UsingLoader();
                     if (!loader.Initialize(this, source)) { Log.InitError(); return false; }
-                    loader.ForceExecute();
+                    Runnables.Add(loader);
                 }
                 else if (Util.String.MatchHead("return", source))
                 {
@@ -163,7 +165,11 @@ namespace Pocole
             }
             foreach (var classDef in block.Classes)
             {
-                if (FindClass(classDef.Name) != null) continue;
+                if (FindClass(classDef.Name) != null)
+                {
+                    FindClass(classDef.Name).Using(classDef);
+                    continue;
+                }
                 Classes.Add(classDef);
             }
             foreach (var instance in block.ClassInstances)

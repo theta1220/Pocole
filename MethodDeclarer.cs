@@ -5,17 +5,17 @@ namespace Pocole
 {
     public class MethodDeclarer : Block
     {
-        public string Name { get; private set; }
         public string[] ArgNames { get; private set; }
         public System.Type ReturnType { get; private set; }
 
         public new bool Initialize(Runnable parent, string source)
         {
-            if (!base.Initialize(parent, Util.String.Extract(source, '{', '}'))) { Log.InitError(); return false; }
-
             // func hoge(){ ... }
             Name = source.Split('(')[0].Split(' ')[1];
             ArgNames = Util.String.Extract(Util.String.Remove(source, ' '), '(', ')').Split(',');
+
+            if (!base.Initialize(parent, Util.String.Extract(source, '{', '}'))) { Log.InitError(); return false; }
+
             var typeName = Util.String.Split(Util.String.Remove(Util.String.Substring(source, '{'), ' '), ':').Last();
             if (typeName == "int") ReturnType = typeof(int);
             else if (typeName == "string") ReturnType = typeof(string);

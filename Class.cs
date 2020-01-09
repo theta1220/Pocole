@@ -4,22 +4,19 @@ namespace Pocole
 {
     public class Class : Block
     {
-        public string Name { get; private set; }
         public string ClassSource { get; private set; }
 
         public new bool Initialize(Runnable parent, string source)
         {
-            if (!base.Initialize(parent, Util.String.Extract(source, '{', '}'))) { Log.InitError(); return false; }
-
             Name = source.Split('{')[0].Split(' ')[1];
             ClassSource = source;
-
+            if (!base.Initialize(parent, Util.String.Extract(source, '{', '}'))) { Log.InitError(); return false; }
             return true;
         }
 
         public override void OnLeaved()
         {
-
+            // なにもしないのがみそ
         }
 
         public Class Instantiate(Runnable parent, string name)
@@ -45,9 +42,14 @@ namespace Pocole
         {
             if (name.Contains("."))
             {
-                var instance = Util.String.SplitOnce(name, '.').First();
-                var member = Util.String.SplitOnce(name, '.').Last();
-                FindClassInstance(instance).GetMemberMethod(member);
+                var instanceName = Util.String.SplitOnce(name, '.').First();
+                var memberName = Util.String.SplitOnce(name, '.').Last();
+                var target = FindClassInstance(instanceName);
+                if (target == null)
+                {
+                    target = FindClass(instanceName);
+                }
+                target.GetMemberMethod(memberName);
             }
             return FindMethod(name);
         }

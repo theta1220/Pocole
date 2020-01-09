@@ -32,7 +32,8 @@ namespace Pocole
             {
                 var instance = Util.String.SplitOnce(name, '.').First();
                 var member = Util.String.SplitOnce(name, '.').Last();
-                FindClassInstance(instance).GetMemberValue(member);
+                Log.Debug("{0}/{1}", instance, member);
+                return (FindValue(instance).Object as Class).GetMemberValue(member);
             }
             return FindValue(name);
         }
@@ -43,7 +44,7 @@ namespace Pocole
             {
                 var instanceName = Util.String.SplitOnce(name, '.').First();
                 var memberName = Util.String.SplitOnce(name, '.').Last();
-                var target = FindClassInstance(instanceName);
+                var target = (Class)FindValue(instanceName).Object;
                 if (target == null)
                 {
                     target = FindClass(instanceName);

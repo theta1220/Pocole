@@ -13,7 +13,6 @@ namespace Pocole
         public List<Value> Values { get; private set; } = new List<Value>();
         public List<MethodDeclarer> Methods { get; private set; } = new List<MethodDeclarer>();
         public List<Class> Classes { get; private set; } = new List<Class>();
-        public List<Class> ClassInstances { get; private set; } = new List<Class>();
         public bool LastIfResult { get; set; } = false;
         public object ReturnedValue { get; set; }
 
@@ -77,7 +76,6 @@ namespace Pocole
         public override void OnLeaved()
         {
             Values.Clear();
-            ClassInstances.Clear();
         }
 
         public void AddValue(Value value)
@@ -85,17 +83,12 @@ namespace Pocole
             Values.Add(value);
         }
 
-        public void AddClassInstance(Class instance)
-        {
-            ClassInstances.Add(instance);
-        }
-
         public Value FindValue(string name)
         {
             if (Util.String.RemoveString(name).Contains("."))
             {
                 var split = Util.String.SplitOnce(name, '.');
-                var instance = FindClassInstance(split[0]);
+                var instance = (Class)FindValue(split[0]).Object;
                 if (instance != null) return instance.GetMemberValue(split[1]);
                 return null;
             }
@@ -122,12 +115,12 @@ namespace Pocole
             if (Util.String.RemoveString(name).Contains("."))
             {
                 var split = Util.String.SplitOnce(name, '.');
-                var instance = FindClassInstance(split[0]);
-                if (instance == null)
+                var value = FindValue(split[0]);
+                if (value == null)
                 {
-                    instance = FindClass(split[0]);
+                    return FindClass(split[0]).GetMemberMethod(split[1]);
                 }
-                return instance.GetMemberMethod(split[1]);
+                return (value.Object as Class).GetMemberMethod(split[1]);
             }
             var target = Methods.FirstOrDefault(method => method.Name == name);
             if (target == null && GetParentBlock() != null)
@@ -152,16 +145,6 @@ namespace Pocole
             return target;
         }
 
-        public Class FindClassInstance(string name)
-        {
-            var target = ClassInstances.FirstOrDefault(instance => instance.Name == name);
-            if (target == null && GetParentBlock() != null)
-            {
-                target = GetParentBlock().FindClassInstance(name);
-            }
-            return target;
-        }
-
         public void Using(Block block)
         {
             foreach (var value in block.Values)
@@ -182,11 +165,6 @@ namespace Pocole
                     continue;
                 }
                 Classes.Add(classDef);
-            }
-            foreach (var instance in block.ClassInstances)
-            {
-                if (FindClassInstance(instance.Name) != null) continue;
-                ClassInstances.Add(instance);
             }
         }
     }

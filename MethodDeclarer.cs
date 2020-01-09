@@ -41,14 +41,10 @@ namespace Pocole
                 {
                     name = ArgNames[i];
                 }
-                var findValue = GetParentBlock().FindValue(name);
-                if (findValue == null)
-                {
-                    var value = new Value();
-                    if (!value.Initialize(name)) { Log.InitError(); return false; }
-                    value.SetValue(arg);
-                    AddValue(value);
-                }
+                var value = new Value();
+                if (!value.Initialize(name)) { Log.InitError(); return false; }
+                value.SetValue(arg);
+                AddValue(Util.Object.DeepCopy(value));
             }
             return true;
         }

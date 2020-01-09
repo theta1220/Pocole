@@ -6,11 +6,6 @@ namespace Pocole.Util
 {
     public class Calc
     {
-        private class Node
-        {
-            public Node Parent { get; private set; }
-        }
-
         public static object Execute(Block parentBlock, string source, System.Type type)
         {
             source = String.Remove(source, ' ');
@@ -22,8 +17,11 @@ namespace Pocole.Util
             parsed = ExecuteCalc(parentBlock, parsed, type);
 
             // 変数を探す
-            var findValue = parentBlock.FindValue(parsed);
-            if (findValue != null) return findValue.Object;
+            if (!Util.String.ContainsAny(source, "+-*/"))
+            {
+                var findValue = parentBlock.FindValue(parsed);
+                if (findValue != null) return findValue.Object;
+            }
 
             if (type == typeof(int)) return ExecuteCalcInt(parentBlock, parsed);
             if (type == typeof(bool)) return ExecuteCalcBool(parentBlock, parsed);

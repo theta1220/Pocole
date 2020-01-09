@@ -17,7 +17,10 @@ namespace Pocole
             var className = Util.String.Split(Source, ' ').First();
             var instanceName = Util.String.Split(Source, ' ').Last();
             var instance = GetParentBlock().FindClass(className).Instantiate(Parent, instanceName);
-            GetParentBlock().AddClassInstance(instance);
+            var value = new Value();
+            if (!value.Initialize(instanceName)) { Log.InitError(); return; }
+            value.SetValue(instance);
+            GetParentBlock().AddValue(value);
         }
     }
 }

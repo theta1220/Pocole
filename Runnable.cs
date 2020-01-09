@@ -110,7 +110,7 @@ namespace Pocole
         public Block GetParentBlock()
         {
             if (Parent == null) { return null; }
-            if (Parent.GetType() == typeof(Block))
+            if (Parent is Block)
             {
                 return (Block)Parent;
             }

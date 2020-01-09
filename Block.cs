@@ -40,6 +40,12 @@ namespace Pocole
                     if (!classDef.Initialize(this, source)) { Log.InitError(); return false; }
                     Classes.Add(classDef);
                 }
+                else if (Util.String.MatchHead("using", source))
+                {
+                    var loader = new UsingLoader();
+                    if (!loader.Initialize(this, source)) { Log.InitError(); return false; }
+                    loader.ForceExecute();
+                }
                 else
                 {
                     var term = new Term();
@@ -66,7 +72,7 @@ namespace Pocole
             ClassInstances.Add(instance);
         }
 
-        public Value FindValue(string name)
+        public virtual Value FindValue(string name)
         {
             if (Util.String.RemoveString(name).Contains("."))
             {
@@ -96,7 +102,12 @@ namespace Pocole
             if (Util.String.RemoveString(name).Contains("."))
             {
                 var split = Util.String.SplitOnce(name, '.');
-                return FindClassInstance(split[0]).GetMemberMethod(split[1]);
+                var instance = FindClassInstance(split[0]);
+                if (instance == null)
+                {
+                    instance = FindClass(split[0]);
+                }
+                return instance.GetMemberMethod(split[1]);
             }
             var target = Methods.FirstOrDefault(method => method.Name == name);
             if (target == null && GetParentBlock() != null)
@@ -124,6 +135,30 @@ namespace Pocole
                 target = GetParentBlock().FindClassInstance(name);
             }
             return target;
+        }
+
+        public void Using(Block block)
+        {
+            foreach (var value in block.Values)
+            {
+                if (FindValue(value.Name) != null) continue;
+                Values.Add(value);
+            }
+            foreach (var method in block.Methods)
+            {
+                if (FindMethod(method.Name) != null) continue;
+                Methods.Add(method);
+            }
+            foreach (var classDef in block.Classes)
+            {
+                if (FindClass(classDef.Name) != null) continue;
+                Classes.Add(classDef);
+            }
+            foreach (var instance in block.ClassInstances)
+            {
+                if (FindClassInstance(instance.Name) != null) continue;
+                ClassInstances.Add(instance);
+            }
         }
     }
 }

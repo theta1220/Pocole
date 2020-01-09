@@ -3,7 +3,6 @@ namespace Pocole
     public enum SemanticType
     {
         Process,
-        MethodDeclarer,
     }
 
     public abstract class SemanticBlock : Runnable

@@ -34,7 +34,8 @@ namespace Pocole
             if (IsCompleted())
             {
                 OnLeave();
-                return false;
+                if (!CheckContinue()) return false;
+                else ResetExecute();
             }
             return true;
         }
@@ -47,6 +48,7 @@ namespace Pocole
         protected virtual void Run() { }
         public virtual void OnEntered() { }
         public virtual void OnLeaved() { }
+        public virtual bool CheckContinue() { return false; }
 
         private void ExecuteRun()
         {

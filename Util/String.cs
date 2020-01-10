@@ -370,6 +370,7 @@ namespace Pocole.Util
         {
             bool inString = false;
             int blockCount = 0;
+            int bracketCount = 0;
             var list = new List<string>();
             var buf = "";
             var count = 0;
@@ -380,10 +381,12 @@ namespace Pocole.Util
                 if (c == '"') { inString = !inString; }
                 if (c == '{') { blockCount++; }
                 if (c == '}') { blockCount--; }
+                if (c == '(') { bracketCount++; }
+                if (c == ')') { bracketCount--; }
 
                 if (!inString && c == '\n') { continue; }
 
-                if (!inString && (blockCount == 0 && (c == '}' || c == ';')) || count >= source.Length)
+                if (!inString && bracketCount == 0 && (blockCount == 0 && (c == '}' || c == ';')) || count >= source.Length)
                 {
                     if (c == ';') { list.Add(buf); }
                     else { list.Add(buf + c); }

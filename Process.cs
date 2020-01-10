@@ -42,7 +42,6 @@ namespace Pocole
             }
             else
             {
-
                 if (ProcessType == ProcessType.If)
                 {
                     var res = (bool)Util.Calc.Execute(GetParentBlock(), Formula, typeof(bool));

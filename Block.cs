@@ -51,6 +51,12 @@ namespace Pocole
                         already.Using(classDef);
                     }
                 }
+                else if (Util.String.MatchHead("for", source))
+                {
+                    var forBlock = new For();
+                    if (!forBlock.Initialize(this, source)) { Log.InitError(); return false; }
+                    Runnables.Add(forBlock);
+                }
                 else if (Util.String.MatchHead("using", source))
                 {
                     var loader = new UsingLoader();

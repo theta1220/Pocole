@@ -3,6 +3,7 @@ namespace Pocole
     public enum SemanticType
     {
         Process,
+        For,
     }
 
     [System.Serializable]

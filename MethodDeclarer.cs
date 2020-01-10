@@ -42,9 +42,9 @@ namespace Pocole
                     name = ArgNames[i];
                 }
                 var isRef = false;
-                if (Util.String.MatchHead("&", name))
+                if (Util.String.MatchHead("@", name))
                 {
-                    name = Util.String.Remove(name, '&');
+                    name = Util.String.Remove(name, '@');
                     isRef = true;
                 }
 

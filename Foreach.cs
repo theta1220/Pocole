@@ -7,10 +7,12 @@ namespace Pocole
     {
         public string ValueName { get; private set; }
         public string ArrayName { get; private set; }
+        public string CountName { get; private set; }
         public int Count;
 
         private Value targetValue = null;
         private List<Value> targetArray = null;
+        private Value countValue = null;
 
         private bool executedInitSource = false;
 
@@ -21,6 +23,10 @@ namespace Pocole
             var split = Util.String.Split(Util.String.Extract(Util.String.Remove(source, ' '), '(', ')'), ':');
             ValueName = split[0];
             ArrayName = split[1];
+            if (split.Length > 2)
+            {
+                CountName = split[2];
+            }
             Count = 0;
             executedInitSource = false;
 
@@ -38,9 +44,21 @@ namespace Pocole
                 targetValue = new Value();
                 if (!targetValue.Initialize(ValueName)) { Log.InitError(); return; }
                 AddValue(targetValue);
+
+                if (CountName != "")
+                {
+                    countValue = new Value();
+                    if (!countValue.Initialize(CountName)) { Log.InitError(); return; }
+                    AddValue(countValue);
+                }
             }
 
             PickValue();
+        }
+
+        public override void OnLeaved()
+        {
+            Count++;
 
             if (Count >= targetArray.Count)
             {
@@ -51,7 +69,10 @@ namespace Pocole
         private void PickValue()
         {
             targetValue.SetValue(targetArray[Count].Object);
-            Count++;
+            if (countValue != null)
+            {
+                countValue.SetValue(Count);
+            }
         }
     }
 }

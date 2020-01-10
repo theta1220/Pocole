@@ -19,6 +19,12 @@ namespace Pocole.Util
             // 変数を探す
             if (!Util.String.ContainsAny(source, "+-*/"))
             {
+                // 生の配列
+                var removeStringStr = Util.String.RemoveString(parsed);
+                if (removeStringStr.Length > 0 && Util.String.MatchHead("[", removeStringStr))
+                {
+                    return ExecuteArrayString(parentBlock, parsed);
+                }
                 var findValue = parentBlock.FindValue(parsed);
                 if (findValue != null) return findValue.Object;
             }
@@ -121,6 +127,23 @@ namespace Pocole.Util
             var splitedFormula = String.SplitOnceTail(source, ope);
             if (ope == "+") return (string)Execute(parentBlock, splitedFormula[1], typeof(string)) + (string)Execute(parentBlock, splitedFormula[0], typeof(string));
             return Util.String.Extract(source, '"');
+        }
+
+        private static List<Value> ExecuteArrayString(Block parentBlock, string source)
+        {
+            var split = Util.String.Split(Util.String.Extract(source, '[', ']'), ',');
+            var list = new List<Value>();
+            int index = 0;
+            foreach (var objSrc in split)
+            {
+                var obj = Execute(parentBlock, objSrc, Value.GetValueType(objSrc, parentBlock));
+                var value = new Value();
+                if (!value.Initialize(index.ToString())) { Log.InitError(); return null; }
+                value.SetValue(obj);
+                list.Add(value);
+                index++;
+            }
+            return list;
         }
 
         private static string GetNextOperator(string source)

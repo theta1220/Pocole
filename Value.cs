@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Text.RegularExpressions;
 
 namespace Pocole
@@ -47,13 +48,19 @@ namespace Pocole
             source = Util.String.Remove(source, ' ');
             var value = Util.String.SplitAny(source, "+-*/");
 
+            // 配列
+            if (Util.String.Contains(source, ",") && Util.String.Contains(source, "["))
+            {
+                return typeof(List<Value>);
+            }
+
             var resInt = 0;
             var resBool = false;
             if (int.TryParse(value[0], out resInt))
             {
                 return typeof(int);
             }
-            if (bool.TryParse(value[0], out resBool))
+            else if (bool.TryParse(value[0], out resBool))
             {
                 return typeof(bool);
             }
@@ -65,9 +72,13 @@ namespace Pocole
             {
                 return parentBlock.FindValue(value[0]).ValueType;
             }
-            else
+            else if (Util.String.Contains(source, "\""))
             {
                 return typeof(string);
+            }
+            else
+            {
+                return typeof(object);
             }
         }
     }

@@ -92,6 +92,12 @@ namespace Pocole
                 if (instance != null) return instance.GetMemberValue(split[1]);
                 return null;
             }
+            if (Util.String.RemoveString(name).Contains("["))
+            {
+                var arrName = Util.String.Substring(name, '[');
+                var index = (int)Util.Calc.Execute(this, Util.String.Extract(name, '[', ']'), typeof(int));
+                return (FindValue(arrName).Object as List<Value>)[index];
+            }
             var target = Values.FirstOrDefault(value => value.Name == name);
             if (target == null && GetParentBlock() != null)
             {

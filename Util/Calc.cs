@@ -55,7 +55,6 @@ namespace Pocole.Util
             {
                 Log.Debug(source);
                 var ext = Util.String.Extract(source, '(', ')', true);
-                Log.Debug(ext);
                 source = source.Replace(ext, Execute(parentBlock, Util.String.Extract(source, '(', ')'), type).ToString());
             }
             return source;

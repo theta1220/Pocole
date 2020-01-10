@@ -41,10 +41,19 @@ namespace Pocole
                 {
                     name = ArgNames[i];
                 }
+                var isRef = false;
+                if (Util.String.MatchHead("&", name))
+                {
+                    name = Util.String.Remove(name, '&');
+                    isRef = true;
+                }
+
                 var value = new Value();
                 if (!value.Initialize(name)) { Log.InitError(); return false; }
                 value.SetValue(arg);
-                AddValue(Util.Object.DeepCopy(value));
+
+                if (isRef) AddValue(value);
+                else AddValue(Util.Object.DeepCopy(value));
             }
             return true;
         }

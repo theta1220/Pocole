@@ -51,6 +51,12 @@ namespace Pocole
                         already.Using(classDef);
                     }
                 }
+                else if (Util.String.MatchHead("foreach", source))
+                {
+                    var foreachBlock = new Foreach();
+                    if (!foreachBlock.Initialize(this, source)) { Log.InitError(); return false; }
+                    Runnables.Add(foreachBlock);
+                }
                 else if (Util.String.MatchHead("for", source))
                 {
                     var forBlock = new For();

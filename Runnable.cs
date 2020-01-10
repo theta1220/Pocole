@@ -34,7 +34,10 @@ namespace Pocole
             if (IsCompleted())
             {
                 OnLeave();
-                if (!CheckContinue()) return false;
+                if (!CheckContinue())
+                {
+                    return false;
+                }
                 else ResetExecute();
             }
             return true;

@@ -8,8 +8,11 @@ namespace Pocole
     [Serializable]
     public class SystemCaller : Runnable
     {
+        public string ClassName { get; private set; }
         public string Name { get; private set; }
         public string[] Args { get; private set; }
+
+        private Value _returnValue;
 
         public SystemCaller(Runnable parent, string source) : base(parent, source)
         {
@@ -19,16 +22,25 @@ namespace Pocole
             var list = new List<string>();
             foreach (var arg in args)
             {
+                if (count == 0)
+                {
+                    var name = Util.String.Split(Util.String.Extract(arg, '"'), '.');
+                    for (var i = 0; i < name.Length - 1; i++)
+                    {
+                        ClassName += name[i];
+                        if (i + 1 < name.Length - 1)
+                        {
+                            ClassName += ".";
+                        }
+                    }
+                    Name = name.Last();
+                }
+                else if (count == 1)
+                {
+                    if (arg != "null") _returnValue = GetParentBlock().FindValue(arg);
+                }
+                else list.Add(arg);
                 count++;
-
-                if (count == 1)
-                {
-                    Name = Util.String.Extract(arg, '"');
-                }
-                else
-                {
-                    list.Add(arg);
-                }
             }
             if (Name == "")
             {
@@ -57,21 +69,26 @@ namespace Pocole
                     args.Add(value);
                 }
             }
-            MethodInvoke(Name, args.ToArray());
+            var res = MethodInvoke(Name, args.ToArray());
+            if (res != null && _returnValue != null)
+            {
+                _returnValue.SetValue(res);
+            }
         }
 
         private object MethodInvoke(string methodName, object[] args)
         {
-            var method = typeof(SystemCaller).GetMethod(methodName, new Type[] { typeof(object[]) });
+            var method = Type.GetType(ClassName).GetMethod(methodName);
             if (method == null)
             {
-                Log.Error("SystemCallメソッドがみつかりませんでした:{0}", methodName);
+                Log.Error("SystemCallメソッドがみつかりませんでした:{0}.{1}", ClassName, methodName);
                 throw new Exception("Method not found");
             }
-            return method.Invoke(this, new[] { args });
+            if (args.Length > 0) return method.Invoke(null, new[] { args });
+            else return method.Invoke(null, new object[] { });
         }
 
-        public void Print(object[] args)
+        public static void Print(object[] args)
         {
             var list = new List<object>();
             var text = "";

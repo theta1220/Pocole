@@ -122,10 +122,21 @@ namespace Pocole
                 var index = (int)Util.Calc.Execute(this, Util.String.Extract(name, '[', ']'), typeof(int));
                 return (FindValue(arrName).Object as List<Value>)[index];
             }
+            bool isRef = true;
+            // @がついている変数はコピーが作成される
+            if (Util.String.MatchHead("@", name))
+            {
+                name = Util.String.Remove(name, '@');
+                isRef = false;
+            }
             var target = Values.FirstOrDefault(value => value.Name == name);
             if (target == null && GetParentBlock() != null)
             {
                 target = GetParentBlock().FindValue(name);
+            }
+            if (!isRef)
+            {
+                target = Util.Object.DeepCopy(target);
             }
             return target;
         }

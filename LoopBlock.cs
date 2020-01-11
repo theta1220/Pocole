@@ -5,11 +5,9 @@ namespace Pocole
     {
         public bool IsContinuous { get; protected set; }
 
-        public new bool Initialize(Runnable parent, string source)
+        public LoopBlock(Runnable parent, string source) : base(parent, Util.String.Extract(source, '{', '}'))
         {
-            if (!base.Initialize(parent, Util.String.Extract(source, '{', '}'))) { Log.InitError(); return false; }
             IsContinuous = true;
-            return true;
         }
 
         public override bool CheckContinue()

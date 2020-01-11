@@ -9,14 +9,12 @@ namespace Pocole
         private Value _maxValue;
         private bool _executedInitSource = false;
 
-        public new bool Initialize(Runnable parent, string source)
+        public Count(Runnable parent, string source) : base(parent, source)
         {
-            if (!base.Initialize(parent, source)) { Log.InitError(); return false; }
             var split = Util.String.Split(Util.String.Extract(Util.String.Remove(source, ' '), '(', ')'), ':');
             _valueName = split[0];
             _maxFormula = split[1];
             _executedInitSource = false;
-            return true;
         }
 
         public override void OnEntered()
@@ -24,13 +22,11 @@ namespace Pocole
             if (!_executedInitSource)
             {
                 _executedInitSource = true;
-                _countValue = new Value();
-                if (!_countValue.Initialize(_valueName)) { Log.InitError(); return; }
+                _countValue = new Value(_valueName);
                 _countValue.SetValue(0);
                 AddValue(_countValue);
 
                 _maxValue = new Value();
-                if (!_maxValue.Initialize()) { Log.InitError(); return; }
                 _maxValue.SetValue((int)Util.Calc.Execute(GetParentBlock(), _maxFormula, typeof(int)));
             }
 

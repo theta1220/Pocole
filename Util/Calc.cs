@@ -45,8 +45,7 @@ namespace Pocole.Util
             {
                 if (IsMethodString(formula))
                 {
-                    var caller = new MethodCaller();
-                    if (!caller.Initialize(parentBlock, formula)) { Log.InitError(); return ""; }
+                    var caller = new MethodCaller(parentBlock, formula);
                     caller.ForceExecute();
                     source = source.Replace(formula, caller.Method.ReturnedValue.ToString());
                 }
@@ -137,8 +136,7 @@ namespace Pocole.Util
             foreach (var objSrc in split)
             {
                 var obj = Execute(parentBlock, objSrc, Value.GetValueType(objSrc, parentBlock));
-                var value = new Value();
-                if (!value.Initialize(index.ToString())) { Log.InitError(); return null; }
+                var value = new Value(index.ToString());
                 value.SetValue(obj);
                 list.Add(value);
                 index++;

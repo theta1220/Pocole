@@ -13,11 +13,10 @@ namespace Pocole
 
         private bool _isEntered = false;
 
-        public bool Initialize(Runnable parent, string source)
+        public Runnable(Runnable parent, string source)
         {
             Parent = parent;
             Source = source;
-            return true;
         }
 
         public bool Execute()

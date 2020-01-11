@@ -5,13 +5,9 @@ namespace Pocole
     {
         private string _conditionSource;
 
-        public new bool Initialize(Runnable parent, string source)
+        public While(Runnable parent, string source) : base(parent, source)
         {
-            if (!base.Initialize(parent, source)) { Log.InitError(); return false; }
-
             _conditionSource = Util.String.Extract(Util.String.Remove(source, ' '), '(', ')');
-
-            return true;
         }
 
         public override void OnEntered()

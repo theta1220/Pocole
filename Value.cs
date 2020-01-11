@@ -11,20 +11,20 @@ namespace Pocole
         public string Name { get; private set; }
         public object Object { get; private set; }
 
-        public bool Initialize()
+        public Value()
         {
-            return true;
+            Name = "";
+            Object = null;
         }
 
-        public bool Initialize(string name)
+        public Value(string name)
         {
             Name = name;
-            return true;
         }
 
-        public bool Initialize(string name, string value)
+        public Value(string name, string value)
         {
-            if (!Initialize(name)) { Log.InitError(); return false; }
+            Name = name;
             Object = value;
 
             if (ValueType == typeof(int))
@@ -35,7 +35,6 @@ namespace Pocole
             {
                 Object = value;
             }
-            return true;
         }
 
         public void SetValue(object value)

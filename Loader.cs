@@ -9,8 +9,7 @@ namespace Pocole
         {
             var text = Util.File.Open(file);
             text = RemoveExtraText(text);
-            var block = new Block();
-            if (!block.Initialize(null, text, file)) { return null; }
+            var block = new Block(null, text, file);
             return block;
         }
 

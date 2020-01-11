@@ -6,11 +6,8 @@ namespace Pocole
     [Serializable]
     public class Term : Runnable
     {
-        public new bool Initialize(Runnable parent, string source)
+        public Term(Runnable parent, string source) : base(parent, source)
         {
-            if (!base.Initialize(parent, source)) { Log.InitError(); return false; }
-
-            return true;
         }
 
         public override void OnEntered()
@@ -18,34 +15,11 @@ namespace Pocole
             var methodName = ExtractMethodName(Source);
             var className = ExtractClassName(Source);
 
-            if (methodName == "SystemCall")
-            {
-                var system = new SystemCaller();
-                if (!system.Initialize(this, Source)) { Log.InitError(); return; }
-                Runnables.Add(system);
-            }
-            else if (IsSetter(Source))
-            {
-                var setter = new ValueSetter();
-                if (!setter.Initialize(this, Source)) { Log.InitError(); return; }
-                Runnables.Add(setter);
-            }
-            else if (IsMethod(Source))
-            {
-                var caller = new MethodCaller();
-                if (!caller.Initialize(this, Source)) { Log.InitError(); return; }
-                Runnables.Add(caller);
-            }
-            else if (GetParentBlock().FindClass(className) != null)
-            {
-                var instantiator = new ClassInstantiator();
-                if (!instantiator.Initialize(this, Source)) { Log.InitError(); return; }
-                Runnables.Add(instantiator);
-            }
-            else
-            {
-                throw new System.Exception(string.Format("理解できないTerm {0}", Source));
-            }
+            if (methodName == "SystemCall") Runnables.Add(new SystemCaller(this, Source));
+            else if (IsSetter(Source)) Runnables.Add(new ValueSetter(this, Source));
+            else if (IsMethod(Source)) Runnables.Add(new MethodCaller(this, Source));
+            else if (GetParentBlock().FindClass(className) != null) Runnables.Add(new ClassInstantiator(this, Source));
+            else throw new System.Exception(string.Format("理解できないTerm {0}", Source));
         }
 
         public override void OnLeaved()

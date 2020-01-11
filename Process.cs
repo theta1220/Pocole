@@ -14,21 +14,16 @@ namespace Pocole
         public ProcessType ProcessType { get; private set; }
         public string Formula { get; private set; }
 
-        public new bool Initialize(Runnable parent, string source)
+        public Process(Runnable parent, string source) : base(parent, source, SemanticType.Process)
         {
-            if (!base.Initialize(parent, source, SemanticType.Process)) { Log.InitError(); return false; }
-
             var name = Util.String.Remove(Util.String.SplitOnce(source, '(')[0], ' ');
             if (name == "if") ProcessType = ProcessType.If;
             else if (name == "elseif") ProcessType = ProcessType.ElseIf;
             else ProcessType = ProcessType.Else;
             Formula = Util.String.Remove(Util.String.Extract(source, '(', ')'), ' ');
 
-            var block = new Block();
-            if (!block.Initialize(parent, Util.String.Extract(source, '{', '}'))) { Log.InitError(); return false; }
+            var block = new Block(parent, Util.String.Extract(source, '{', '}'));
             AddBlock(block);
-
-            return true;
         }
 
         public override void OnEntered()

@@ -10,21 +10,17 @@ namespace Pocole
         public string[] ArgNames { get; private set; }
         public System.Type ReturnType { get; private set; }
 
-        public new bool Initialize(Runnable parent, string source)
+        public MethodDeclarer(Runnable parent, string source) : base(parent, Util.String.Extract(source, '{', '}'))
         {
             // func hoge(){ ... }
             Name = source.Split('(')[0].Split(' ')[1];
             ArgNames = Util.String.Extract(Util.String.Remove(source, ' '), '(', ')').Split(',');
-
-            if (!base.Initialize(parent, Util.String.Extract(source, '{', '}'))) { Log.InitError(); return false; }
 
             var typeName = Util.String.Split(Util.String.Remove(Util.String.Substring(source, '{'), ' '), ':').Last();
             if (typeName == "int") ReturnType = typeof(int);
             else if (typeName == "string") ReturnType = typeof(string);
             else if (typeName == "bool") ReturnType = typeof(bool);
             else ReturnType = typeof(void);
-
-            return true;
         }
 
         public bool SetArgs(object[] args)
@@ -48,8 +44,7 @@ namespace Pocole
                     isRef = false;
                 }
 
-                var value = new Value();
-                if (!value.Initialize(name)) { Log.InitError(); return false; }
+                var value = new Value(name);
                 value.SetValue(arg);
 
                 if (isRef) AddValue(value);

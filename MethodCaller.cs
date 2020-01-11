@@ -10,14 +10,10 @@ namespace Pocole
         public string[] Args { get; private set; }
         public MethodDeclarer Method { get { return GetParentBlock().FindMethod(Name); } }
 
-        public new bool Initialize(Runnable parent, string source)
+        public MethodCaller(Runnable parent, string source) : base(parent, source)
         {
-            if (!base.Initialize(parent, source)) { Log.InitError(); return false; }
-
             Name = Util.String.Substring(source.Replace(" ", ""), '(');
             Args = Util.String.Split(Util.String.Extract(Util.String.Remove(source, ' '), '(', ')'), ',');
-
-            return true;
         }
 
         public override void OnEntered()

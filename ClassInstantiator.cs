@@ -6,10 +6,8 @@ namespace Pocole
     [System.Serializable]
     public class ClassInstantiator : Runnable
     {
-        public new bool Initialize(Runnable parent, string source)
+        public ClassInstantiator(Runnable parent, string source) : base(parent, source)
         {
-            if (!base.Initialize(parent, source)) { Log.InitError(); return false; }
-            return true;
         }
 
         protected override void Run()
@@ -17,8 +15,7 @@ namespace Pocole
             var className = Util.String.Split(Source, ' ').First();
             var instanceName = Util.String.Split(Source, ' ').Last();
             var instance = GetParentBlock().FindClass(className).Instantiate(Parent, instanceName);
-            var value = new Value();
-            if (!value.Initialize(instanceName)) { Log.InitError(); return; }
+            var value = new Value(instanceName);
             value.SetValue(instance);
             GetParentBlock().AddValue(value);
         }

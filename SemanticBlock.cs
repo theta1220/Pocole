@@ -12,11 +12,9 @@ namespace Pocole
         public SemanticType SemanticType { get; private set; }
         public Block Block { get; private set; }
 
-        public bool Initialize(Runnable parent, string source, SemanticType type)
+        public SemanticBlock(Runnable parent, string source, SemanticType type) : base(parent, source)
         {
-            if (!base.Initialize(parent, source)) { Log.InitError(); return false; }
             SemanticType = type;
-            return true;
         }
 
         public void AddBlock(Block block)

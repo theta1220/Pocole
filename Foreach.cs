@@ -16,10 +16,8 @@ namespace Pocole
 
         private bool executedInitSource = false;
 
-        public new bool Initialize(Runnable parent, string source)
+        public Foreach(Runnable parent, string source) : base(parent, source)
         {
-            if (!base.Initialize(parent, source)) { Log.InitError(); return false; }
-
             var split = Util.String.Split(Util.String.Extract(Util.String.Remove(source, ' '), '(', ')'), ':');
             ValueName = split[0];
             ArrayName = split[1];
@@ -29,8 +27,6 @@ namespace Pocole
             }
             Count = 0;
             executedInitSource = false;
-
-            return true;
         }
 
         public override void OnEntered()
@@ -41,14 +37,12 @@ namespace Pocole
 
                 targetArray = FindValue(ArrayName).Object as List<Value>;
 
-                targetValue = new Value();
-                if (!targetValue.Initialize(ValueName)) { Log.InitError(); return; }
+                targetValue = new Value(ValueName);
                 AddValue(targetValue);
 
                 if (CountName != "")
                 {
-                    countValue = new Value();
-                    if (!countValue.Initialize(CountName)) { Log.InitError(); return; }
+                    countValue = new Value(CountName);
                     AddValue(countValue);
                 }
             }

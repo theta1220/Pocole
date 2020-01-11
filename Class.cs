@@ -6,11 +6,9 @@ namespace Pocole
     [Serializable]
     public class Class : Block
     {
-        public new bool Initialize(Runnable parent, string source)
+        public Class(Runnable parent, string source) : base(parent, Util.String.Extract(source, '{', '}'))
         {
             Name = source.Split('{')[0].Split(' ')[1];
-            if (!base.Initialize(parent, Util.String.Extract(source, '{', '}'))) { Log.InitError(); return false; }
-            return true;
         }
 
         public override void OnLeaved()

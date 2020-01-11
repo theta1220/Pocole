@@ -4,12 +4,9 @@ namespace Pocole
     public class Return : Runnable
     {
         public string Formula { get; private set; }
-        public new bool Initialize(Runnable parent, string source)
+        public Return(Runnable parent, string source) : base(parent, source)
         {
-            if (!base.Initialize(parent, source)) { Log.InitError(); return false; }
-
             Formula = Util.String.SplitOnce(source, ' ')[1];
-            return true;
         }
 
         protected override void Run()

@@ -14,10 +14,8 @@ namespace Pocole
         public string Name { get; private set; }
         public string Formula { get; private set; }
 
-        public new bool Initialize(Runnable parent, string source)
+        public ValueSetter(Runnable parent, string source) : base(parent, source)
         {
-            if (!base.Initialize(parent, source)) { Log.InitError(); return false; }
-
             var name = source.Split(' ')[0];
 
             // 宣言
@@ -36,7 +34,6 @@ namespace Pocole
                 Formula = buf[1];
                 ValueSetterType = ValueSetterType.Assign;
             }
-            return true;
         }
 
         protected override void Run()
@@ -44,8 +41,7 @@ namespace Pocole
             Value target = null;
             if (ValueSetterType == ValueSetterType.Declare)
             {
-                target = new Value();
-                if (!target.Initialize(Name)) { Log.InitError(); return; }
+                target = new Value(Name);
                 GetParentBlock().AddValue(target);
             }
             else if (ValueSetterType == ValueSetterType.Assign)

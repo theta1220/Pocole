@@ -11,9 +11,8 @@ namespace Pocole
         public string Name { get; private set; }
         public string[] Args { get; private set; }
 
-        public new bool Initialize(Runnable parent, string source)
+        public SystemCaller(Runnable parent, string source) : base(parent, source)
         {
-            if (!base.Initialize(parent, source)) { Log.InitError(); return false; }
             var args = Util.String.Split(Util.String.Extract(Util.String.Remove(source, ' '), '(', ')'), ',');
 
             var count = 0;
@@ -37,7 +36,6 @@ namespace Pocole
                 throw new Exception("no name system call");
             }
             Args = list.ToArray();
-            return true;
         }
 
         protected override void Run()

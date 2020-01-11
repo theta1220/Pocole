@@ -16,85 +16,32 @@ namespace Pocole
         public bool LastIfResult { get; set; } = false;
         public object ReturnedValue { get; set; }
 
-        public bool Initialize(Runnable parent, string text, string name = "")
+        public Block(Runnable parent, string text, string name = "") : base(parent, text)
         {
-            if (!base.Initialize(parent, text)) { Log.InitError(); return false; }
-
             if (name.Length > 0) Name = name;
             var sources = Util.String.SplitSource(text);
 
             foreach (var source in sources)
             {
-                if (Util.String.MatchHead("func ", source))
-                {
-                    var method = new MethodDeclarer();
-                    if (!method.Initialize(this, source)) { Log.InitError(); return false; }
-                    Methods.Add(method);
-                }
-                else if (Util.String.MatchHead("if", source) || Util.String.MatchHead("else if", source) || Util.String.MatchHead("else", source))
-                {
-                    var process = new Process();
-                    if (!process.Initialize(this, source)) { Log.InitError(); return false; }
-                    Runnables.Add(process);
-                }
+                if (Util.String.MatchHead("func ", source)) Methods.Add(new MethodDeclarer(this, source));
                 else if (Util.String.MatchHead("class", source))
                 {
-                    var classDef = new Class();
-                    if (!classDef.Initialize(this, source)) { Log.InitError(); return false; }
+                    var classDef = new Class(this, source);
                     var already = FindClass(classDef.Name);
-                    if (already == null)
-                    {
-                        Classes.Add(classDef);
-                    }
-                    else
-                    {
-                        already.Using(classDef);
-                    }
+                    if (already == null) Classes.Add(classDef);
+                    else already.Using(classDef);
                 }
-                else if (Util.String.MatchHead("count", source))
-                {
-                    var countBlock = new Count();
-                    if (!countBlock.Initialize(this, source)) { Log.InitError(); return false; }
-                    Runnables.Add(countBlock);
-                }
-                else if (Util.String.MatchHead("while", source))
-                {
-                    var whileBlock = new While();
-                    if (!whileBlock.Initialize(this, source)) { Log.InitError(); return false; }
-                    Runnables.Add(whileBlock);
-                }
-                else if (Util.String.MatchHead("foreach", source))
-                {
-                    var foreachBlock = new Foreach();
-                    if (!foreachBlock.Initialize(this, source)) { Log.InitError(); return false; }
-                    Runnables.Add(foreachBlock);
-                }
-                else if (Util.String.MatchHead("for", source))
-                {
-                    var forBlock = new For();
-                    if (!forBlock.Initialize(this, source)) { Log.InitError(); return false; }
-                    Runnables.Add(forBlock);
-                }
-                else if (Util.String.MatchHead("using", source))
-                {
-                    var loader = new UsingLoader();
-                    if (!loader.Initialize(this, source)) { Log.InitError(); return false; }
-                    Runnables.Add(loader);
-                }
-                else if (Util.String.MatchHead("return", source))
-                {
-                    var returnee = new Return();
-                    if (!returnee.Initialize(this, source)) { Log.InitError(); return false; }
-                    Runnables.Add(returnee);
-                }
-                else
-                {
-                    var term = new Term();
-                    if (!term.Initialize(this, source)) { Log.InitError(); return false; }
-                    Runnables.Add(term);
-                }
+                else if (Util.String.MatchHead("if", source) ||
+                         Util.String.MatchHead("else if", source) ||
+                         Util.String.MatchHead("else", source)) Runnables.Add(new Process(this, source));
+                else if (Util.String.MatchHead("count", source)) Runnables.Add(new Count(this, source));
+                else if (Util.String.MatchHead("while", source)) Runnables.Add(new While(this, source));
+                else if (Util.String.MatchHead("foreach", source)) Runnables.Add(new Foreach(this, source));
+                else if (Util.String.MatchHead("for", source)) Runnables.Add(new For(this, source));
+                else if (Util.String.MatchHead("using", source)) Runnables.Add(new UsingLoader(this, source));
+                else if (Util.String.MatchHead("return", source)) Runnables.Add(new Return(this, source));
+                else Runnables.Add(new Term(this, source));
             }
-            return true;
         }
 
         public override void OnLeaved()

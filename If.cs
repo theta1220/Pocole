@@ -8,22 +8,18 @@ namespace Pocole
     }
 
     [System.Serializable]
-    public class Process : SemanticBlock
+    public class If : Block
     {
-        public string Name { get; private set; }
         public ProcessType ProcessType { get; private set; }
         public string Formula { get; private set; }
 
-        public Process(Runnable parent, string source) : base(parent, source, SemanticType.Process)
+        public If(Runnable parent, string source) : base(parent, Util.String.Extract(source, '{', '}'))
         {
             var name = Util.String.Remove(Util.String.SplitOnce(source, '(')[0], ' ');
             if (name == "if") ProcessType = ProcessType.If;
             else if (name == "elseif") ProcessType = ProcessType.ElseIf;
             else ProcessType = ProcessType.Else;
             Formula = Util.String.Remove(Util.String.Extract(source, '(', ')'), ' ');
-
-            var block = new Block(parent, Util.String.Extract(source, '{', '}'));
-            AddBlock(block);
         }
 
         public override void OnEntered()

@@ -33,7 +33,7 @@ namespace Pocole
                 }
                 else if (Util.String.MatchHead("if", source) ||
                          Util.String.MatchHead("else if", source) ||
-                         Util.String.MatchHead("else", source)) Runnables.Add(new Process(this, source));
+                         Util.String.MatchHead("else", source)) Runnables.Add(new If(this, source));
                 else if (Util.String.MatchHead("count", source)) Runnables.Add(new Count(this, source));
                 else if (Util.String.MatchHead("while", source)) Runnables.Add(new While(this, source));
                 else if (Util.String.MatchHead("foreach", source)) Runnables.Add(new Foreach(this, source));

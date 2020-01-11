@@ -41,11 +41,11 @@ namespace Pocole
                 {
                     name = ArgNames[i];
                 }
-                var isRef = false;
+                var isRef = true;
                 if (Util.String.MatchHead("@", name))
                 {
                     name = Util.String.Remove(name, '@');
-                    isRef = true;
+                    isRef = false;
                 }
 
                 var value = new Value();

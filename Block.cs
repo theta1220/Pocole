@@ -57,6 +57,12 @@ namespace Pocole
                     if (!countBlock.Initialize(this, source)) { Log.InitError(); return false; }
                     Runnables.Add(countBlock);
                 }
+                else if (Util.String.MatchHead("while", source))
+                {
+                    var whileBlock = new While();
+                    if (!whileBlock.Initialize(this, source)) { Log.InitError(); return false; }
+                    Runnables.Add(whileBlock);
+                }
                 else if (Util.String.MatchHead("foreach", source))
                 {
                     var foreachBlock = new Foreach();

@@ -29,6 +29,7 @@ namespace Pocole.Util
                 if (findValue != null) return findValue.Object;
             }
 
+            if (parsed == "null") return null;
             if (type == typeof(int)) return ExecuteCalcInt(parentBlock, parsed);
             if (type == typeof(bool)) return ExecuteCalcBool(parentBlock, parsed);
             if (type == typeof(string)) return ExecuteCalcString(parentBlock, parsed);

@@ -58,7 +58,7 @@ namespace Pocole
             var value = Util.String.SplitAny(source, "+-*/");
 
             // 配列
-            if (Util.String.Contains(source, ",") && Util.String.Contains(source, "["))
+            if ((Util.String.Contains(source, ",") && Util.String.Contains(source, "[") || source == "[]"))
             {
                 return typeof(List<Value>);
             }

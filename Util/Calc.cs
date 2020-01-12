@@ -59,7 +59,6 @@ namespace Pocole.Util
             // 括弧があるってことは優先して計算すべき箇所があるってこと
             while (Util.String.RemoveString(source).Contains("("))
             {
-                Log.Debug(source);
                 var ext = Util.String.Extract(source, '(', ')', true);
                 source = source.Replace(ext, Execute(parentBlock, Util.String.Extract(source, '(', ')'), type).ToString());
             }
@@ -112,6 +111,12 @@ namespace Pocole.Util
                     else if (ope == "!=") return (string)r != (string)l;
                     else { Log.Error("{0}型で 比較できる演算子ではない:{1}", rType.ToString(), ope); return false; }
                 }
+                else if (rType == typeof(bool))
+                {
+                    if (ope == "&&") return (bool)r && (bool)l;
+                    if (ope == "||") return (bool)r || (bool)l;
+                    throw new System.Exception("比較できない演算子");
+                }
                 else
                 {
                     if (ope == "==") return r == l;
@@ -158,6 +163,8 @@ namespace Pocole.Util
             if (source.Contains("<=")) return "<=";
             if (source.Contains(">")) return ">";
             if (source.Contains("<")) return "<";
+            if (source.Contains("&&")) return "&&";
+            if (source.Contains("||")) return "||";
 
             if (String.ContainsAny(reverse, "+-"))
                 foreach (var c in reverse)
@@ -177,7 +184,9 @@ namespace Pocole.Util
             source.Contains("<=") ||
             source.Contains(">=") ||
             source.Contains("<") ||
-            source.Contains(">")) return true;
+            source.Contains(">") ||
+            source.Contains("&&") ||
+            source.Contains("||")) return true;
 
             return false;
         }

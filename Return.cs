@@ -11,8 +11,8 @@ namespace Pocole
 
         protected override void Run()
         {
-            GetParentBlock().ReturnedValue = Util.Calc.Execute(GetParentBlock(), Formula, GetParentMethod().ReturnType);
-            GetParentBlock().SkipExecute();
+            GetParentMethod().ReturnedValue = Util.Calc.Execute(GetParentBlock(), Formula, GetParentMethod().ReturnType);
+            GetParentMethod().SkipExecute();
         }
     }
 }

@@ -7,7 +7,17 @@ namespace Pocole
     [Serializable]
     public class Value
     {
-        public Type ValueType { get { return Object.GetType(); } }
+        public Type ValueType
+        {
+            get
+            {
+                if (Object == null)
+                {
+                    return typeof(object);
+                }
+                return Object.GetType();
+            }
+        }
         public string Name { get; private set; }
         public object Object { get; private set; }
 

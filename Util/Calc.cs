@@ -114,8 +114,10 @@ namespace Pocole.Util
                 }
                 else
                 {
-                    Log.Error("{0}型は、そもそも比較できない", rType.ToString());
-                    return false;
+                    if (ope == "==") return r == l;
+                    if (ope == "!=") return r != l;
+
+                    throw new System.Exception("比較できない");
                 }
             }
             return bool.Parse(source);

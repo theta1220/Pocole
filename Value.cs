@@ -59,7 +59,7 @@ namespace Pocole
             var value = GetFirstCalcSource(source);
 
             // 配列
-            if ((Util.String.Contains(source, ",") && Util.String.Contains(source, "[") || source == "[]"))
+            if ((source.Contains(",") && source.Contains('[')) || source == "[]")
             {
                 return typeof(List<Value>);
             }
@@ -82,7 +82,7 @@ namespace Pocole
             {
                 return parentBlock.FindMethod(Util.String.Substring(value, '(')).ReturnType;
             }
-            else if (Util.String.Contains(source, "\""))
+            else if (source.Contains("\""))
             {
                 return typeof(string);
             }

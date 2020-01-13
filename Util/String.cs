@@ -5,11 +5,6 @@ namespace Pocole.Util
 {
     public static class String
     {
-        public static bool Contains(string text, string chars)
-        {
-            return text.Contains(chars);
-        }
-
         public static bool ContainsHead(string text, string chars)
         {
             if (text.Length < chars.Length) { return false; }
@@ -25,7 +20,7 @@ namespace Pocole.Util
         {
             foreach (var word in words)
             {
-                if (Contains(text, word))
+                if (text.Contains(word))
                 {
                     return true;
                 }

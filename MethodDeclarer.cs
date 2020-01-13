@@ -10,6 +10,7 @@ namespace Pocole
     {
         public string[] ArgNames { get; private set; }
         public System.Type ReturnType { get; private set; }
+        public Value Caller { get; set; }
 
         public MethodDeclarer(Runnable parent, string source) : base(parent, source.PoExtract('{', '}'))
         {
@@ -22,6 +23,12 @@ namespace Pocole
             else if (typeName == "string") ReturnType = typeof(string);
             else if (typeName == "bool") ReturnType = typeof(bool);
             else ReturnType = typeof(object);
+        }
+
+        public override void OnLeaved()
+        {
+            base.OnLeaved();
+            Caller = null;
         }
 
         public bool SetArgs(object[] args)

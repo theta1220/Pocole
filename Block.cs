@@ -14,6 +14,7 @@ namespace Pocole
         public List<Value> Values { get; private set; } = new List<Value>();
         public List<MethodDeclarer> Methods { get; private set; } = new List<MethodDeclarer>();
         public List<Class> Classes { get; private set; } = new List<Class>();
+        public List<Extension> Extensions { get; private set; } = new List<Extension>();
         public bool LastIfResult { get; set; } = false;
         public object ReturnedValue { get; set; }
 
@@ -32,6 +33,7 @@ namespace Pocole
                     if (already == null) Classes.Add(classDef);
                     else already.Using(classDef);
                 }
+                else if (source.PoMatchHead("extension")) Extensions.Add(new Extension(this, source));
                 else if (source.PoMatchHead("if") ||
                          source.PoMatchHead("else if") ||
                          source.PoMatchHead("else")) Runnables.Add(new If(this, source));
@@ -71,7 +73,14 @@ namespace Pocole
             {
                 var split = name.PoSplitOnce('.');
                 var instance = FindValue(split[0]);
-                if (instance != null) return (instance.Object as Class).GetMemberValue(split[1]);
+                if (instance != null && instance.Object != null && instance.Object is Class)
+                {
+                    var res = (instance.Object as Class).GetMemberValue(split[1]);
+                    if (res != null)
+                    {
+                        return res;
+                    }
+                }
                 return null;
             }
             else if (hit == '[')
@@ -113,12 +122,47 @@ namespace Pocole
                 {
                     return FindClass(split[0]).GetMemberMethod(split[1]);
                 }
-                return (value.Object as Class).GetMemberMethod(split[1]);
+                var classDef = value.Object as Class;
+                if (classDef != null)
+                {
+                    var classMethod = classDef.GetMemberMethod(split[1]);
+                    if (classMethod != null) return classMethod;
+                }
+                return FindExtensionMethod(name);
             }
             var target = Methods.FirstOrDefault(method => method.Name == name);
             if (target == null && GetParentBlock() != null)
             {
                 target = GetParentBlock().FindMethod(name);
+            }
+            return target;
+        }
+
+        public MethodDeclarer FindExtensionMethod(string name)
+        {
+            if (name.PoRemoveString().Contains("."))
+            {
+                var value = FindValue(name.PoCut('.'));
+                if (value == null) return null;
+                if (value.Object is List<Value>)
+                {
+                    var ex = FindExtension("Array");
+                    if (ex == null)
+                    {
+                        Log.Error("Extension not found");
+                    }
+                    return FindExtension("Array").FindMethod(name.PoSplit('.').Last());
+                }
+            }
+            return null;
+        }
+
+        public Extension FindExtension(string name)
+        {
+            var target = Extensions.FirstOrDefault(ex => ex.Name == name);
+            if (target == null && GetParentBlock() != null)
+            {
+                target = GetParentBlock().FindExtension(name);
             }
             return target;
         }
@@ -160,6 +204,11 @@ namespace Pocole
                 }
                 Classes.Add(classDef);
             }
+            foreach (var ex in block.Extensions)
+            {
+                if (FindExtension(ex.Name) != null) continue;
+                Extensions.Add(ex);
+            }
         }
 
         public void PrintBlockTree()
@@ -169,7 +218,7 @@ namespace Pocole
 
         private void PrintBlockTree(Block parent, int tree)
         {
-            Log.Info("{0}{1}", Util.String.GetIndentSpace(tree), parent.Name);
+            Log.Info("{0}{1}::{2}", Util.String.GetIndentSpace(tree), parent.GetType(), parent.Name);
             foreach (var method in parent.Methods)
             {
                 Log.Debug("{0}- {1}", Util.String.GetIndentSpace(tree), method.Name);
@@ -177,6 +226,10 @@ namespace Pocole
             foreach (var classDef in parent.Classes)
             {
                 PrintBlockTree(classDef, tree + 1);
+            }
+            foreach (var ex in parent.Extensions)
+            {
+                PrintBlockTree(ex, tree + 1);
             }
         }
     }

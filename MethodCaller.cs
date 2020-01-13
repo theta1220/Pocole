@@ -26,16 +26,48 @@ namespace Pocole
             }
             Runnables.Add(Method);
 
-            var objs = new List<object>();
-            foreach (var arg in Args)
+            // 呼び出しもとを特定してセット
             {
-                objs.Add(Util.Calc.Execute(GetParentBlock(), arg, Value.GetValueType(arg, GetParentBlock())).Object);
+                var caller = GetParentBlock().FindValue(GetCallerName(Name));
+                if (caller != null)
+                {
+                    Method.Caller = caller;
+                }
             }
-            if (!Method.SetArgs(objs.ToArray()))
+
+            // 引数をセット
             {
-                Log.Error("SetArgsに失敗");
-                return;
+                var objs = new List<object>();
+                foreach (var arg in Args)
+                {
+                    objs.Add(Util.Calc.Execute(GetParentBlock(), arg, Value.GetValueType(arg, GetParentBlock())).Object);
+                }
+                if (!Method.SetArgs(objs.ToArray()))
+                {
+                    Log.Error("SetArgsに失敗");
+                    return;
+                }
             }
+        }
+
+        public static string GetCallerName(string name)
+        {
+            var names = name.Split('.');
+            var count = 0;
+            var res = "";
+            foreach (var _name in names)
+            {
+                if (count + 1 < names.Length)
+                {
+                    res += _name;
+                    if (count + 2 < names.Length)
+                    {
+                        res += ".";
+                    }
+                }
+                count++;
+            }
+            return res;
         }
     }
 }

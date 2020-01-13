@@ -22,12 +22,10 @@ namespace Pocole
             if (!_executedInitSource)
             {
                 _executedInitSource = true;
-                _countValue = new Value(_valueName);
-                _countValue.SetValue(0);
+                _countValue = new Value(_valueName, 0);
                 AddValue(_countValue);
 
-                _maxValue = new Value();
-                _maxValue.SetValue((int)Util.Calc.Execute(GetParentBlock(), _maxFormula, typeof(int)));
+                _maxValue = Util.Calc.Execute(GetParentBlock(), _maxFormula, typeof(int));
             }
 
             var isContinuous = (int)_countValue.Object < (int)_maxValue.Object;
@@ -40,7 +38,7 @@ namespace Pocole
 
         public override void OnLeaved()
         {
-            _countValue.SetValue((int)_countValue.Object + 1);
+            _countValue.Object = (int)_countValue.Object + 1;
         }
     }
 }

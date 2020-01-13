@@ -12,7 +12,7 @@ namespace Pocole
 
         public override void OnEntered()
         {
-            var isContinuous = (bool)Util.Calc.Execute(this, _conditionSource, typeof(bool));
+            var isContinuous = (bool)Util.Calc.Execute(this, _conditionSource, typeof(bool)).Object;
             if (!isContinuous)
             {
                 IsContinuous = false;

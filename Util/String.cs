@@ -65,6 +65,53 @@ namespace Pocole.Util
             return false;
         }
 
+        public static bool ContainsAny(string source, string[] patterns, out string match)
+        {
+            match = "";
+            foreach (var pattern in patterns)
+            {
+                if (source.Contains(pattern))
+                {
+                    match = pattern;
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        public static bool MatchTail(string source, string[] patterns, out string match)
+        {
+            match = "";
+            foreach (var pattern in patterns)
+            {
+                if (MatchTail(source, pattern))
+                {
+                    match = pattern;
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        public static bool MatchTail(string source, string pattern)
+        {
+            if (source.Length < pattern.Length)
+            {
+                return false;
+            }
+            source = new string(source.Reverse().ToArray());
+            pattern = new string(pattern.Reverse().ToArray());
+
+            for (var i = 0; i < pattern.Length; i++)
+            {
+                if (source[i] != pattern[i])
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+
         public static string GetFirstSplit(string source, char split)
         {
             return source.Split(split)[0];
@@ -425,6 +472,58 @@ namespace Pocole.Util
                 res += c;
             }
             return res;
+        }
+
+        //! どの文字が先にヒットした？
+        public static char? FirstHit(string source, char[] chars)
+        {
+            foreach (var c in source)
+            {
+                if (MatchAny(c, chars)) return c;
+            }
+            return null;
+        }
+
+        public static bool MatchAny(char c, char[] chars)
+        {
+            foreach (var target in chars)
+            {
+                if (c == target) return true;
+            }
+            return false;
+        }
+
+        public static bool MatchAny(string source, string[] patterns)
+        {
+            foreach (var pattern in patterns)
+            {
+                if (source == pattern) return true;
+            }
+            return false;
+        }
+
+        public static bool MatchAny(string source, string[] patterns, out string match)
+        {
+            match = "";
+            foreach (var pattern in patterns)
+            {
+                if (source == pattern)
+                {
+                    match = pattern;
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        public static string GetIndentSpace(int count)
+        {
+            var space = "";
+            for (var i = 0; i < count; i++)
+            {
+                space += "    ";
+            }
+            return space;
         }
 
     }

@@ -35,7 +35,7 @@ namespace Pocole
             {
                 if (ProcessType == ProcessType.If)
                 {
-                    var res = (bool)Util.Calc.Execute(GetParentBlock(), Formula, typeof(bool));
+                    var res = (bool)Util.Calc.Execute(GetParentBlock(), Formula, typeof(bool)).Object;
                     if (!res)
                     {
                         SkipExecute();
@@ -50,7 +50,7 @@ namespace Pocole
                     }
                     else
                     {
-                        var res = (bool)Util.Calc.Execute(GetParentBlock(), Formula, typeof(bool));
+                        var res = (bool)Util.Calc.Execute(GetParentBlock(), Formula, typeof(bool)).Object;
                         if (!res)
                         {
                             SkipExecute();

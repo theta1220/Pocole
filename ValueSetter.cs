@@ -57,8 +57,12 @@ namespace Pocole
                 Log.Error("ValueSetterTypeがInvalid");
             }
             var valueType = Value.GetValueType(Formula, GetParentBlock());
-            var value = Util.Calc.Execute(GetParentBlock(), Formula, valueType);
-            target.SetValue(value);
+            var res = Util.Calc.Execute(GetParentBlock(), Formula, valueType);
+            if (res == null)
+            {
+                Log.Debug("resはnull");
+            }
+            target.Object = res.Object;
         }
     }
 }

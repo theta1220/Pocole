@@ -6,77 +6,74 @@ namespace Pocole.Util
 {
     public class Calc
     {
-        public static object Execute(Block parentBlock, string source, System.Type type)
+        public static string[] Operators = new[] { "+", "-", "*", "/", "==", "&&", "||", "!=", "<=", ">=", "<", ">" };
+        public static string[] CompareOpes = new[] { "==", "!=", "&&", "||", "<=", ">=", "<", ">" };
+
+        public static Value Execute(Block parentBlock, string source, System.Type type)
         {
             source = String.Remove(source, ' ');
 
-            // 関数を計算
-            var parsed = ExecuteMethod(parentBlock, source, type);
+            var splitedFormula = Split(source);
 
-            // 括弧を計算
-            parsed = ExecuteCalc(parentBlock, parsed, type);
-
-            // 変数を探す
-            if (!Util.String.ContainsAny(source, "+-*/"))
+            // 単一項のときは関数か変数か配列か実数（実数はこのifでは処理されない)
+            if (splitedFormula.Length == 1)
             {
-                // 生の配列
-                var removeStringStr = Util.String.RemoveString(parsed);
-                if (removeStringStr.Length > 0 && Util.String.MatchHead("[", removeStringStr))
-                {
-                    return ExecuteArrayString(parentBlock, parsed);
-                }
-                var findValue = parentBlock.FindValue(parsed);
-                if (findValue != null) return findValue.Object;
-            }
+                var formula = splitedFormula[0];
 
-            if (parsed == "null") return null;
-            if (type == typeof(int)) return ExecuteCalcInt(parentBlock, parsed);
-            if (type == typeof(bool)) return ExecuteCalcBool(parentBlock, parsed);
-            if (type == typeof(string)) return ExecuteCalcString(parentBlock, parsed);
+                if (formula.Length >= 2 && formula.First() == '[' && formula.Last() == ']')
+                {
+                    return new Value("", ExecuteArray(parentBlock, formula));
+                }
+
+                var value = parentBlock.FindValue(formula);
+                if (value != null) return value;
+
+                var method = parentBlock.FindMethod(Util.String.Substring(formula, '('));
+                if (method != null)
+                {
+                    var caller = new MethodCaller(parentBlock, formula);
+                    caller.ForceExecute();
+                    return new Value("", caller.Method.ReturnedValue);
+                }
+            }
+            // 括弧を計算
+            source = ExecuteBracketCalc(parentBlock, source, type);
+
+            if (source == "null") return null;
+            if (type == typeof(int)) return new Value("", ExecuteCalcInt(parentBlock, source));
+            if (type == typeof(bool)) return new Value("", ExecuteCalcBool(parentBlock, source));
+            if (type == typeof(string)) return new Value("", ExecuteCalcString(parentBlock, source));
 
             throw new System.Exception(string.Format("理解できない計算式を演算しようとした:{0}", source));
         }
 
-        public static string ExecuteMethod(Block parentBlock, string source, System.Type type)
+        public static string ExecuteBracketCalc(Block parentBlock, string source, System.Type type)
         {
-            source = Util.String.Remove(source, ' ');
-            var formulas = Util.String.SplitAny(source, "+-*/");
-
-            foreach (var formula in formulas)
+            var splitedFormula = Split(source);
+            var buf = "";
+            foreach (var c in source)
             {
-                if (IsMethodString(formula))
+                buf += c;
+                if (source.Length > 2 && Util.String.MatchAny(buf, splitedFormula) && source.First() == '(' && source.Last() == ')')
                 {
-                    var caller = new MethodCaller(parentBlock, formula);
-                    caller.ForceExecute();
-                    source = source.Replace(formula, caller.Method.ReturnedValue.ToString());
+                    buf = buf.Replace(source, Execute(parentBlock, Util.String.Extract(source, '(', ')'), type).Object.ToString());
                 }
             }
-            return source;
-        }
-
-        public static string ExecuteCalc(Block parentBlock, string source, System.Type type)
-        {
-            // 括弧があるってことは優先して計算すべき箇所があるってこと
-            while (Util.String.RemoveString(source).Contains("("))
-            {
-                var ext = Util.String.Extract(source, '(', ')', true);
-                source = source.Replace(ext, Execute(parentBlock, Util.String.Extract(source, '(', ')'), type).ToString());
-            }
-            return source;
+            return buf;
         }
 
         private static int ExecuteCalcInt(Block parentBlock, string source)
         {
             var ope = GetNextOperator(source);
-            var splitedFormula = String.SplitOnceTail(source, ope);
+            var splitedFormula = SplitFormula(source, ope);
             if (ope != "")
             {
-                var r = (int)Execute(parentBlock, splitedFormula[1], typeof(int));
-                var l = (int)Execute(parentBlock, splitedFormula[0], typeof(int));
-                if (ope == "+") return r + l;
-                if (ope == "-") return r - l;
-                if (ope == "*") return r * l;
-                if (ope == "/") return r / l;
+                var l = (int)Execute(parentBlock, splitedFormula[0], typeof(int)).Object;
+                var r = (int)Execute(parentBlock, splitedFormula[1], typeof(int)).Object;
+                if (ope == "+") return l + r;
+                if (ope == "-") return l - r;
+                if (ope == "*") return l * r;
+                if (ope == "/") return l / r;
             }
             return int.Parse(source);
         }
@@ -84,43 +81,43 @@ namespace Pocole.Util
         private static bool ExecuteCalcBool(Block parentBlock, string source)
         {
             var ope = GetNextOperator(source);
-            var splitedFormula = String.SplitOnceTail(source, ope);
-            if (ContainsCompareOperator(ope))
+            var splitedFormula = SplitFormula(source, ope);
+            if (Util.String.MatchAny(ope, CompareOpes))
             {
-                var rType = Value.GetValueType(splitedFormula[1], parentBlock);
                 var lType = Value.GetValueType(splitedFormula[0], parentBlock);
+                var rType = Value.GetValueType(splitedFormula[1], parentBlock);
 
                 // 型の違う者同士は比較しないことにする
                 if (rType != lType) return false;
 
-                var r = Execute(parentBlock, splitedFormula[1], rType);
-                var l = Execute(parentBlock, splitedFormula[0], lType);
+                var l = Execute(parentBlock, splitedFormula[0], lType).Object;
+                var r = Execute(parentBlock, splitedFormula[1], rType).Object;
                 if (rType == typeof(int))
                 {
-                    if (ope == "==") return (int)r == (int)l;
-                    else if (ope == "!=") return (int)r != (int)l;
-                    else if (ope == "<") return (int)r < (int)l;
-                    else if (ope == ">") return (int)r > (int)l;
-                    else if (ope == "<=") return (int)r <= (int)l;
-                    else if (ope == ">=") return (int)r >= (int)l;
+                    if (ope == "==") return (int)l == (int)r;
+                    else if (ope == "!=") return (int)l != (int)r;
+                    else if (ope == "<") return (int)l < (int)r;
+                    else if (ope == ">") return (int)l > (int)r;
+                    else if (ope == "<=") return (int)l <= (int)r;
+                    else if (ope == ">=") return (int)l >= (int)r;
                     else { Log.Error("{0}型で 比較できる演算子ではない:{1}", rType.ToString(), ope); return false; }
                 }
                 else if (rType == typeof(string))
                 {
-                    if (ope == "==") return (string)r == (string)l;
-                    else if (ope == "!=") return (string)r != (string)l;
+                    if (ope == "==") return (string)l == (string)r;
+                    else if (ope == "!=") return (string)l != (string)r;
                     else { Log.Error("{0}型で 比較できる演算子ではない:{1}", rType.ToString(), ope); return false; }
                 }
                 else if (rType == typeof(bool))
                 {
-                    if (ope == "&&") return (bool)r && (bool)l;
-                    if (ope == "||") return (bool)r || (bool)l;
+                    if (ope == "&&") return (bool)l && (bool)r;
+                    if (ope == "||") return (bool)l || (bool)r;
                     throw new System.Exception("比較できない演算子");
                 }
                 else
                 {
-                    if (ope == "==") return r == l;
-                    if (ope == "!=") return r != l;
+                    if (ope == "==") return l == r;
+                    if (ope == "!=") return l != r;
 
                     throw new System.Exception("比較できない");
                 }
@@ -131,21 +128,21 @@ namespace Pocole.Util
         private static string ExecuteCalcString(Block parentBlock, string source)
         {
             var ope = GetNextOperator(source);
-            var splitedFormula = String.SplitOnceTail(source, ope);
-            if (ope == "+") return (string)Execute(parentBlock, splitedFormula[1], typeof(string)) + (string)Execute(parentBlock, splitedFormula[0], typeof(string));
+            var splitedFormula = SplitFormula(source, ope);
+            if (ope == "+") return (string)Execute(parentBlock, splitedFormula[0], typeof(string)).Object +
+                                    (string)Execute(parentBlock, splitedFormula[1], typeof(string)).Object;
             return Util.String.Extract(source, '"');
         }
 
-        private static List<Value> ExecuteArrayString(Block parentBlock, string source)
+        private static List<Value> ExecuteArray(Block parentBlock, string source)
         {
             var split = Util.String.Split(Util.String.Extract(source, '[', ']'), ',');
             var list = new List<Value>();
             int index = 0;
             foreach (var objSrc in split)
             {
-                var obj = Execute(parentBlock, objSrc, Value.GetValueType(objSrc, parentBlock));
-                var value = new Value(index.ToString());
-                value.SetValue(obj);
+                var value = Execute(parentBlock, objSrc, Value.GetValueType(objSrc, parentBlock));
+                value.Name = index.ToString();
                 list.Add(value);
                 index++;
             }
@@ -155,50 +152,82 @@ namespace Pocole.Util
         private static string GetNextOperator(string source)
         {
             source = Util.String.RemoveString(source);
-            var reverse = new string(source.Reverse().ToArray());
+            foreach (var formula in Split(source))
+            {
+                source = source.Replace(formula, " ");
+            }
+            var opes = Util.String.Split(source, ' ');
+            if (opes.Length == 0) return "";
 
-            if (source.Contains("==")) return "==";
-            if (source.Contains("!=")) return "!=";
-            if (source.Contains(">=")) return ">=";
-            if (source.Contains("<=")) return "<=";
-            if (source.Contains(">")) return ">";
-            if (source.Contains("<")) return "<";
-            if (source.Contains("&&")) return "&&";
-            if (source.Contains("||")) return "||";
+            foreach (var ope in opes)
+                if (Util.String.MatchAny(ope, CompareOpes)) return ope;
 
-            if (String.ContainsAny(reverse, "+-"))
-                foreach (var c in reverse)
-                    if (String.ContainsAny(c, "+-")) return c.ToString();
+            foreach (var ope in opes)
+                if (Util.String.MatchAny(ope, new[] { "+", "-" })) return ope;
 
-            if (String.ContainsAny(reverse, "*/"))
-                foreach (var c in reverse)
-                    if (String.ContainsAny(c, "*/")) return c.ToString();
+            foreach (var ope in opes)
+                if (Util.String.MatchAny(ope, new[] { "*", "/" })) return ope;
 
             return "";
         }
 
-        private static bool ContainsCompareOperator(string source)
+        public static string[] Split(string source)
         {
-            if (source.Contains("==") ||
-            source.Contains("!=") ||
-            source.Contains("<=") ||
-            source.Contains(">=") ||
-            source.Contains("<") ||
-            source.Contains(">") ||
-            source.Contains("&&") ||
-            source.Contains("||")) return true;
+            var list = new List<string>();
+            var buf = "";
+            var blockCount = 0;
+            foreach (var c in source)
+            {
+                buf += c;
 
-            return false;
+                if (c == '(' || c == '[') blockCount++;
+                if (c == ')' || c == ']') blockCount--;
+
+                var ope = "";
+                if (blockCount == 0 && Util.String.MatchTail(buf, Operators, out ope))
+                {
+                    buf = buf.Replace(ope, "");
+                    list.Add(buf);
+                    buf = "";
+                    continue;
+                }
+            }
+            if (buf != "") list.Add(buf);
+            return list.ToArray();
         }
 
-        private static bool IsMethodString(string source)
+        private static string[] SplitFormula(string source, string ope)
         {
-            var buf = Util.String.Substring(source, '(');
-            if (buf.Length > 0 && Util.String.Contains(source, "("))
+            if (ope.Length == 0) { return new string[] { source }; }
+
+            var list = new List<string>();
+            var buf = "";
+            var blockCount = 0;
+            bool matched = false;
+            foreach (var c in source)
             {
-                return true;
+                if (matched)
+                {
+                    buf += c;
+                    continue;
+                }
+
+                buf += c;
+
+                if (c == '(' || c == '[') blockCount++;
+                if (c == ')' || c == ']') blockCount--;
+
+                if (blockCount == 0 && buf.Contains(ope))
+                {
+                    buf = buf.Replace(ope, "");
+                    list.Add(buf);
+                    buf = "";
+                    matched = true;
+                    continue;
+                }
             }
-            return false;
+            if (buf != "") list.Add(buf);
+            return list.ToArray();
         }
     }
 }

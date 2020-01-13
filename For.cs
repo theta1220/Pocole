@@ -30,7 +30,7 @@ namespace Pocole
                 setter.ForceExecute();
             }
 
-            var isContinuous = (bool)Util.Calc.Execute(this, ConditionSource, typeof(bool));
+            var isContinuous = (bool)Util.Calc.Execute(this, ConditionSource, typeof(bool)).Object;
             if (!isContinuous)
             {
                 IsContinuous = false;

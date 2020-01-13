@@ -20,7 +20,7 @@ namespace Pocole
             if (typeName == "int") ReturnType = typeof(int);
             else if (typeName == "string") ReturnType = typeof(string);
             else if (typeName == "bool") ReturnType = typeof(bool);
-            else ReturnType = typeof(void);
+            else ReturnType = typeof(object);
         }
 
         public bool SetArgs(object[] args)
@@ -44,8 +44,7 @@ namespace Pocole
                     isRef = false;
                 }
 
-                var value = new Value(name);
-                value.SetValue(arg);
+                var value = new Value(name, arg);
 
                 if (isRef) AddValue(value);
                 else AddValue(Util.Object.DeepCopy(value));

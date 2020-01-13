@@ -52,7 +52,7 @@ namespace Pocole
 
         protected override void Run()
         {
-            var args = new List<object>();
+            var args = new List<Value>();
             foreach (var arg in Args)
             {
                 if (arg == "args")
@@ -60,7 +60,7 @@ namespace Pocole
                     var values = GetParentBlock().FindValues(arg);
                     foreach (var val in values)
                     {
-                        args.Add(val.Object);
+                        args.Add(val);
                     }
                 }
                 else
@@ -72,11 +72,11 @@ namespace Pocole
             var res = MethodInvoke(Name, args.ToArray());
             if (res != null && _returnValue != null)
             {
-                _returnValue.SetValue(res);
+                _returnValue.Object = res;
             }
         }
 
-        private object MethodInvoke(string methodName, object[] args)
+        private object MethodInvoke(string methodName, Value[] args)
         {
             var method = Type.GetType(ClassName).GetMethod(methodName);
             if (method == null)
@@ -85,10 +85,10 @@ namespace Pocole
                 throw new Exception("Method not found");
             }
             if (args.Length > 0) return method.Invoke(null, new[] { args });
-            else return method.Invoke(null, new object[] { });
+            else return method.Invoke(null, new Value[] { });
         }
 
-        public static void Print(object[] args)
+        public static void Print(Value[] args)
         {
             var list = new List<object>();
             var text = "";
@@ -98,10 +98,10 @@ namespace Pocole
                 count++;
                 if (count == 1)
                 {
-                    text = arg.ToString();
+                    text = arg.Object.ToString();
                     continue;
                 }
-                list.Add(arg);
+                list.Add((arg as Value).Object);
             }
             Log.Info(string.Format("{0}", text), list.ToArray());
         }

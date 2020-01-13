@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Collections.Generic;
 
 namespace Pocole
@@ -9,7 +10,7 @@ namespace Pocole
         {
             var text = Util.File.Open(file);
             text = RemoveExtraText(text);
-            var block = new Block(null, text, file);
+            var block = new Block(null, text, GetName(file));
             return block;
         }
 
@@ -96,6 +97,11 @@ namespace Pocole
                 resText += line;
             }
             return resText;
+        }
+
+        private string GetName(string file)
+        {
+            return file.Split('/').Last().Split('.').First();
         }
     }
 }

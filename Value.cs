@@ -18,8 +18,9 @@ namespace Pocole
                 return Object.GetType();
             }
         }
-        public string Name { get; private set; }
-        public object Object { get; private set; }
+        public string Name { get; set; }
+        public object Object { get; set; }
+        public List<MethodDeclarer> Methods { get; private set; } = new List<MethodDeclarer>();
 
         public Value()
         {
@@ -47,15 +48,15 @@ namespace Pocole
             }
         }
 
-        public void SetValue(object value)
+        public Value(string name, object value)
         {
+            Name = name;
             Object = value;
         }
 
         public static Type GetValueType(string source, Block parentBlock = null)
         {
-            source = Util.String.Remove(source, ' ');
-            var value = Util.String.SplitAny(source, "+-*/");
+            var value = GetFirstCalcSource(source);
 
             // 配列
             if ((Util.String.Contains(source, ",") && Util.String.Contains(source, "[") || source == "[]"))
@@ -65,21 +66,21 @@ namespace Pocole
 
             var resInt = 0;
             var resBool = false;
-            if (int.TryParse(value[0], out resInt))
+            if (int.TryParse(value, out resInt))
             {
                 return typeof(int);
             }
-            else if (bool.TryParse(value[0], out resBool))
+            else if (bool.TryParse(value, out resBool))
             {
                 return typeof(bool);
             }
-            else if (parentBlock != null && parentBlock.FindMethod(Util.String.Substring(value[0], '(')) != null)
+            else if (parentBlock != null && parentBlock.FindValue(value) != null)
             {
-                return parentBlock.FindMethod(Util.String.Substring(value[0], '(')).ReturnType;
+                return parentBlock.FindValue(value).ValueType;
             }
-            else if (parentBlock != null && parentBlock.FindValue(value[0]) != null)
+            else if (parentBlock != null && parentBlock.FindMethod(Util.String.Substring(value, '(')) != null)
             {
-                return parentBlock.FindValue(value[0]).ValueType;
+                return parentBlock.FindMethod(Util.String.Substring(value, '(')).ReturnType;
             }
             else if (Util.String.Contains(source, "\""))
             {
@@ -89,6 +90,11 @@ namespace Pocole
             {
                 return typeof(object);
             }
+        }
+
+        public static string GetFirstCalcSource(string source)
+        {
+            return Util.Calc.Split(source)[0];
         }
     }
 }

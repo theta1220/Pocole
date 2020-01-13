@@ -28,7 +28,7 @@ namespace Pocole
             var objs = new List<object>();
             foreach (var arg in Args)
             {
-                objs.Add(Util.Calc.Execute(GetParentBlock(), arg, Value.GetValueType(arg, GetParentBlock())));
+                objs.Add(Util.Calc.Execute(GetParentBlock(), arg, Value.GetValueType(arg, GetParentBlock())).Object);
             }
             if (!Method.SetArgs(objs.ToArray()))
             {

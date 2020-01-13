@@ -56,25 +56,28 @@ namespace Pocole
 
         public Value FindValue(string name)
         {
-            if (Util.String.RemoveString(name).Contains("."))
-            {
-                var split = Util.String.SplitOnce(name, '.');
-                var instance = (Class)FindValue(split[0]).Object;
-                if (instance != null) return instance.GetMemberValue(split[1]);
-                return null;
-            }
-            if (Util.String.RemoveString(name).Contains("["))
-            {
-                var arrName = Util.String.Substring(name, '[');
-                var index = (int)Util.Calc.Execute(this, Util.String.Extract(name, '[', ']'), typeof(int));
-                return (FindValue(arrName).Object as List<Value>)[index];
-            }
             bool isRef = true;
             // @がついている変数はコピーが作成される
             if (Util.String.MatchHead("@", name))
             {
                 name = Util.String.Remove(name, '@');
                 isRef = false;
+            }
+
+            var hit = Util.String.FirstHit(Util.String.RemoveString(name), new[] { '.', '[' });
+            if (hit == '.')
+            {
+                var split = Util.String.SplitOnce(name, '.');
+                var instance = FindValue(split[0]);
+                if (instance != null) return (instance.Object as Class).GetMemberValue(split[1]);
+                return null;
+            }
+            else if (hit == '[')
+            {
+                var arrName = Util.String.Substring(name, '[');
+                var source = Util.String.Extract(name, '[', ']');
+                var index = (int)Util.Calc.Execute(this, source, typeof(int)).Object;
+                return (FindValue(arrName).Object as List<Value>)[index];
             }
             var target = Values.FirstOrDefault(value => value.Name == name);
             if (target == null && GetParentBlock() != null)
@@ -135,6 +138,7 @@ namespace Pocole
 
         public void Using(Block block)
         {
+            block.Parent = this;
             foreach (var value in block.Values)
             {
                 if (FindValue(value.Name) != null) continue;
@@ -153,6 +157,24 @@ namespace Pocole
                     continue;
                 }
                 Classes.Add(classDef);
+            }
+        }
+
+        public void PrintBlockTree()
+        {
+            PrintBlockTree(this, 0);
+        }
+
+        private void PrintBlockTree(Block parent, int tree)
+        {
+            Log.Info("{0}{1}", Util.String.GetIndentSpace(tree), parent.Name);
+            foreach (var method in parent.Methods)
+            {
+                Log.Debug("{0}- {1}", Util.String.GetIndentSpace(tree), method.Name);
+            }
+            foreach (var classDef in parent.Classes)
+            {
+                PrintBlockTree(classDef, tree + 1);
             }
         }
     }

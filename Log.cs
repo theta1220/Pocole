@@ -52,7 +52,7 @@ namespace Pocole
                 Util.Reflect.GetCallerClassName(stack),
                 Util.Reflect.GetCallerMethodName(stack),
                 Util.Reflect.GetCallerMethodLineNo(stack));
-            var message = string.Format("{0}: {1}", info, text);
+            var message = string.Format("{0}: \"{1}\"", info, text);
             Console.WriteLine(message, args);
             Console.ResetColor();
         }

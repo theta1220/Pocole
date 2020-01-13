@@ -36,6 +36,11 @@ namespace Pocole
                 executedInitSource = true;
 
                 targetArray = FindValue(ArrayName).Object as List<Value>;
+                if (targetArray == null)
+                {
+                    Log.Error("配列が見つかりませんでした:{0}", ArrayName);
+                    throw new System.Exception("array not found.");
+                }
 
                 targetValue = new Value(ValueName);
                 AddValue(targetValue);
@@ -62,10 +67,10 @@ namespace Pocole
 
         private void PickValue()
         {
-            targetValue.SetValue(targetArray[Count].Object);
+            targetValue.Object = targetArray[Count].Object;
             if (countValue != null)
             {
-                countValue.SetValue(Count);
+                countValue.Object = Count;
             }
         }
     }

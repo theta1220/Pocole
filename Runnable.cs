@@ -132,5 +132,15 @@ namespace Pocole
             }
             return Parent.GetParentMethod();
         }
+
+        public Class GetParentClass()
+        {
+            if (Parent == null) { return null; }
+            if (Parent is Class)
+            {
+                return (Class)Parent;
+            }
+            return Parent.GetParentClass();
+        }
     }
 }

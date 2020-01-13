@@ -184,7 +184,7 @@ namespace Pocole.Util
                 if (c == ')' || c == ']') blockCount--;
 
                 var ope = "";
-                if (blockCount == 0 && Util.String.MatchTail(buf, Operators, out ope))
+                if (blockCount == 0 && buf.MatchTail(Operators, out ope))
                 {
                     buf = buf.Replace(ope, "");
                     list.Add(buf);

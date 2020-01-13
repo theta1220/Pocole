@@ -41,6 +41,7 @@ namespace Pocole
                 else if (source.PoMatchHead("for")) Runnables.Add(new For(this, source));
                 else if (source.PoMatchHead("using")) Runnables.Add(new UsingLoader(this, source));
                 else if (source.PoMatchHead("return")) Runnables.Add(new Return(this, source));
+                else if (source.PoMatchHead("{")) Runnables.Add(new Block(this, source.PoExtract('{', '}')));
                 else Runnables.Add(new Term(this, source));
             }
         }

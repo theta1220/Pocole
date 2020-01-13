@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Pocole.Util;
 
 namespace Pocole
 {
@@ -13,7 +14,7 @@ namespace Pocole
 
         public UsingLoader(Runnable parent, string source) : base(parent, source)
         {
-            Name = Util.String.PoRemove(Util.String.PoSplitOnce(source, ' ').Last(), ' ');
+            Name = source.PoSplitOnce(' ').Last().PoRemove(' ');
         }
 
         protected override void Run()

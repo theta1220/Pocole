@@ -11,13 +11,13 @@ namespace Pocole
         public string[] ArgNames { get; private set; }
         public System.Type ReturnType { get; private set; }
 
-        public MethodDeclarer(Runnable parent, string source) : base(parent, Util.String.PoExtract(source, '{', '}'))
+        public MethodDeclarer(Runnable parent, string source) : base(parent, source.PoExtract('{', '}'))
         {
             // func hoge(){ ... }
             Name = source.Split('(')[0].Split(' ')[1];
-            ArgNames = Util.String.PoExtract(Util.String.PoRemove(source, ' '), '(', ')').Split(',');
+            ArgNames = source.PoRemove(' ').PoExtract('(', ')').Split(',');
 
-            var typeName = Util.String.PoSplit(Util.String.PoRemove(Util.String.PoCut(source, '{'), ' '), ':').Last();
+            var typeName = source.PoCut('{').PoRemove(' ').PoSplit(':').Last();
             if (typeName == "int") ReturnType = typeof(int);
             else if (typeName == "string") ReturnType = typeof(string);
             else if (typeName == "bool") ReturnType = typeof(bool);
@@ -41,7 +41,7 @@ namespace Pocole
                 var isRef = true;
                 if (name.PoMatchHead("@"))
                 {
-                    name = Util.String.PoRemove(name, '@');
+                    name = name.PoRemove('@');
                     isRef = false;
                 }
 

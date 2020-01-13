@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
+using Pocole.Util;
 
 namespace Pocole
 {
@@ -78,9 +79,9 @@ namespace Pocole
             {
                 return parentBlock.FindValue(value).ValueType;
             }
-            else if (parentBlock != null && parentBlock.FindMethod(Util.String.PoCut(value, '(')) != null)
+            else if (parentBlock != null && parentBlock.FindMethod(value.PoCut('(')) != null)
             {
-                return parentBlock.FindMethod(Util.String.PoCut(value, '(')).ReturnType;
+                return parentBlock.FindMethod(value.PoCut('(')).ReturnType;
             }
             else if (source.Contains("\""))
             {

@@ -28,7 +28,7 @@ namespace Pocole.Util
                 var value = parentBlock.FindValue(formula);
                 if (value != null) return value;
 
-                var method = parentBlock.FindMethod(Util.String.PoCut(formula, '('));
+                var method = parentBlock.FindMethod(formula.PoCut('('));
                 if (method != null)
                 {
                     var caller = new MethodCaller(parentBlock, formula);
@@ -54,9 +54,9 @@ namespace Pocole.Util
             foreach (var c in source)
             {
                 buf += c;
-                if (source.Length > 2 && Util.String.PoMatchAny(buf, splitedFormula) && source.First() == '(' && source.Last() == ')')
+                if (source.Length > 2 && buf.PoMatchAny(splitedFormula) && source.First() == '(' && source.Last() == ')')
                 {
-                    buf = buf.Replace(source, Execute(parentBlock, Util.String.PoExtract(source, '(', ')'), type).Object.ToString());
+                    buf = buf.Replace(source, Execute(parentBlock, source.PoExtract('(', ')'), type).Object.ToString());
                 }
             }
             return buf;
@@ -82,7 +82,7 @@ namespace Pocole.Util
         {
             var ope = GetNextOperator(source);
             var splitedFormula = SplitFormula(source, ope);
-            if (Util.String.PoMatchAny(ope, CompareOpes))
+            if (ope.PoMatchAny(CompareOpes))
             {
                 var lType = Value.GetValueType(splitedFormula[0], parentBlock);
                 var rType = Value.GetValueType(splitedFormula[1], parentBlock);
@@ -131,12 +131,12 @@ namespace Pocole.Util
             var splitedFormula = SplitFormula(source, ope);
             if (ope == "+") return (string)Execute(parentBlock, splitedFormula[0], typeof(string)).Object +
                                     (string)Execute(parentBlock, splitedFormula[1], typeof(string)).Object;
-            return Util.String.PoExtract(source, '"');
+            return source.PoExtract('"');
         }
 
         private static List<Value> ExecuteArray(Block parentBlock, string source)
         {
-            var split = Util.String.PoSplit(Util.String.PoExtract(source, '[', ']'), ',');
+            var split = source.PoExtract('[', ']').PoSplit(',');
             var list = new List<Value>();
             int index = 0;
             foreach (var objSrc in split)
@@ -151,22 +151,22 @@ namespace Pocole.Util
 
         private static string GetNextOperator(string source)
         {
-            source = Util.String.PoRemoveString(source);
+            source = source.PoRemoveString();
             foreach (var formula in Split(source))
             {
                 source = source.Replace(formula, " ");
             }
-            var opes = Util.String.PoSplit(source, ' ');
+            var opes = source.PoSplit(' ');
             if (opes.Length == 0) return "";
 
             foreach (var ope in opes)
-                if (Util.String.PoMatchAny(ope, CompareOpes)) return ope;
+                if (ope.PoMatchAny(CompareOpes)) return ope;
 
             foreach (var ope in opes)
-                if (Util.String.PoMatchAny(ope, new[] { "+", "-" })) return ope;
+                if (ope.PoMatchAny(new[] { "+", "-" })) return ope;
 
             foreach (var ope in opes)
-                if (Util.String.PoMatchAny(ope, new[] { "*", "/" })) return ope;
+                if (ope.PoMatchAny(new[] { "*", "/" })) return ope;
 
             return "";
         }

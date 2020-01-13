@@ -62,7 +62,7 @@ namespace Pocole
             // @がついている変数はコピーが作成される
             if (name.PoMatchHead("@"))
             {
-                name = name.Remove('@');
+                name = name.PoRemove('@');
                 isRef = false;
             }
 

@@ -1,3 +1,5 @@
+using Pocole.Util;
+
 namespace Pocole
 {
     public enum ValueSetterType
@@ -21,7 +23,7 @@ namespace Pocole
             // 宣言
             if (name == "var")
             {
-                var buf = Util.String.PoRemove(Util.String.PoSplitOnce(source, ' ')[1], ' ').Split('=');
+                var buf = source.PoSplitOnce(' ')[1].PoRemove(' ').Split('=');
                 Name = buf[0];
                 Formula = buf[1];
                 ValueSetterType = ValueSetterType.Declare;
@@ -29,7 +31,7 @@ namespace Pocole
             // 代入
             else
             {
-                var buf = Util.String.PoRemove(source, ' ').Split('=');
+                var buf = source.PoRemove(' ').Split('=');
                 Name = buf[0];
                 Formula = buf[1];
                 ValueSetterType = ValueSetterType.Assign;

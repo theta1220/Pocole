@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Pocole.Util;
 
 namespace Pocole
 {
@@ -12,8 +13,8 @@ namespace Pocole
 
         public MethodCaller(Runnable parent, string source) : base(parent, source)
         {
-            Name = Util.String.PoCut(source.Replace(" ", ""), '(');
-            Args = Util.String.PoSplit(Util.String.PoExtract(Util.String.PoRemove(source, ' '), '(', ')'), ',');
+            Name = source.PoRemove(' ').PoCut('(');
+            Args = source.PoRemove(' ').PoExtract('(', ')').PoSplit(',');
         }
 
         public override void OnEntered()

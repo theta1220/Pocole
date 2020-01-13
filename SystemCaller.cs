@@ -2,6 +2,7 @@ using System.Reflection;
 using System.Collections.Generic;
 using System.Linq;
 using System;
+using Pocole.Util;
 
 namespace Pocole
 {
@@ -16,7 +17,7 @@ namespace Pocole
 
         public SystemCaller(Runnable parent, string source) : base(parent, source)
         {
-            var args = Util.String.PoSplit(Util.String.PoExtract(Util.String.PoRemove(source, ' '), '(', ')'), ',');
+            var args = source.PoRemove(' ').PoExtract('(', ')').PoSplit(',');
 
             var count = 0;
             var list = new List<string>();
@@ -24,7 +25,7 @@ namespace Pocole
             {
                 if (count == 0)
                 {
-                    var name = Util.String.PoSplit(Util.String.PoExtract(arg, '"'), '.');
+                    var name = arg.PoExtract('"').PoSplit('.');
                     for (var i = 0; i < name.Length - 1; i++)
                     {
                         ClassName += name[i];

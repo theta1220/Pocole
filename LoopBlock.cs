@@ -1,3 +1,5 @@
+using Pocole.Util;
+
 namespace Pocole
 {
     [System.Serializable]
@@ -5,7 +7,7 @@ namespace Pocole
     {
         public bool IsContinuous { get; protected set; }
 
-        public LoopBlock(Runnable parent, string source) : base(parent, Util.String.PoExtract(source, '{', '}'))
+        public LoopBlock(Runnable parent, string source) : base(parent, source.PoExtract('{', '}'))
         {
             IsContinuous = true;
         }

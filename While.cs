@@ -1,3 +1,5 @@
+using Pocole.Util;
+
 namespace Pocole
 {
     [System.Serializable]
@@ -7,7 +9,7 @@ namespace Pocole
 
         public While(Runnable parent, string source) : base(parent, source)
         {
-            _conditionSource = Util.String.PoExtract(Util.String.PoRemove(source, ' '), '(', ')');
+            _conditionSource = source.PoRemove(' ').PoExtract('(', ')');
         }
 
         public override void OnEntered()

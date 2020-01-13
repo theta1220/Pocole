@@ -28,10 +28,19 @@ namespace Pocole
 
             // 呼び出しもとを特定してセット
             {
-                var caller = GetParentBlock().FindValue(GetCallerName(Name));
-                if (caller != null)
+                var value = GetParentBlock().FindValue(GetCallerName(Name));
+                if (value != null)
                 {
-                    Method.Caller = caller;
+                    Method.Caller = value;
+                }
+                else
+                {
+                    var classDef = GetParentBlock().FindClass(GetCallerName(Name));
+                    if (classDef == null)
+                    {
+                        Log.Error("クラスが見つかりませんでした {0}", GetCallerName(Name));
+                    }
+                    Method.Caller = new Value("", classDef);
                 }
             }
 

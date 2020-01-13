@@ -60,10 +60,6 @@ namespace Pocole
             }
             var valueType = Value.GetValueType(Formula, GetParentBlock());
             var res = Util.Calc.Execute(GetParentBlock(), Formula, valueType);
-            if (res == null)
-            {
-                Log.Debug("resはnull");
-            }
             target.Object = res.Object;
         }
     }

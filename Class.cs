@@ -7,9 +7,25 @@ namespace Pocole
     [Serializable]
     public class Class : Block
     {
+        private string[] _extendNames = new string[] { };
         public Class(Runnable parent, string source) : base(parent, source.PoExtract('{', '}'))
         {
-            Name = source.Split('{')[0].Split(' ')[1];
+            Name = source.PoCut('{').PoSplitOnce(' ')[1];
+            if (Name.Contains(":"))
+            {
+                _extendNames = Name.PoRemove(' ').PoSplit(':')[1].PoSplit(',');
+                Name = Name.PoRemove(' ').PoCut(':');
+            }
+        }
+
+        public void Extend()
+        {
+            foreach (var name in _extendNames)
+            {
+                var def = FindClass(name);
+                Using(def);
+            }
+            ForceExecute();
         }
 
         public override void OnLeaved()
@@ -21,7 +37,6 @@ namespace Pocole
         {
             var instance = Util.Object.DeepCopy(this);
             instance.Name = name;
-            instance.ForceExecute();
             return instance;
         }
 

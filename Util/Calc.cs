@@ -40,11 +40,6 @@ namespace Pocole.Util
             source = ExecuteBracketCalc(parentBlock, source, type);
 
             if (source == "null") return null;
-            if (source == "this")
-            {
-                if (parentBlock is MethodDeclarer) return (parentBlock as MethodDeclarer).Caller;
-                return parentBlock.GetParentMethod().Caller;
-            }
             if (type == typeof(int)) return new Value("", ExecuteCalcInt(parentBlock, source));
             if (type == typeof(bool)) return new Value("", ExecuteCalcBool(parentBlock, source));
             if (type == typeof(string)) return new Value("", ExecuteCalcString(parentBlock, source));

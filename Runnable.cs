@@ -142,5 +142,15 @@ namespace Pocole
             }
             return Parent.GetParentClass();
         }
+
+        public Block GetRootBlock()
+        {
+            var parent = GetParentBlock();
+            if (parent != null)
+            {
+                return parent.GetRootBlock();
+            }
+            return (Block)this;
+        }
     }
 }

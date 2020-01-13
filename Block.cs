@@ -15,6 +15,7 @@ namespace Pocole
         public List<MethodDeclarer> Methods { get; private set; } = new List<MethodDeclarer>();
         public List<Class> Classes { get; private set; } = new List<Class>();
         public List<Extension> Extensions { get; private set; } = new List<Extension>();
+        public List<UsingLoader> Usings { get; private set; } = new List<UsingLoader>();
         public bool LastIfResult { get; set; } = false;
         public object ReturnedValue { get; set; }
 
@@ -34,6 +35,7 @@ namespace Pocole
                     else already.Using(classDef);
                 }
                 else if (source.PoMatchHead("extension")) Extensions.Add(new Extension(this, source));
+                else if (source.PoMatchHead("using")) Usings.Add(new UsingLoader(this, source));
                 else if (source.PoMatchHead("if") ||
                          source.PoMatchHead("else if") ||
                          source.PoMatchHead("else")) Runnables.Add(new If(this, source));
@@ -41,10 +43,21 @@ namespace Pocole
                 else if (source.PoMatchHead("while")) Runnables.Add(new While(this, source));
                 else if (source.PoMatchHead("foreach")) Runnables.Add(new Foreach(this, source));
                 else if (source.PoMatchHead("for")) Runnables.Add(new For(this, source));
-                else if (source.PoMatchHead("using")) Runnables.Add(new UsingLoader(this, source));
                 else if (source.PoMatchHead("return")) Runnables.Add(new Return(this, source));
                 else if (source.PoMatchHead("{")) Runnables.Add(new Block(this, source.PoExtract('{', '}')));
                 else Runnables.Add(new Term(this, source));
+            }
+        }
+
+        public override void OnEntered()
+        {
+            foreach (var use in Usings)
+            {
+                use.ForceExecute();
+            }
+            foreach (var classDef in Classes)
+            {
+                classDef.Extend();
             }
         }
 
@@ -91,11 +104,16 @@ namespace Pocole
                 return (FindValue(arrName).Object as List<Value>)[index];
             }
             var target = Values.FirstOrDefault(value => value.Name == name);
+            if (name == "this")
+            {
+                if (this is MethodDeclarer) target = (this as MethodDeclarer).Caller;
+                else target = GetParentMethod().Caller;
+            }
             if (target == null && GetParentBlock() != null)
             {
                 target = GetParentBlock().FindValue(name);
             }
-            if (!isRef)
+            if (!isRef && target != null)
             {
                 target = Util.Object.DeepCopy(target);
             }
@@ -216,7 +234,7 @@ namespace Pocole
             PrintBlockTree(this, 0);
         }
 
-        private void PrintBlockTree(Block parent, int tree)
+        public void PrintBlockTree(Block parent, int tree)
         {
             Log.Info("{0}{1}::{2}", Util.String.GetIndentSpace(tree), parent.GetType(), parent.Name);
             foreach (var method in parent.Methods)

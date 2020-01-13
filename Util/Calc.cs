@@ -11,7 +11,7 @@ namespace Pocole.Util
 
         public static Value Execute(Block parentBlock, string source, System.Type type)
         {
-            source = String.Remove(source, ' ');
+            source = String.PoRemove(source, ' ');
 
             var splitedFormula = Split(source);
 
@@ -28,7 +28,7 @@ namespace Pocole.Util
                 var value = parentBlock.FindValue(formula);
                 if (value != null) return value;
 
-                var method = parentBlock.FindMethod(Util.String.Substring(formula, '('));
+                var method = parentBlock.FindMethod(Util.String.PoCut(formula, '('));
                 if (method != null)
                 {
                     var caller = new MethodCaller(parentBlock, formula);
@@ -54,9 +54,9 @@ namespace Pocole.Util
             foreach (var c in source)
             {
                 buf += c;
-                if (source.Length > 2 && Util.String.MatchAny(buf, splitedFormula) && source.First() == '(' && source.Last() == ')')
+                if (source.Length > 2 && Util.String.PoMatchAny(buf, splitedFormula) && source.First() == '(' && source.Last() == ')')
                 {
-                    buf = buf.Replace(source, Execute(parentBlock, Util.String.Extract(source, '(', ')'), type).Object.ToString());
+                    buf = buf.Replace(source, Execute(parentBlock, Util.String.PoExtract(source, '(', ')'), type).Object.ToString());
                 }
             }
             return buf;
@@ -82,7 +82,7 @@ namespace Pocole.Util
         {
             var ope = GetNextOperator(source);
             var splitedFormula = SplitFormula(source, ope);
-            if (Util.String.MatchAny(ope, CompareOpes))
+            if (Util.String.PoMatchAny(ope, CompareOpes))
             {
                 var lType = Value.GetValueType(splitedFormula[0], parentBlock);
                 var rType = Value.GetValueType(splitedFormula[1], parentBlock);
@@ -131,12 +131,12 @@ namespace Pocole.Util
             var splitedFormula = SplitFormula(source, ope);
             if (ope == "+") return (string)Execute(parentBlock, splitedFormula[0], typeof(string)).Object +
                                     (string)Execute(parentBlock, splitedFormula[1], typeof(string)).Object;
-            return Util.String.Extract(source, '"');
+            return Util.String.PoExtract(source, '"');
         }
 
         private static List<Value> ExecuteArray(Block parentBlock, string source)
         {
-            var split = Util.String.Split(Util.String.Extract(source, '[', ']'), ',');
+            var split = Util.String.PoSplit(Util.String.PoExtract(source, '[', ']'), ',');
             var list = new List<Value>();
             int index = 0;
             foreach (var objSrc in split)
@@ -151,22 +151,22 @@ namespace Pocole.Util
 
         private static string GetNextOperator(string source)
         {
-            source = Util.String.RemoveString(source);
+            source = Util.String.PoRemoveString(source);
             foreach (var formula in Split(source))
             {
                 source = source.Replace(formula, " ");
             }
-            var opes = Util.String.Split(source, ' ');
+            var opes = Util.String.PoSplit(source, ' ');
             if (opes.Length == 0) return "";
 
             foreach (var ope in opes)
-                if (Util.String.MatchAny(ope, CompareOpes)) return ope;
+                if (Util.String.PoMatchAny(ope, CompareOpes)) return ope;
 
             foreach (var ope in opes)
-                if (Util.String.MatchAny(ope, new[] { "+", "-" })) return ope;
+                if (Util.String.PoMatchAny(ope, new[] { "+", "-" })) return ope;
 
             foreach (var ope in opes)
-                if (Util.String.MatchAny(ope, new[] { "*", "/" })) return ope;
+                if (Util.String.PoMatchAny(ope, new[] { "*", "/" })) return ope;
 
             return "";
         }
@@ -184,7 +184,7 @@ namespace Pocole.Util
                 if (c == ')' || c == ']') blockCount--;
 
                 var ope = "";
-                if (blockCount == 0 && buf.MatchTail(Operators, out ope))
+                if (blockCount == 0 && buf.PoMatchTail(Operators, out ope))
                 {
                     buf = buf.Replace(ope, "");
                     list.Add(buf);

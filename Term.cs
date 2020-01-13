@@ -30,31 +30,31 @@ namespace Pocole
         //! ... Hoge(args)... のような文字列から メソッド名を取り出してくれる
         public static string ExtractMethodName(string source)
         {
-            var buf = Util.String.Split(Util.String.Substring(source, '('), ' ');
+            var buf = Util.String.PoSplit(Util.String.PoCut(source, '('), ' ');
             return buf.Last();
         }
 
         //! var hoge = foo; とか hoge = foo; のような文字列から 変数名を取り出してくれる
         public static string ExtractValueName(string source)
         {
-            var buf = Util.String.Split(Util.String.Substring(source, '='), ' ');
-            return Util.String.Remove(buf.Last(), ' ');
+            var buf = Util.String.PoSplit(Util.String.PoCut(source, '='), ' ');
+            return Util.String.PoRemove(buf.Last(), ' ');
         }
 
         public static bool IsSetter(string source)
         {
-            return Util.String.RemoveString(source).Contains("=");
+            return Util.String.PoRemoveString(source).Contains("=");
         }
 
         public static bool IsMethod(string source)
         {
-            return Util.String.RemoveString(source).Contains("(");
+            return Util.String.PoRemoveString(source).Contains("(");
         }
 
         //! Hoge hoge; のような文字列からクラス名を取り出してくれる
         public static string ExtractClassName(string source)
         {
-            return Util.String.Remove(Util.String.Split(source, ' ').First(), ' ');
+            return Util.String.PoRemove(Util.String.PoSplit(source, ' ').First(), ' ');
         }
     }
 }

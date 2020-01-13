@@ -13,7 +13,7 @@ namespace Pocole
 
         public UsingLoader(Runnable parent, string source) : base(parent, source)
         {
-            Name = Util.String.Remove(Util.String.SplitOnce(source, ' ').Last(), ' ');
+            Name = Util.String.PoRemove(Util.String.PoSplitOnce(source, ' ').Last(), ' ');
         }
 
         protected override void Run()

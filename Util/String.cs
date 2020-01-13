@@ -5,12 +5,12 @@ namespace Pocole.Util
 {
     public static class String
     {
-        public static bool MatchTail(this string source, string[] patterns, out string match)
+        public static bool PoMatchTail(this string source, string[] patterns, out string match)
         {
             match = "";
             foreach (var pattern in patterns)
             {
-                if (source.MatchTail(pattern))
+                if (source.PoMatchTail(pattern))
                 {
                     match = pattern;
                     return true;
@@ -19,7 +19,7 @@ namespace Pocole.Util
             return false;
         }
 
-        public static bool MatchTail(this string source, string pattern)
+        public static bool PoMatchTail(this string source, string pattern)
         {
             if (source.Length < pattern.Length)
             {
@@ -38,7 +38,7 @@ namespace Pocole.Util
             return true;
         }
 
-        public static string[] SplitOnce(this string source, char? splitChar)
+        public static string[] PoSplitOnce(this string source, char? splitChar)
         {
             if (splitChar == null)
             {
@@ -70,7 +70,7 @@ namespace Pocole.Util
             return res.ToArray();
         }
 
-        public static string Extract(this string source, char target)
+        public static string PoExtract(this string source, char target)
         {
             var buf = "";
             var blockCount = 0;
@@ -98,7 +98,7 @@ namespace Pocole.Util
             return buf;
         }
 
-        public static string Extract(this string source, char start, char end, bool withBracket = false)
+        public static string PoExtract(this string source, char start, char end, bool withBracket = false)
         {
             var buf = "";
             var blockCount = 0;
@@ -141,7 +141,7 @@ namespace Pocole.Util
         }
 
         //! 文字列の部分を削除
-        public static string RemoveString(this string source)
+        public static string PoRemoveString(this string source)
         {
             var buf = "";
             var isString = false;
@@ -162,7 +162,7 @@ namespace Pocole.Util
         }
 
         //! 文字列を意識してスペースや改行を削除してくれる
-        public static string Remove(this string source, char target)
+        public static string PoRemove(this string source, char target)
         {
             var buf = "";
             var inString = false;
@@ -182,7 +182,7 @@ namespace Pocole.Util
         }
 
         //! 文字列を意識してsplitしてくれる
-        public static string[] Split(this string source, char split)
+        public static string[] PoSplit(this string source, char split)
         {
             var list = new List<string>();
             var buf = "";
@@ -230,7 +230,7 @@ namespace Pocole.Util
         }
 
         //! Blockが読みたい単位で分割してくれる
-        public static string[] SplitSource(this string source)
+        public static string[] PoSplitSource(this string source)
         {
             bool inString = false;
             int blockCount = 0;
@@ -264,7 +264,7 @@ namespace Pocole.Util
         }
 
         //! 先頭がパターンとマッチするか
-        public static bool MatchHead(this string pattern, string source)
+        public static bool PoMatchHead(this string source, string pattern)
         {
             for (var i = 0; i < pattern.Length; i++)
             {
@@ -277,7 +277,7 @@ namespace Pocole.Util
         }
 
         //! ある文字がヒットするまでの文字を切り取ってくれる （結果にmarkは含まない)
-        public static string Substring(this string source, char mark)
+        public static string PoCut(this string source, char mark)
         {
             var res = "";
             foreach (var c in source)
@@ -292,16 +292,16 @@ namespace Pocole.Util
         }
 
         //! どの文字が先にヒットした？
-        public static char? FirstHit(this string source, char[] chars)
+        public static char? PoFirstHit(this string source, char[] chars)
         {
             foreach (var c in source)
             {
-                if (MatchAny(c, chars)) return c;
+                if (PoMatchAny(c, chars)) return c;
             }
             return null;
         }
 
-        public static bool MatchAny(this char c, char[] chars)
+        public static bool PoMatchAny(this char c, char[] chars)
         {
             foreach (var target in chars)
             {
@@ -310,7 +310,7 @@ namespace Pocole.Util
             return false;
         }
 
-        public static bool MatchAny(this string source, string[] patterns)
+        public static bool PoMatchAny(this string source, string[] patterns)
         {
             foreach (var pattern in patterns)
             {

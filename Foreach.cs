@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Pocole.Util;
 
 namespace Pocole
 {
@@ -18,7 +19,7 @@ namespace Pocole
 
         public Foreach(Runnable parent, string source) : base(parent, source)
         {
-            var split = Util.String.Split(Util.String.Extract(Util.String.Remove(source, ' '), '(', ')'), ':');
+            var split = source.PoRemove(' ').PoExtract('(', ')').PoSplit(':');
             ValueName = split[0];
             ArrayName = split[1];
             if (split.Length > 2)

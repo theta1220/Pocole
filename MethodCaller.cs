@@ -12,8 +12,8 @@ namespace Pocole
 
         public MethodCaller(Runnable parent, string source) : base(parent, source)
         {
-            Name = Util.String.Substring(source.Replace(" ", ""), '(');
-            Args = Util.String.Split(Util.String.Extract(Util.String.Remove(source, ' '), '(', ')'), ',');
+            Name = Util.String.PoCut(source.Replace(" ", ""), '(');
+            Args = Util.String.PoSplit(Util.String.PoExtract(Util.String.PoRemove(source, ' '), '(', ')'), ',');
         }
 
         public override void OnEntered()

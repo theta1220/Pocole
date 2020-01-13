@@ -1,3 +1,5 @@
+using Pocole.Util;
+
 namespace Pocole
 {
     [System.Serializable]
@@ -12,7 +14,7 @@ namespace Pocole
         public For(Runnable parent, string source) : base(parent, source)
         {
             // for(var i=0; i<10; i++) {...} みたいなやつがくる
-            var formulas = Util.String.Split(Util.String.Extract(source, '(', ')'), ';');
+            var formulas = source.PoExtract('(', ')').Split(';');
             InitSource = formulas[0];
             ConditionSource = formulas[1];
             LoopSource = formulas[2];

@@ -1,12 +1,13 @@
 using System;
 using System.Linq;
+using Pocole.Util;
 
 namespace Pocole
 {
     [Serializable]
     public class Class : Block
     {
-        public Class(Runnable parent, string source) : base(parent, Util.String.Extract(source, '{', '}'))
+        public Class(Runnable parent, string source) : base(parent, source.PoExtract('{', '}'))
         {
             Name = source.Split('{')[0].Split(' ')[1];
         }
@@ -28,8 +29,8 @@ namespace Pocole
         {
             if (name.Contains("."))
             {
-                var instance = Util.String.SplitOnce(name, '.').First();
-                var member = Util.String.SplitOnce(name, '.').Last();
+                var instance = name.PoSplitOnce('.').First();
+                var member = name.PoSplitOnce('.').Last();
                 Log.Debug("{0}/{1}", instance, member);
                 return (FindValue(instance).Object as Class).GetMemberValue(member);
             }
@@ -40,8 +41,8 @@ namespace Pocole
         {
             if (name.Contains("."))
             {
-                var instanceName = Util.String.SplitOnce(name, '.').First();
-                var memberName = Util.String.SplitOnce(name, '.').Last();
+                var instanceName = name.PoSplitOnce('.').First();
+                var memberName = name.PoSplitOnce('.').Last();
                 var value = FindValue(instanceName);
                 if (value == null)
                 {

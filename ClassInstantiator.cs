@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using Pocole.Util;
 
 namespace Pocole
 {
@@ -12,8 +13,8 @@ namespace Pocole
 
         protected override void Run()
         {
-            var className = Util.String.Split(Source, ' ').First();
-            var instanceName = Util.String.Split(Source, ' ').Last();
+            var className = Source.Split(' ').First();
+            var instanceName = Source.Split(' ').Last();
             var instance = GetParentBlock().FindClass(className).Instantiate(Parent, instanceName);
             var value = new Value(instanceName, instance);
             GetParentBlock().AddValue(value);

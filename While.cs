@@ -7,7 +7,7 @@ namespace Pocole
 
         public While(Runnable parent, string source) : base(parent, source)
         {
-            _conditionSource = Util.String.Extract(Util.String.Remove(source, ' '), '(', ')');
+            _conditionSource = Util.String.PoExtract(Util.String.PoRemove(source, ' '), '(', ')');
         }
 
         public override void OnEntered()

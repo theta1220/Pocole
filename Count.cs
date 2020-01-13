@@ -1,3 +1,5 @@
+using Pocole.Util;
+
 namespace Pocole
 {
     [System.Serializable]
@@ -11,7 +13,7 @@ namespace Pocole
 
         public Count(Runnable parent, string source) : base(parent, source)
         {
-            var split = Util.String.Split(Util.String.Extract(Util.String.Remove(source, ' '), '(', ')'), ':');
+            var split = source.Remove(' ').PoExtract('(', ')').Split(':');
             _valueName = split[0];
             _maxFormula = split[1];
             _executedInitSource = false;

@@ -5,7 +5,7 @@ namespace Pocole
     {
         public bool IsContinuous { get; protected set; }
 
-        public LoopBlock(Runnable parent, string source) : base(parent, Util.String.Extract(source, '{', '}'))
+        public LoopBlock(Runnable parent, string source) : base(parent, Util.String.PoExtract(source, '{', '}'))
         {
             IsContinuous = true;
         }

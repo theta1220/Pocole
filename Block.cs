@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Linq;
+using Pocole.Util;
 
 namespace Pocole
 {
@@ -19,27 +20,27 @@ namespace Pocole
         public Block(Runnable parent, string text, string name = "") : base(parent, text)
         {
             if (name.Length > 0) Name = name;
-            var sources = Util.String.SplitSource(text);
+            var sources = text.PoSplitSource();
 
             foreach (var source in sources)
             {
-                if (Util.String.MatchHead("func ", source)) Methods.Add(new MethodDeclarer(this, source));
-                else if (Util.String.MatchHead("class", source))
+                if (source.PoMatchHead("func ")) Methods.Add(new MethodDeclarer(this, source));
+                else if (source.PoMatchHead("class"))
                 {
                     var classDef = new Class(this, source);
                     var already = FindClass(classDef.Name);
                     if (already == null) Classes.Add(classDef);
                     else already.Using(classDef);
                 }
-                else if (Util.String.MatchHead("if", source) ||
-                         Util.String.MatchHead("else if", source) ||
-                         Util.String.MatchHead("else", source)) Runnables.Add(new If(this, source));
-                else if (Util.String.MatchHead("count", source)) Runnables.Add(new Count(this, source));
-                else if (Util.String.MatchHead("while", source)) Runnables.Add(new While(this, source));
-                else if (Util.String.MatchHead("foreach", source)) Runnables.Add(new Foreach(this, source));
-                else if (Util.String.MatchHead("for", source)) Runnables.Add(new For(this, source));
-                else if (Util.String.MatchHead("using", source)) Runnables.Add(new UsingLoader(this, source));
-                else if (Util.String.MatchHead("return", source)) Runnables.Add(new Return(this, source));
+                else if (source.PoMatchHead("if") ||
+                         source.PoMatchHead("else if") ||
+                         source.PoMatchHead("else")) Runnables.Add(new If(this, source));
+                else if (source.PoMatchHead("count")) Runnables.Add(new Count(this, source));
+                else if (source.PoMatchHead("while")) Runnables.Add(new While(this, source));
+                else if (source.PoMatchHead("foreach")) Runnables.Add(new Foreach(this, source));
+                else if (source.PoMatchHead("for")) Runnables.Add(new For(this, source));
+                else if (source.PoMatchHead("using")) Runnables.Add(new UsingLoader(this, source));
+                else if (source.PoMatchHead("return")) Runnables.Add(new Return(this, source));
                 else Runnables.Add(new Term(this, source));
             }
         }
@@ -58,24 +59,24 @@ namespace Pocole
         {
             bool isRef = true;
             // @がついている変数はコピーが作成される
-            if (Util.String.MatchHead("@", name))
+            if (name.PoMatchHead("@"))
             {
-                name = Util.String.Remove(name, '@');
+                name = name.Remove('@');
                 isRef = false;
             }
 
-            var hit = Util.String.FirstHit(Util.String.RemoveString(name), new[] { '.', '[' });
+            var hit = name.PoRemoveString().PoFirstHit(new[] { '.', '[' });
             if (hit == '.')
             {
-                var split = Util.String.SplitOnce(name, '.');
+                var split = name.PoSplitOnce('.');
                 var instance = FindValue(split[0]);
                 if (instance != null) return (instance.Object as Class).GetMemberValue(split[1]);
                 return null;
             }
             else if (hit == '[')
             {
-                var arrName = Util.String.Substring(name, '[');
-                var source = Util.String.Extract(name, '[', ']');
+                var arrName = name.PoCut('[');
+                var source = name.PoExtract('[', ']');
                 var index = (int)Util.Calc.Execute(this, source, typeof(int)).Object;
                 return (FindValue(arrName).Object as List<Value>)[index];
             }
@@ -103,9 +104,9 @@ namespace Pocole
 
         public MethodDeclarer FindMethod(string name)
         {
-            if (Util.String.RemoveString(name).Contains("."))
+            if (name.PoRemoveString().Contains("."))
             {
-                var split = Util.String.SplitOnce(name, '.');
+                var split = name.PoSplitOnce('.');
                 var value = FindValue(split[0]);
                 if (value == null)
                 {
@@ -123,9 +124,9 @@ namespace Pocole
 
         public Class FindClass(string name)
         {
-            if (Util.String.RemoveString(name).Contains("."))
+            if (name.PoRemoveString().Contains("."))
             {
-                var split = Util.String.SplitOnce(name, '.');
+                var split = name.PoSplitOnce('.');
                 return FindClass(split[0]).FindClass(split[1]);
             }
             var target = Classes.FirstOrDefault(classDef => classDef.Name == name);

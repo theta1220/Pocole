@@ -16,7 +16,7 @@ namespace Pocole
 
         public SystemCaller(Runnable parent, string source) : base(parent, source)
         {
-            var args = Util.String.Split(Util.String.Extract(Util.String.Remove(source, ' '), '(', ')'), ',');
+            var args = Util.String.PoSplit(Util.String.PoExtract(Util.String.PoRemove(source, ' '), '(', ')'), ',');
 
             var count = 0;
             var list = new List<string>();
@@ -24,7 +24,7 @@ namespace Pocole
             {
                 if (count == 0)
                 {
-                    var name = Util.String.Split(Util.String.Extract(arg, '"'), '.');
+                    var name = Util.String.PoSplit(Util.String.PoExtract(arg, '"'), '.');
                     for (var i = 0; i < name.Length - 1; i++)
                     {
                         ClassName += name[i];

@@ -78,9 +78,9 @@ namespace Pocole
             {
                 return parentBlock.FindValue(value).ValueType;
             }
-            else if (parentBlock != null && parentBlock.FindMethod(Util.String.Substring(value, '(')) != null)
+            else if (parentBlock != null && parentBlock.FindMethod(Util.String.PoCut(value, '(')) != null)
             {
-                return parentBlock.FindMethod(Util.String.Substring(value, '(')).ReturnType;
+                return parentBlock.FindMethod(Util.String.PoCut(value, '(')).ReturnType;
             }
             else if (source.Contains("\""))
             {

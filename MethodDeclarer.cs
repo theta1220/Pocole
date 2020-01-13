@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System;
+using Pocole.Util;
 
 namespace Pocole
 {
@@ -10,13 +11,13 @@ namespace Pocole
         public string[] ArgNames { get; private set; }
         public System.Type ReturnType { get; private set; }
 
-        public MethodDeclarer(Runnable parent, string source) : base(parent, Util.String.Extract(source, '{', '}'))
+        public MethodDeclarer(Runnable parent, string source) : base(parent, Util.String.PoExtract(source, '{', '}'))
         {
             // func hoge(){ ... }
             Name = source.Split('(')[0].Split(' ')[1];
-            ArgNames = Util.String.Extract(Util.String.Remove(source, ' '), '(', ')').Split(',');
+            ArgNames = Util.String.PoExtract(Util.String.PoRemove(source, ' '), '(', ')').Split(',');
 
-            var typeName = Util.String.Split(Util.String.Remove(Util.String.Substring(source, '{'), ' '), ':').Last();
+            var typeName = Util.String.PoSplit(Util.String.PoRemove(Util.String.PoCut(source, '{'), ' '), ':').Last();
             if (typeName == "int") ReturnType = typeof(int);
             else if (typeName == "string") ReturnType = typeof(string);
             else if (typeName == "bool") ReturnType = typeof(bool);
@@ -38,9 +39,9 @@ namespace Pocole
                     name = ArgNames[i];
                 }
                 var isRef = true;
-                if (Util.String.MatchHead("@", name))
+                if (name.PoMatchHead("@"))
                 {
-                    name = Util.String.Remove(name, '@');
+                    name = Util.String.PoRemove(name, '@');
                     isRef = false;
                 }
 

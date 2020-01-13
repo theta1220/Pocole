@@ -13,13 +13,13 @@ namespace Pocole
         public ProcessType ProcessType { get; private set; }
         public string Formula { get; private set; }
 
-        public If(Runnable parent, string source) : base(parent, Util.String.Extract(source, '{', '}'))
+        public If(Runnable parent, string source) : base(parent, Util.String.PoExtract(source, '{', '}'))
         {
-            var name = Util.String.Remove(Util.String.SplitOnce(source, '(')[0], ' ');
+            var name = Util.String.PoRemove(Util.String.PoSplitOnce(source, '(')[0], ' ');
             if (name == "if") ProcessType = ProcessType.If;
             else if (name == "elseif") ProcessType = ProcessType.ElseIf;
             else ProcessType = ProcessType.Else;
-            Formula = Util.String.Remove(Util.String.Extract(source, '(', ')'), ' ');
+            Formula = Util.String.PoRemove(Util.String.PoExtract(source, '(', ')'), ' ');
         }
 
         public override void OnEntered()

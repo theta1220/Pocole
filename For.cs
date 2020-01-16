@@ -1,8 +1,8 @@
 using Pocole.Util;
+using System;
 
 namespace Pocole
 {
-    [System.Serializable]
     public class For : LoopBlock
     {
         public string InitSource { get; private set; }
@@ -20,6 +20,16 @@ namespace Pocole
             LoopSource = formulas[2];
             executedInitSource = false;
         }
+
+        public For(For other) : base(other)
+        {
+            InitSource = other.InitSource;
+            ConditionSource = other.ConditionSource;
+            LoopSource = other.LoopSource;
+            executedInitSource = other.executedInitSource;
+        }
+
+        public override object Clone() { return new For(this); }
 
         public override void OnEntered()
         {

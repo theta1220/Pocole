@@ -7,7 +7,6 @@ using Pocole.Util;
 
 namespace Pocole
 {
-    [Serializable]
     public class Block : Runnable
     {
         public string Name { get; protected set; }
@@ -49,6 +48,20 @@ namespace Pocole
             }
         }
 
+        public Block(Block other) : base(other)
+        {
+            Name = other.Name;
+            other.Values.ForEach(obj => Values.Add(new Value(obj)));
+            other.Methods.ForEach(obj => Methods.Add(new MethodDeclarer(obj)));
+            other.Classes.ForEach(obj => Classes.Add(new Class(obj)));
+            other.Extensions.ForEach(obj => Extensions.Add(new Extension(obj)));
+            other.Usings.ForEach(obj => Usings.Add(new UsingLoader(obj)));
+            LastIfResult = other.LastIfResult;
+            ReturnedValue = other.ReturnedValue;
+        }
+
+        public override object Clone() { return new Block(this); }
+
         public override void OnEntered()
         {
             foreach (var use in Usings)
@@ -73,6 +86,10 @@ namespace Pocole
 
         public Value FindValue(string name)
         {
+            // 無駄な検索はしない
+            if (name.PoMatchHead("[") || name.PoMatchHead("\"") || name.PoMatchHead("(")) return null;
+            if (Regex.IsMatch(name, "^[0-9]$") || name == "null") return null;
+
             bool isRef = true;
             // @がついている変数はコピーが作成される
             if (name.PoMatchHead("@"))
@@ -80,43 +97,49 @@ namespace Pocole
                 name = name.PoRemove('@');
                 isRef = false;
             }
+            Value target = null;
+            target = Values.FirstOrDefault(value => value.Name == name);
 
-            var hit = name.PoRemoveString().PoFirstHit(new[] { '.', '[' });
-            if (hit == '.')
-            {
-                var split = name.PoSplitOnce('.');
-                var instance = FindValue(split[0]);
-                if (instance != null && instance.Object != null && instance.Object is Class)
-                {
-                    var res = (instance.Object as Class).GetMemberValue(split[1]);
-                    if (res != null)
-                    {
-                        return res;
-                    }
-                }
-                return null;
-            }
-            else if (hit == '[')
-            {
-                var arrName = name.PoCut('[');
-                var source = name.PoExtract('[', ']');
-                var index = (int)Util.Calc.Execute(this, source, typeof(int)).Object;
-                return (FindValue(arrName).Object as List<Value>)[index];
-            }
-            var target = Values.FirstOrDefault(value => value.Name == name);
             if (name == "this")
             {
                 if (this is MethodDeclarer) target = (this as MethodDeclarer).Caller;
                 else target = GetParentMethod().Caller;
+                if (target == null) throw new Exception("this not found");
             }
-            if (target == null && GetParentBlock() != null)
+
+            if (target == null)
             {
-                target = GetParentBlock().FindValue(name);
+                // ")"で終わるってことは関数の結果を変数として利用したいってこと
+                if (name.PoMatchTail(")"))
+                {
+                    var caller = new MethodCaller(this, name);
+                    caller.ForceExecute();
+                    target = new Value("", caller.Method.ReturnedValue);
+                }
+                else
+                {
+                    var split = name.PoSplitOnce('.');
+                    if (split.Length > 1)
+                    {
+                        var instance = FindValue(split[0]);
+                        if (instance != null && instance.Object is Class) target = (instance.Object as Class).FindValue(split[1]);
+                    }
+                    if (name.PoCut('[').Length > 0 && name.PoMatchTail("]"))
+                    {
+                        var arrName = name.PoCut('[');
+                        var source = name.PoExtract('[', ']');
+                        var index = (int)Util.Calc.Execute(this, source, typeof(int)).Object;
+                        target = (FindValue(arrName).Object as List<Value>)[index];
+                    }
+                }
+                if (target == null && GetParentBlock() != null)
+                {
+                    target = GetParentBlock().FindValue(name);
+                }
             }
-            if (!isRef && target != null)
-            {
-                target = Util.Object.DeepCopy(target);
-            }
+            if (isRef || target == null) return target;
+            target = target.Clone() as Value;
+
             return target;
         }
 
@@ -132,18 +155,22 @@ namespace Pocole
 
         public MethodDeclarer FindMethod(string name)
         {
-            if (name.PoRemoveString().Contains("."))
+            // 無駄な検索はしない
+            if (name.PoMatchHead("[") || name.PoMatchHead("\"") || name.PoMatchHead("(")) return null;
+            if (Regex.IsMatch(name, "[0-9]") || name == "null") return null;
+
+            var split = name.PoSplitOnce('.');
+            if (split.Length > 1)
             {
-                var split = name.PoSplitOnce('.');
                 var value = FindValue(split[0]);
                 if (value == null)
                 {
-                    return FindClass(split[0]).GetMemberMethod(split[1]);
+                    return FindClass(split[0]).FindMethod(split[1]);
                 }
                 var classDef = value.Object as Class;
                 if (classDef != null)
                 {
-                    var classMethod = classDef.GetMemberMethod(split[1]);
+                    var classMethod = classDef.FindMethod(split[1]);
                     if (classMethod != null) return classMethod;
                 }
                 return FindExtensionMethod(name);
@@ -187,9 +214,13 @@ namespace Pocole
 
         public Class FindClass(string name)
         {
-            if (name.PoRemoveString().Contains("."))
+            // 無駄な検索はしない
+            if (name.PoMatchHead("[") || name.PoMatchHead("\"") || name.PoMatchHead("(")) return null;
+            if (Regex.IsMatch(name, "[0-9]") || name == "null") return null;
+
+            var split = name.PoSplitOnce('.');
+            if (split.Length > 1)
             {
-                var split = name.PoSplitOnce('.');
                 return FindClass(split[0]).FindClass(split[1]);
             }
             var target = Classes.FirstOrDefault(classDef => classDef.Name == name);
@@ -237,9 +268,13 @@ namespace Pocole
         public void PrintBlockTree(Block parent, int tree)
         {
             Log.Info("{0}{1}::{2}", Util.String.GetIndentSpace(tree), parent.GetType(), parent.Name);
+            foreach (var value in parent.Values)
+            {
+                Log.Debug("{0}var {1}", Util.String.GetIndentSpace(tree), value.Name);
+            }
             foreach (var method in parent.Methods)
             {
-                Log.Debug("{0}- {1}", Util.String.GetIndentSpace(tree), method.Name);
+                Log.Debug("{0}func {1}", Util.String.GetIndentSpace(tree), method.Name);
             }
             foreach (var classDef in parent.Classes)
             {

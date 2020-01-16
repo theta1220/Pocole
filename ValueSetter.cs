@@ -1,4 +1,5 @@
 using Pocole.Util;
+using System;
 
 namespace Pocole
 {
@@ -37,6 +38,15 @@ namespace Pocole
                 ValueSetterType = ValueSetterType.Assign;
             }
         }
+
+        public ValueSetter(ValueSetter other) : base(other)
+        {
+            ValueSetterType = other.ValueSetterType;
+            Name = other.Name;
+            Formula = other.Formula;
+        }
+
+        public override object Clone() { return new ValueSetter(this); }
 
         protected override void Run()
         {

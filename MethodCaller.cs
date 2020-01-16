@@ -9,7 +9,7 @@ namespace Pocole
     {
         public string Name { get; private set; }
         public string[] Args { get; private set; }
-        public MethodDeclarer Method { get { return GetParentBlock().FindMethod(Name); } }
+        public MethodDeclarer Method { get; private set; }
 
         public MethodCaller(Runnable parent, string source) : base(parent, source)
         {
@@ -17,8 +17,19 @@ namespace Pocole
             Args = source.PoRemove(' ').PoExtract('(', ')').PoSplit(',');
         }
 
+        public MethodCaller(MethodCaller other) : base(other)
+        {
+            Name = other.Name;
+            Args = other.Args;
+            Method = other.Method;
+        }
+
+        public override object Clone() { return new MethodCaller(this); }
+
         public override void OnEntered()
         {
+            Method = GetParentBlock().FindMethod(Name);
+
             if (Method == null)
             {
                 Log.Error("メソッドの呼び出しに失敗しました: {0}", Name);

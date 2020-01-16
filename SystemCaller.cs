@@ -6,7 +6,6 @@ using Pocole.Util;
 
 namespace Pocole
 {
-    [Serializable]
     public class SystemCaller : Runnable
     {
         public string ClassName { get; private set; }
@@ -51,6 +50,13 @@ namespace Pocole
             Args = list.ToArray();
         }
 
+        public SystemCaller(SystemCaller other) : base(other)
+        {
+
+        }
+
+        public override object Clone() { return new SystemCaller(this); }
+
         protected override void Run()
         {
             var args = new List<Value>();
@@ -66,7 +72,8 @@ namespace Pocole
                 }
                 else
                 {
-                    var value = Util.Calc.Execute(GetParentBlock(), arg, Value.GetValueType(arg));
+                    var block = GetParentBlock();
+                    var value = Util.Calc.Execute(block, arg, Value.GetValueType(arg, block));
                     args.Add(value);
                 }
             }

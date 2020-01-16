@@ -4,7 +4,6 @@ using Pocole.Util;
 
 namespace Pocole
 {
-    [Serializable]
     public class Class : Block
     {
         private string[] _extendNames = new string[] { };
@@ -17,6 +16,13 @@ namespace Pocole
                 Name = Name.PoRemove(' ').PoCut(':');
             }
         }
+
+        public Class(Class other) : base(other)
+        {
+            _extendNames = other._extendNames.ToArray();
+        }
+
+        public override object Clone() { return new Class(this); }
 
         public void Extend()
         {
@@ -35,7 +41,7 @@ namespace Pocole
 
         public Class Instantiate(Runnable parent, string name)
         {
-            var instance = Util.Object.DeepCopy(this);
+            var instance = Clone() as Class;
             instance.Name = name;
             return instance;
         }

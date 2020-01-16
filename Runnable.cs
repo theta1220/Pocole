@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Pocole
 {
-    [Serializable]
-    public abstract class Runnable
+    public abstract class Runnable : ICloneable
     {
         public string Source { get; protected set; } = "";
         public int ExecuteCount { get; private set; } = 0;
@@ -18,6 +18,17 @@ namespace Pocole
             Parent = parent;
             Source = source;
         }
+
+        public Runnable(Runnable other)
+        {
+            Source = other.Source;
+            ExecuteCount = other.ExecuteCount;
+            other.Runnables.ForEach(obj => Runnables.Add(obj.Clone() as Runnable));
+            Parent = other.Parent;
+            _isEntered = other._isEntered;
+        }
+
+        public abstract object Clone();
 
         public bool Execute()
         {
@@ -60,18 +71,17 @@ namespace Pocole
 
         private void OnEnter()
         {
+            // Log.Warn("    {0}---->{1}", GetIndent(), GetType().Name);
             _isEntered = true;
             OnEntered();
-
-            // Log.Warn("    {0}---->{1}", GetIndent(), GetType().Name);
         }
 
         private void OnLeave()
         {
+            // Log.Warn("    {0}<----{1}", GetIndent(), GetType().Name);
             _isEntered = false;
             OnLeaved();
             ExecuteCount = 0;
-            // Log.Warn("    {0}<----{1}", GetIndent(), GetType().Name);
         }
 
         private void RunningLog()

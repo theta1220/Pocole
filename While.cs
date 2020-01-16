@@ -1,8 +1,8 @@
 using Pocole.Util;
+using System;
 
 namespace Pocole
 {
-    [System.Serializable]
     public class While : LoopBlock
     {
         private string _conditionSource;
@@ -11,6 +11,13 @@ namespace Pocole
         {
             _conditionSource = source.PoRemove(' ').PoExtract('(', ')');
         }
+
+        public While(While other) : base(other)
+        {
+            _conditionSource = other._conditionSource;
+        }
+
+        public override object Clone() { return new While(this); }
 
         public override void OnEntered()
         {

@@ -4,12 +4,17 @@ using Pocole.Util;
 
 namespace Pocole
 {
-    [Serializable]
     public class Term : Runnable
     {
         public Term(Runnable parent, string source) : base(parent, source)
         {
         }
+
+        public Term(Term other) : base(other)
+        {
+        }
+
+        public override object Clone() { return new Term(this); }
 
         public override void OnEntered()
         {

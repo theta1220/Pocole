@@ -44,7 +44,7 @@ namespace Pocole.Util
             if (type == typeof(bool)) return new Value("", ExecuteCalcBool(parentBlock, source));
             if (type == typeof(string)) return new Value("", ExecuteCalcString(parentBlock, source));
 
-            throw new System.Exception(string.Format("理解できない計算式を演算しようとした:{0}", source));
+            throw new System.Exception(string.Format("理解できない計算式を演算しようとした:{0} / {1}", source, type.ToString()));
         }
 
         public static string ExecuteBracketCalc(Block parentBlock, string source, System.Type type)

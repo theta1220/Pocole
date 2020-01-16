@@ -5,8 +5,7 @@ using Pocole.Util;
 
 namespace Pocole
 {
-    [Serializable]
-    public class Value
+    public class Value : ICloneable
     {
         public Type ValueType
         {
@@ -21,7 +20,6 @@ namespace Pocole
         }
         public string Name { get; set; }
         public object Object { get; set; }
-        public List<MethodDeclarer> Methods { get; private set; } = new List<MethodDeclarer>();
 
         public Value()
         {
@@ -54,6 +52,14 @@ namespace Pocole
             Name = name;
             Object = value;
         }
+
+        public Value(Value other)
+        {
+            Name = other.Name;
+            Object = other.Object;
+        }
+
+        public object Clone() { return new Value(this); }
 
         public static Type GetValueType(string source, Block parentBlock = null)
         {

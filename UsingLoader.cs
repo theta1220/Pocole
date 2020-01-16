@@ -5,7 +5,6 @@ using Pocole.Util;
 
 namespace Pocole
 {
-    [Serializable]
     public class UsingLoader : Runnable
     {
         public string Name { get; private set; }
@@ -16,6 +15,13 @@ namespace Pocole
         {
             Name = source.PoSplitOnce(' ').Last().PoRemove(' ');
         }
+
+        public UsingLoader(UsingLoader other) : base(other)
+        {
+            Name = other.Name;
+        }
+
+        public override object Clone() { return new UsingLoader(this); }
 
         protected override void Run()
         {

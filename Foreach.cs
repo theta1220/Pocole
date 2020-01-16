@@ -1,9 +1,10 @@
 using System.Collections.Generic;
 using Pocole.Util;
+using System;
+using System.Linq;
 
 namespace Pocole
 {
-    [System.Serializable]
     public class Foreach : LoopBlock
     {
         public string ValueName { get; private set; }
@@ -30,6 +31,20 @@ namespace Pocole
             executedInitSource = false;
         }
 
+        public Foreach(Foreach other) : base(other)
+        {
+            ValueName = other.ValueName;
+            ArrayName = other.ArrayName;
+            CountName = other.CountName;
+            Count = other.Count;
+            targetValue = other.targetValue;
+            other.targetArray.ForEach(obj => targetArray.Add(new Value(obj)));
+            countValue = new Value(other.countValue);
+            executedInitSource = other.executedInitSource;
+        }
+
+        public override object Clone() { return new Foreach(this); }
+
         public override void OnEntered()
         {
             if (!executedInitSource)
@@ -48,7 +63,7 @@ namespace Pocole
 
                 if (CountName != "")
                 {
-                    countValue = new Value(CountName);
+                    countValue = new Value(CountName, 0);
                     AddValue(countValue);
                 }
             }
@@ -68,6 +83,7 @@ namespace Pocole
 
         private void PickValue()
         {
+            Log.Debug("{0}/{1}", Count, targetArray.Count);
             targetValue.Object = targetArray[Count].Object;
             if (countValue != null)
             {

@@ -1,8 +1,8 @@
 using Pocole.Util;
+using System;
 
 namespace Pocole
 {
-    [System.Serializable]
     public class Count : LoopBlock
     {
         private string _valueName;
@@ -18,6 +18,17 @@ namespace Pocole
             _maxFormula = split[1];
             _executedInitSource = false;
         }
+
+        public Count(Count other) : base(other)
+        {
+            _valueName = other._valueName;
+            _maxFormula = other._maxFormula;
+            _countValue = new Value(other._countValue);
+            _maxValue = new Value(other._maxValue);
+            _executedInitSource = other._executedInitSource;
+        }
+
+        public override object Clone() { return new Count(this); }
 
         public override void OnEntered()
         {

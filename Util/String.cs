@@ -49,10 +49,14 @@ namespace Pocole.Util
             int match = 0;
             var buf = "";
             var i = 0;
+            var blockCount = 0;
             foreach (var c in source)
             {
                 i++;
-                if (match == 0 && c == splitChar)
+                if (c != splitChar && c == '(' || c == '[' || c == '{') blockCount++;
+                if (c != splitChar && c == ')' || c == ']' || c == '}') blockCount--;
+
+                if (blockCount == 0 && match == 0 && c == splitChar)
                 {
                     match++;
                     res.Add(buf);
@@ -187,13 +191,16 @@ namespace Pocole.Util
             var list = new List<string>();
             var buf = "";
             var isString = false;
+            var blockCount = 0;
             foreach (var c in source)
             {
                 if (c == '"')
                 {
                     isString = !isString;
                 }
-                if (!isString && c == split)
+                if (c != split && c == '(' || c == '[' || c == '{') blockCount++;
+                if (c != split && c == ')' || c == ']' || c == '}') blockCount--;
+                if (blockCount == 0 && !isString && c == split)
                 {
                     list.Add(buf);
                     buf = "";
@@ -266,6 +273,8 @@ namespace Pocole.Util
         //! 先頭がパターンとマッチするか
         public static bool PoMatchHead(this string source, string pattern)
         {
+            if (source.Length < pattern.Length) return false;
+
             for (var i = 0; i < pattern.Length; i++)
             {
                 if (pattern[i] != source[i])
@@ -292,11 +301,14 @@ namespace Pocole.Util
         }
 
         //! どの文字が先にヒットした？
-        public static char? PoFirstHit(this string source, char[] chars)
+        public static char? PoFirstHit(this string source, params char[] chars)
         {
+            var blockCount = 0;
             foreach (var c in source)
             {
-                if (PoMatchAny(c, chars)) return c;
+                if (c == '(' || c == '[' || c == '{') blockCount++;
+                if (c == ')' || c == ']' || c == '}') blockCount--;
+                if (blockCount == 0 && PoMatchAny(c, chars)) return c;
             }
             return null;
         }

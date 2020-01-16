@@ -1,4 +1,5 @@
 using Pocole.Util;
+using System;
 
 namespace Pocole
 {
@@ -9,7 +10,6 @@ namespace Pocole
         Else,
     }
 
-    [System.Serializable]
     public class If : Block
     {
         public ProcessType ProcessType { get; private set; }
@@ -17,12 +17,20 @@ namespace Pocole
 
         public If(Runnable parent, string source) : base(parent, source.PoExtract('{', '}'))
         {
-            var name = source.PoSplitOnce('(')[0].PoRemove(' ');
+            var name = source.PoCut('(').PoRemove(' ');
             if (name == "if") ProcessType = ProcessType.If;
             else if (name == "elseif") ProcessType = ProcessType.ElseIf;
             else ProcessType = ProcessType.Else;
             Formula = source.PoExtract('(', ')').PoRemove(' ');
         }
+
+        public If(If other) : base(other)
+        {
+            ProcessType = other.ProcessType;
+            Formula = other.Formula;
+        }
+
+        public override object Clone() { return new If(this); }
 
         public override void OnEntered()
         {

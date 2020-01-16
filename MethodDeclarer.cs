@@ -5,7 +5,6 @@ using Pocole.Util;
 
 namespace Pocole
 {
-    [Serializable]
     public class MethodDeclarer : Block
     {
         public string[] ArgNames { get; private set; }
@@ -24,6 +23,15 @@ namespace Pocole
             else if (typeName == "bool") ReturnType = typeof(bool);
             else ReturnType = typeof(object);
         }
+
+        public MethodDeclarer(MethodDeclarer other) : base(other)
+        {
+            ArgNames = other.ArgNames.ToArray();
+            ReturnType = other.ReturnType;
+            Caller = other.Caller;
+        }
+
+        public override object Clone() { return new MethodDeclarer(this); }
 
         public override void OnLeaved()
         {
@@ -55,7 +63,7 @@ namespace Pocole
                 var value = new Value(name, arg);
 
                 if (isRef) AddValue(value);
-                else AddValue(Util.Object.DeepCopy(value));
+                else AddValue(value.Clone() as Value);
             }
             return true;
         }

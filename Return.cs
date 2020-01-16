@@ -1,8 +1,8 @@
 using Pocole.Util;
+using System;
 
 namespace Pocole
 {
-    [System.Serializable]
     public class Return : Runnable
     {
         public string Formula { get; private set; }
@@ -17,6 +17,13 @@ namespace Pocole
             }
             Formula = split[1];
         }
+
+        public Return(Return other) : base(other)
+        {
+            Formula = other.Formula;
+        }
+
+        public override object Clone() { return new Return(this); }
 
         protected override void Run()
         {

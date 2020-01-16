@@ -1,9 +1,9 @@
 using Pocole.Util;
+using System;
 
 namespace Pocole
 {
-    [System.Serializable]
-    public abstract class LoopBlock : Block
+    public class LoopBlock : Block
     {
         public bool IsContinuous { get; protected set; }
 
@@ -11,6 +11,13 @@ namespace Pocole
         {
             IsContinuous = true;
         }
+
+        public LoopBlock(LoopBlock other) : base(other)
+        {
+            IsContinuous = other.IsContinuous;
+        }
+
+        public override object Clone() { return new LoopBlock(this); }
 
         public override bool CheckContinue()
         {

@@ -23,7 +23,7 @@ namespace Pocole
             Formula = other.Formula;
         }
 
-        public override object Clone() { return new Return(this); }
+        public override Runnable Clone() { return new Return(this); }
 
         protected override void Run()
         {

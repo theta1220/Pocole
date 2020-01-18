@@ -14,7 +14,7 @@ namespace Pocole
         {
         }
 
-        public override object Clone() { return new Term(this); }
+        public override Runnable Clone() { return new Term(this); }
 
         public override void OnEntered()
         {

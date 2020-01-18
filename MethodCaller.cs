@@ -24,7 +24,7 @@ namespace Pocole
             Method = other.Method;
         }
 
-        public override object Clone() { return new MethodCaller(this); }
+        public override Runnable Clone() { return new MethodCaller(this); }
 
         public override void OnEntered()
         {
@@ -39,19 +39,32 @@ namespace Pocole
 
             // 呼び出しもとを特定してセット
             {
-                var value = GetParentBlock().FindValue(GetCallerName(Name));
-                if (value != null)
+                var valueName = Name.PoSplitOnceTail('.')[0];
+                if (Name.Contains("."))
                 {
-                    Method.Caller = value;
+                    var value = GetParentBlock().FindValue(valueName);
+                    if (value != null)
+                    {
+                        Method.Caller = value;
+                    }
+                    else
+                    {
+                        var classDef = GetParentBlock().FindClass(valueName);
+                        if (classDef == null)
+                        {
+                            Log.Error("呼び出し元を特定できませんでした {0}", valueName);
+                        }
+                        Method.Caller = new Value("", classDef);
+                    }
                 }
                 else
                 {
-                    var classDef = GetParentBlock().FindClass(GetCallerName(Name));
-                    if (classDef == null)
+                    var value = GetParentBlock().FindValue("this");
+                    if (value == null)
                     {
-                        Log.Error("クラスが見つかりませんでした {0}", GetCallerName(Name));
+                        Log.Error("呼び出し元を特定できませんでした/{0}", Name);
                     }
-                    Method.Caller = new Value("", classDef);
+                    Method.Caller = value;
                 }
             }
 
@@ -62,32 +75,8 @@ namespace Pocole
                 {
                     objs.Add(Util.Calc.Execute(GetParentBlock(), arg, Value.GetValueType(arg, GetParentBlock())).Object);
                 }
-                if (!Method.SetArgs(objs.ToArray()))
-                {
-                    Log.Error("SetArgsに失敗");
-                    return;
-                }
+                Method.SetArgs(objs.ToArray());
             }
-        }
-
-        public static string GetCallerName(string name)
-        {
-            var names = name.Split('.');
-            var count = 0;
-            var res = "";
-            foreach (var _name in names)
-            {
-                if (count + 1 < names.Length)
-                {
-                    res += _name;
-                    if (count + 2 < names.Length)
-                    {
-                        res += ".";
-                    }
-                }
-                count++;
-            }
-            return res;
         }
     }
 }

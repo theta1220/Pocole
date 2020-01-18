@@ -74,6 +74,26 @@ namespace Pocole.Util
             return res.ToArray();
         }
 
+        public static string[] PoSplitOnceTail(this string source, char splitChar)
+        {
+            var buf = "";
+            var list = new List<string>();
+            for (var i = source.Length - 1; i >= 0; i--)
+            {
+                var c = source[i];
+                if (c == splitChar && list.Count == 0)
+                {
+                    list.Add(buf);
+                    buf = "";
+                    continue;
+                }
+                buf = c + buf;
+            }
+            if (buf.Length > 0) list.Add(buf);
+            list.Reverse();
+            return list.ToArray();
+        }
+
         public static string PoExtract(this string source, char target)
         {
             var buf = "";
@@ -141,6 +161,19 @@ namespace Pocole.Util
                 }
             }
 
+            return buf;
+        }
+
+        public static string PoRemoveInBlock(this string source)
+        {
+            var buf = "";
+            var blockCount = 0;
+            foreach (var c in source)
+            {
+                if (c == '(' || c == '[') blockCount++;
+                if (blockCount == 0) buf += c;
+                if (c == ')' || c == ']') blockCount--;
+            }
             return buf;
         }
 

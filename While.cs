@@ -17,7 +17,7 @@ namespace Pocole
             _conditionSource = other._conditionSource;
         }
 
-        public override object Clone() { return new While(this); }
+        public override Runnable Clone() { return new While(this); }
 
         public override void OnEntered()
         {

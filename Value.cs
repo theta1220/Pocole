@@ -5,7 +5,7 @@ using Pocole.Util;
 
 namespace Pocole
 {
-    public class Value : ICloneable
+    public class Value
     {
         public Type ValueType
         {
@@ -21,15 +21,10 @@ namespace Pocole
         public string Name { get; set; }
         public object Object { get; set; }
 
-        public Value()
-        {
-            Name = "";
-            Object = null;
-        }
-
         public Value(string name)
         {
             Name = name;
+            Object = null;
         }
 
         public Value(string name, string value)
@@ -56,10 +51,12 @@ namespace Pocole
         public Value(Value other)
         {
             Name = other.Name;
-            Object = other.Object;
+            if (other.Object is Runnable)
+            {
+                Object = (other.Object as Runnable).Clone();
+            }
+            else Object = other.Object;
         }
-
-        public object Clone() { return new Value(this); }
 
         public static Type GetValueType(string source, Block parentBlock = null)
         {
@@ -81,13 +78,13 @@ namespace Pocole
             {
                 return typeof(bool);
             }
-            else if (parentBlock != null && parentBlock.FindValue(value) != null)
-            {
-                return parentBlock.FindValue(value).ValueType;
-            }
             else if (parentBlock != null && parentBlock.FindMethod(value.PoCut('(')) != null)
             {
                 return parentBlock.FindMethod(value.PoCut('(')).ReturnType;
+            }
+            else if (parentBlock != null && parentBlock.FindValue(value) != null)
+            {
+                return parentBlock.FindValue(value).ValueType;
             }
             else if (source.Contains("\""))
             {

@@ -28,7 +28,7 @@ namespace Pocole
             _executedInitSource = other._executedInitSource;
         }
 
-        public override object Clone() { return new Count(this); }
+        public override Runnable Clone() { return new Count(this); }
 
         public override void OnEntered()
         {

@@ -27,14 +27,6 @@ namespace Pocole.Util
 
                 var value = parentBlock.FindValue(formula);
                 if (value != null) return value;
-
-                var method = parentBlock.FindMethod(formula.PoCut('('));
-                if (method != null)
-                {
-                    var caller = new MethodCaller(parentBlock, formula);
-                    caller.ForceExecute();
-                    return new Value("", caller.Method.ReturnedValue);
-                }
             }
             // 括弧を計算
             source = ExecuteBracketCalc(parentBlock, source, type);
@@ -43,6 +35,8 @@ namespace Pocole.Util
             if (type == typeof(int)) return new Value("", ExecuteCalcInt(parentBlock, source));
             if (type == typeof(bool)) return new Value("", ExecuteCalcBool(parentBlock, source));
             if (type == typeof(string)) return new Value("", ExecuteCalcString(parentBlock, source));
+
+            parentBlock.GetParentBlock().PrintBlockTree();
 
             throw new System.Exception(string.Format("理解できない計算式を演算しようとした:{0} / {1}", source, type.ToString()));
         }

@@ -46,14 +46,14 @@ namespace Pocole
             Formula = other.Formula;
         }
 
-        public override object Clone() { return new ValueSetter(this); }
+        public override Runnable Clone() { return new ValueSetter(this); }
 
         protected override void Run()
         {
             Value target = null;
             if (ValueSetterType == ValueSetterType.Declare)
             {
-                target = new Value(Name);
+                target = new Value(Name, GetParentBlock());
                 GetParentBlock().AddValue(target);
             }
             else if (ValueSetterType == ValueSetterType.Assign)

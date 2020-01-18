@@ -43,7 +43,7 @@ namespace Pocole
             executedInitSource = other.executedInitSource;
         }
 
-        public override object Clone() { return new Foreach(this); }
+        public override Runnable Clone() { return new Foreach(this); }
 
         public override void OnEntered()
         {
@@ -83,7 +83,6 @@ namespace Pocole
 
         private void PickValue()
         {
-            Log.Debug("{0}/{1}", Count, targetArray.Count);
             targetValue.Object = targetArray[Count].Object;
             if (countValue != null)
             {

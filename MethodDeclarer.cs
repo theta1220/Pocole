@@ -31,7 +31,7 @@ namespace Pocole
             Caller = other.Caller;
         }
 
-        public override object Clone() { return new MethodDeclarer(this); }
+        public override Runnable Clone() { return new MethodDeclarer(this); }
 
         public override void OnLeaved()
         {
@@ -39,7 +39,7 @@ namespace Pocole
             Caller = null;
         }
 
-        public bool SetArgs(object[] args)
+        public void SetArgs(object[] args)
         {
             for (var i = 0; i < args.Length; i++)
             {
@@ -63,9 +63,8 @@ namespace Pocole
                 var value = new Value(name, arg);
 
                 if (isRef) AddValue(value);
-                else AddValue(value.Clone() as Value);
+                else AddValue(new Value(value));
             }
-            return true;
         }
     }
 }

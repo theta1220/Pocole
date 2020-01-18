@@ -21,7 +21,7 @@ namespace Pocole
             Name = other.Name;
         }
 
-        public override object Clone() { return new UsingLoader(this); }
+        public override Runnable Clone() { return new UsingLoader(this); }
 
         protected override void Run()
         {

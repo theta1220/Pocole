@@ -9,41 +9,55 @@ namespace Pocole
         {
             Console.ForegroundColor = ConsoleColor.White;
             _Print("Info", text, 3, null);
+            Console.ResetColor();
         }
         public static void Debug(string text)
         {
-            Console.ForegroundColor = ConsoleColor.Yellow;
+            Console.ForegroundColor = ConsoleColor.DarkGreen;
             _Print("Debug", text, 3, null);
+            Console.ResetColor();
         }
         public static void Warn(string text)
         {
             Console.ForegroundColor = ConsoleColor.Yellow;
             _Print("Warn", text, 3, null);
+            Console.ResetColor();
         }
         public static void Error(string text)
         {
             Console.ForegroundColor = ConsoleColor.Red;
             _Print("Error", text, 3, null);
+            Console.ResetColor();
         }
         public static void Info(string text, params object[] args)
         {
             Console.ForegroundColor = ConsoleColor.White;
             _Print("Info", text, 3, args);
+            Console.ResetColor();
         }
         public static void Debug(string text, params object[] args)
         {
-            Console.ForegroundColor = ConsoleColor.Yellow;
+            Console.ForegroundColor = ConsoleColor.DarkGreen;
             _Print("Debug", text, 3, args);
+            Console.ResetColor();
+        }
+        public static void Debug(ConsoleColor color, string text, params object[] args)
+        {
+            Console.ForegroundColor = color;
+            _Print("Debug", text, 3, args);
+            Console.ResetColor();
         }
         public static void Warn(string text, params object[] args)
         {
-            Console.ForegroundColor = ConsoleColor.Yellow;
+            Console.ForegroundColor = ConsoleColor.DarkGreen;
             _Print("Warn", text, 3, args);
+            Console.ResetColor();
         }
         public static void Error(string text, params object[] args)
         {
             Console.ForegroundColor = ConsoleColor.Red;
             _Print("Error", text, 3, args);
+            Console.ResetColor();
         }
         private static void _Print(string title, string text, int stack, params object[] args)
         {
@@ -54,29 +68,6 @@ namespace Pocole
                 Util.Reflect.GetCallerMethodLineNo(stack));
             var message = string.Format("{0}: \"{1}\"", info, text);
             Console.WriteLine(message, args);
-            Console.ResetColor();
-        }
-        public static void InitError()
-        {
-            Console.ForegroundColor = ConsoleColor.Red;
-            _Print("InitError", "初期化に失敗しちゃったなり", 3, null);
-        }
-        public static void ParseError()
-        {
-            Console.ForegroundColor = ConsoleColor.DarkRed;
-            _Print("ParseError", "パースに失敗しちゃったなり", 3, null);
-        }
-        public static void ParseError(string source)
-        {
-            Console.ForegroundColor = ConsoleColor.DarkRed;
-            var message = string.Format("パースに失敗しちゃったなり:{0}", source);
-            _Print("ParseError", message, 3, null);
-        }
-        public static void ParseError(System.Exception e, string source)
-        {
-            ParseError(source);
-            Console.ForegroundColor = ConsoleColor.DarkRed;
-            _Print("Exeption", e.Message, 3, null);
         }
     }
 }

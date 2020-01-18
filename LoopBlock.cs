@@ -17,7 +17,7 @@ namespace Pocole
             IsContinuous = other.IsContinuous;
         }
 
-        public override object Clone() { return new LoopBlock(this); }
+        public override Runnable Clone() { return new LoopBlock(this); }
 
         public override bool CheckContinue()
         {

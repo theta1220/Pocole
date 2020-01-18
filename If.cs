@@ -30,7 +30,7 @@ namespace Pocole
             Formula = other.Formula;
         }
 
-        public override object Clone() { return new If(this); }
+        public override Runnable Clone() { return new If(this); }
 
         public override void OnEntered()
         {

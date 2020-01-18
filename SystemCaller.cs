@@ -55,7 +55,7 @@ namespace Pocole
 
         }
 
-        public override object Clone() { return new SystemCaller(this); }
+        public override Runnable Clone() { return new SystemCaller(this); }
 
         protected override void Run()
         {

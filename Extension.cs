@@ -14,6 +14,6 @@ namespace Pocole
 
         }
 
-        public override object Clone() { return new Extension(this); }
+        public override Runnable Clone() { return new Extension(this); }
     }
 }

@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace Pocole
 {
-    public abstract class Runnable : ICloneable
+    public abstract class Runnable
     {
         public string Source { get; protected set; } = "";
         public int ExecuteCount { get; private set; } = 0;
@@ -23,12 +23,17 @@ namespace Pocole
         {
             Source = other.Source;
             ExecuteCount = other.ExecuteCount;
-            other.Runnables.ForEach(obj => Runnables.Add(obj.Clone() as Runnable));
+            foreach (var obj in other.Runnables)
+            {
+                var clone = (obj as Runnable).Clone();
+                clone.Parent = this;
+                Runnables.Add(clone);
+            }
             Parent = other.Parent;
             _isEntered = other._isEntered;
         }
 
-        public abstract object Clone();
+        public abstract Runnable Clone();
 
         public bool Execute()
         {

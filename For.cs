@@ -29,7 +29,7 @@ namespace Pocole
             executedInitSource = other.executedInitSource;
         }
 
-        public override object Clone() { return new For(this); }
+        public override Runnable Clone() { return new For(this); }
 
         public override void OnEntered()
         {

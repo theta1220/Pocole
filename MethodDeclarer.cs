@@ -1,9 +1,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System;
-using Pocole.Util;
+using Sumi.Util;
 
-namespace Pocole
+namespace Sumi
 {
     public class MethodDeclarer : Block
     {

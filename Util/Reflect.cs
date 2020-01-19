@@ -1,6 +1,6 @@
 using System.Diagnostics;
 
-namespace Pocole.Util
+namespace Sumi.Util
 {
     public static class Reflect
     {

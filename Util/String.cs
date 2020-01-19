@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Pocole.Util
+namespace Sumi.Util
 {
     public static class String
     {

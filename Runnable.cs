@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Pocole
+namespace Sumi
 {
     public abstract class Runnable
     {

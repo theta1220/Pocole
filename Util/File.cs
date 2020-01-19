@@ -2,7 +2,7 @@ using System;
 using System.IO;
 using System.Text;
 
-namespace Pocole.Util
+namespace Sumi.Util
 {
     public static class File
     {

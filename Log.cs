@@ -1,7 +1,7 @@
 using System;
 using System.Diagnostics;
 
-namespace Pocole
+namespace Sumi
 {
     public class Log
     {
@@ -61,7 +61,7 @@ namespace Pocole
         }
         private static void _Print(string title, string text, int stack, params object[] args)
         {
-            var info = string.Format("[Pocole {0}]:{1}/{2}({3})",
+            var info = string.Format("[Sumi {0}]:{1}/{2}({3})",
                 title,
                 Util.Reflect.GetCallerClassName(stack),
                 Util.Reflect.GetCallerMethodName(stack),

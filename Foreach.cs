@@ -1,9 +1,9 @@
 using System.Collections.Generic;
-using Pocole.Util;
+using Sumi.Util;
 using System;
 using System.Linq;
 
-namespace Pocole
+namespace Sumi
 {
     public class Foreach : LoopBlock
     {

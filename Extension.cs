@@ -1,6 +1,6 @@
-using Pocole.Util;
+using Sumi.Util;
 
-namespace Pocole
+namespace Sumi
 {
     public class Extension : Class
     {

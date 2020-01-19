@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace Pocole.Lib
+namespace Sumi.Lib
 {
     public class Array
     {

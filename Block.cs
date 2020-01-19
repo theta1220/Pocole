@@ -110,8 +110,6 @@ namespace Pocole
             if (name.PoMatchHead("[") || name.PoMatchHead("\"") || name.PoMatchHead("(")) return null;
             if (Regex.IsMatch(name, "^[0-9.]+$") || name == "null") return null;
 
-            // Log.Debug("変数を探す{0}/{1}", name, Name);
-
             bool isRef = true;
             // @がついている変数はコピーが作成される
             if (name.PoMatchHead("@"))

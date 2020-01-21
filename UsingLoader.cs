@@ -26,7 +26,7 @@ namespace Sumi
         protected override void Run()
         {
             var loader = new Loader();
-            var file = string.Format("{0}.pcl", Name.Replace('.', '/'));
+            var file = string.Format("{0}.ss", Name.Replace('.', '/'));
             if (UsingedNames.Contains(file))
             {
                 return;

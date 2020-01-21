@@ -6,9 +6,24 @@ namespace Sumi
 {
     public class Loader
     {
+        private static string SORUCE_PATH = "";
+
+        public Loader()
+        {
+            if (SORUCE_PATH == "")
+            {
+                throw new Exception("SOURCE_PATHが初期化されていない場合は引数０のコンストラクタを使用できません");
+            }
+        }
+
+        public Loader(string path)
+        {
+            SORUCE_PATH = path;
+        }
+
         public Runnable Load(string file)
         {
-            var text = Util.File.Open(file);
+            var text = Util.File.Open(string.Format("{0}/{1}", SORUCE_PATH, file));
             text = RemoveExtraText(text);
             var block = new Block(null, text, GetName(file));
             return block;

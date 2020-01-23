@@ -143,10 +143,16 @@ namespace Sumi
                         var instance = FindValue(split[0]);
                         if (instance == null)
                         {
-                            Log.Error("instanceの特定に失敗しました{0}", split[0]);
-                            PrintBlockTree();
+                            var classDef = FindClass(split[0]);
+                            if (classDef == null)
+                            {
+                                target = new Value(split[0], classDef);
+                            }
                         }
-                        target = (instance.Object as Block).FindValue(split[1]);
+                        else
+                        {
+                            target = (instance.Object as Block).FindValue(split[1]);
+                        }
                     }
                     else if (name.PoCut('[').Length > 0 && name.PoMatchTail("]"))
                     {

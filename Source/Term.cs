@@ -22,7 +22,7 @@ namespace Sumi
 
             if (methodName == "system_call") Runnables.Add(new SystemCaller(this, Source));
             else if (IsSetter(Source)) Runnables.Add(new ValueSetter(this, Source));
-            else if (IsMethod(Source)) Runnables.Add(new MethodCaller(this, Source));
+            else if (IsMethod(Source)) Runnables.Add(new Caller(this, Source));
             else throw new System.Exception(string.Format("理解できないTerm {0}", Source));
         }
 

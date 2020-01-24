@@ -5,13 +5,13 @@ using Sumi.Util;
 
 namespace Sumi
 {
-    public class MethodDeclarer : Block
+    public class Function : Block
     {
         public string[] ArgNames { get; private set; }
         public System.Type ReturnType { get; private set; }
         public Value Caller { get; set; }
 
-        public MethodDeclarer(Runnable parent, string source) : base(parent, source.PoExtract('{', '}'))
+        public Function(Runnable parent, string source) : base(parent, source.PoExtract('{', '}'))
         {
             // func hoge(){ ... }
             Name = source.Split('(')[0].Split(' ')[1];
@@ -24,14 +24,14 @@ namespace Sumi
             else ReturnType = typeof(object);
         }
 
-        public MethodDeclarer(MethodDeclarer other) : base(other)
+        public Function(Function other) : base(other)
         {
             ArgNames = other.ArgNames.ToArray();
             ReturnType = other.ReturnType;
             Caller = other.Caller;
         }
 
-        public override Runnable Clone() { return new MethodDeclarer(this); }
+        public override Runnable Clone() { return new Function(this); }
 
         public override void OnLeaved()
         {

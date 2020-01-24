@@ -11,7 +11,7 @@ namespace Sumi
     {
         public string Name { get; protected set; }
         public List<Value> Values { get; private set; } = new List<Value>();
-        public List<MethodDeclarer> Methods { get; private set; } = new List<MethodDeclarer>();
+        public List<Function> Methods { get; private set; } = new List<Function>();
         public List<Class> Classes { get; private set; } = new List<Class>();
         public List<Extension> Extensions { get; private set; } = new List<Extension>();
         public List<UsingLoader> Usings { get; private set; } = new List<UsingLoader>();
@@ -25,7 +25,7 @@ namespace Sumi
 
             foreach (var source in sources)
             {
-                if (source.PoMatchHead("func ")) Methods.Add(new MethodDeclarer(this, source));
+                if (source.PoMatchHead("func ")) Methods.Add(new Function(this, source));
                 else if (source.PoMatchHead("class"))
                 {
                     var classDef = new Class(this, source);
@@ -54,7 +54,7 @@ namespace Sumi
             other.Values.ForEach(obj => Values.Add(new Value(obj)));
             foreach (var obj in other.Methods)
             {
-                var clone = obj.Clone() as MethodDeclarer;
+                var clone = obj.Clone() as Function;
                 clone.Parent = this;
                 Methods.Add(clone);
             }
@@ -121,7 +121,7 @@ namespace Sumi
 
             if (name == "this")
             {
-                if (this is MethodDeclarer) target = (this as MethodDeclarer).Caller;
+                if (this is Function) target = (this as Function).Caller;
                 else target = GetParentMethod().Caller;
                 if (target == null) throw new Exception("this not found");
             }
@@ -131,7 +131,7 @@ namespace Sumi
                 // ")"で終わるってことは関数の結果を変数として利用したいってこと
                 if (name.PoMatchTail(")"))
                 {
-                    var caller = new MethodCaller(this, name);
+                    var caller = new Caller(this, name);
                     caller.ForceExecute();
                     target = new Value("", caller.Method.ReturnedValue);
                 }
@@ -188,7 +188,7 @@ namespace Sumi
             return target.ToArray();
         }
 
-        public MethodDeclarer FindMethod(string name)
+        public Function FindMethod(string name)
         {
             // 無駄な検索はしない
             if (name.PoMatchHead("[") || name.PoMatchHead("\"") || name.PoMatchHead("(")) return null;
@@ -217,21 +217,17 @@ namespace Sumi
             return target;
         }
 
-        public MethodDeclarer FindExtensionMethod(string name)
+        public Function FindExtensionMethod(string name)
         {
             if (name.PoRemoveString().Contains("."))
             {
                 var value = FindValue(name.PoCut('.'));
                 if (value == null) return null;
-                if (value.Object is List<Value>)
-                {
-                    var ex = FindExtension("Array");
-                    if (ex == null)
-                    {
-                        Log.Error("Extension not found");
-                    }
-                    return FindExtension("Array").FindMethod(name.PoSplit('.').Last());
-                }
+                Extension ex = null;
+                if (value.Object is List<Value>) ex = FindExtension("array");
+                if (value.Object is string) ex = FindExtension("string");
+                if (ex == null) Log.Error("Extension not found");
+                return ex.FindMethod(name.PoSplit('.').Last());
             }
             return null;
         }

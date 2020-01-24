@@ -5,26 +5,26 @@ using Sumi.Util;
 
 namespace Sumi
 {
-    public class MethodCaller : Runnable
+    public class Caller : Runnable
     {
         public string Name { get; private set; }
         public string[] Args { get; private set; }
-        public MethodDeclarer Method { get; private set; }
+        public Function Method { get; private set; }
 
-        public MethodCaller(Runnable parent, string source) : base(parent, source)
+        public Caller(Runnable parent, string source) : base(parent, source)
         {
             Name = source.PoRemove(' ').PoCut('(');
             Args = source.PoRemove(' ').PoExtract('(', ')').PoSplit(',');
         }
 
-        public MethodCaller(MethodCaller other) : base(other)
+        public Caller(Caller other) : base(other)
         {
             Name = other.Name;
             Args = other.Args;
             Method = other.Method;
         }
 
-        public override Runnable Clone() { return new MethodCaller(this); }
+        public override Runnable Clone() { return new Caller(this); }
 
         public override void OnEntered()
         {

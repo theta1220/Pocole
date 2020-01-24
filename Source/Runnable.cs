@@ -138,12 +138,12 @@ namespace Sumi
             return Parent.GetParentBlock();
         }
 
-        public MethodDeclarer GetParentMethod()
+        public Function GetParentMethod()
         {
             if (Parent == null) { return null; }
-            if (Parent is MethodDeclarer)
+            if (Parent is Function)
             {
-                return (MethodDeclarer)Parent;
+                return (Function)Parent;
             }
             return Parent.GetParentMethod();
         }

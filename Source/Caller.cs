@@ -9,7 +9,7 @@ namespace Sumi
     {
         public string Name { get; private set; }
         public string[] Args { get; private set; }
-        public Function Method { get; private set; }
+        public Function Function { get; private set; }
 
         public Caller(Runnable parent, string source) : base(parent, source)
         {
@@ -21,21 +21,21 @@ namespace Sumi
         {
             Name = other.Name;
             Args = other.Args;
-            Method = other.Method;
+            Function = other.Function;
         }
 
         public override Runnable Clone() { return new Caller(this); }
 
         public override void OnEntered()
         {
-            Method = GetParentBlock().FindMethod(Name);
+            Function = GetParentBlock().FindMethod(Name);
 
-            if (Method == null)
+            if (Function == null)
             {
                 Log.Error("メソッドの呼び出しに失敗しました: {0}", Name);
                 return;
             }
-            Runnables.Add(Method);
+            Runnables.Add(Function);
 
             // 呼び出しもとを特定してセット
             {
@@ -45,7 +45,7 @@ namespace Sumi
                     var value = GetParentBlock().FindValue(valueName);
                     if (value != null)
                     {
-                        Method.Caller = value;
+                        Function.Caller = value;
                     }
                     else
                     {
@@ -54,17 +54,14 @@ namespace Sumi
                         {
                             Log.Error("呼び出し元を特定できませんでした {0}", valueName);
                         }
-                        Method.Caller = new Value("", classDef);
+                        Function.Caller = new Value("", classDef);
                     }
                 }
                 else
                 {
+                    // NOTE: nullが帰ってくる場合もあるっちゃある
                     var value = GetParentBlock().FindValue("this");
-                    if (value == null)
-                    {
-                        Log.Error("呼び出し元を特定できませんでした/{0}", Name);
-                    }
-                    Method.Caller = value;
+                    Function.Caller = value;
                 }
             }
 
@@ -75,7 +72,7 @@ namespace Sumi
                 {
                     objs.Add(Util.Calc.Execute(GetParentBlock(), arg, Value.GetValueType(arg, GetParentBlock())).Object);
                 }
-                Method.SetArgs(objs.ToArray());
+                Function.SetArgs(objs.ToArray());
             }
         }
     }

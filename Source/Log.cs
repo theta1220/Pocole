@@ -61,7 +61,7 @@ namespace Sumi
         }
         private static void _Print(string title, string text, int stack, params object[] args)
         {
-            var info = string.Format("[SumiLog {0}]:{1}/{2}({3})",
+            var info = string.Format("[Sumi {0}]:{1}/{2}({3})",
                 title,
                 Util.Reflect.GetCallerClassName(stack),
                 Util.Reflect.GetCallerMethodName(stack),

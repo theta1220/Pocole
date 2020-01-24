@@ -122,7 +122,7 @@ namespace Sumi
         private void _PrintClassTree(Block parent, int tree)
         {
             Log.Info("{0}{1}", GetIndent(tree), parent.Name);
-            foreach (var method in parent.Methods)
+            foreach (var method in parent.Functions)
             {
                 Log.Debug("{0}- {1}", GetIndent(tree), method.Name);
             }

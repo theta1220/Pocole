@@ -1,12 +1,31 @@
-
 extension string
 {
+    func to_array()
+    {
+        var arr = [];
+        system_call("Sumi.Lib.String.ToArray", arr, this);
+        return arr;
+    }
+
     func split(sep)
     {
-        foreach(c : sep)
+        var res = [];
+        var buf = "";
+        foreach(c : this.to_array())
         {
-            
+            if(c == " ")
+            {
+                res.push(buf);
+                buf = "";
+                continue;
+            }
+            buf = buf + c;
         }
+        if(buf != "")
+        {
+            res.push(buf);
+        }
+        return res;
     }
 
     test split()

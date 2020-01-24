@@ -10,10 +10,22 @@ namespace Sumi
     public class Block : Runnable
     {
         public string Name { get; protected set; }
+        public string FullName
+        {
+            get
+            {
+                if (Parent != null)
+                {
+                    return string.Format("{0}.{1}", GetParentBlock().FullName, Name);
+                }
+                return Name;
+            }
+        }
         public List<Value> Values { get; private set; } = new List<Value>();
-        public List<Function> Methods { get; private set; } = new List<Function>();
+        public List<Function> Functions { get; private set; } = new List<Function>();
+        public List<Function> Tests { get; private set; } = new List<Function>();
         public List<Class> Classes { get; private set; } = new List<Class>();
-        public List<Extension> Extensions { get; private set; } = new List<Extension>();
+        public List<Class> Extensions { get; private set; } = new List<Class>();
         public List<UsingLoader> Usings { get; private set; } = new List<UsingLoader>();
         public bool LastIfResult { get; set; } = false;
         public object ReturnedValue { get; set; }
@@ -25,7 +37,8 @@ namespace Sumi
 
             foreach (var source in sources)
             {
-                if (source.PoMatchHead("func ")) Methods.Add(new Function(this, source));
+                if (source.PoMatchHead("func")) Functions.Add(new Function(this, source));
+                else if (source.PoMatchHead("test")) Tests.Add(new Function(this, source));
                 else if (source.PoMatchHead("class"))
                 {
                     var classDef = new Class(this, source);
@@ -33,7 +46,13 @@ namespace Sumi
                     if (already == null) Classes.Add(classDef);
                     else already.Using(classDef);
                 }
-                else if (source.PoMatchHead("extension")) Extensions.Add(new Extension(this, source));
+                else if (source.PoMatchHead("extension"))
+                {
+                    var ex = new Class(this, source);
+                    var already = FindExtension(ex.Name);
+                    if (already == null) Extensions.Add(ex);
+                    else already.Using(ex);
+                }
                 else if (source.PoMatchHead("using")) Usings.Add(new UsingLoader(this, source));
                 else if (source.PoMatchHead("if") ||
                          source.PoMatchHead("else if") ||
@@ -43,6 +62,8 @@ namespace Sumi
                 else if (source.PoMatchHead("foreach")) Runnables.Add(new Foreach(this, source));
                 else if (source.PoMatchHead("for")) Runnables.Add(new For(this, source));
                 else if (source.PoMatchHead("return")) Runnables.Add(new Return(this, source));
+                else if (source.PoMatchHead("continue")) Runnables.Add(new Continue(this, source));
+                else if (source.PoMatchHead("break")) Runnables.Add(new Break(this, source));
                 else if (source.PoMatchHead("{")) Runnables.Add(new Block(this, source.PoExtract('{', '}')));
                 else Runnables.Add(new Term(this, source));
             }
@@ -52,11 +73,11 @@ namespace Sumi
         {
             Name = other.Name;
             other.Values.ForEach(obj => Values.Add(new Value(obj)));
-            foreach (var obj in other.Methods)
+            foreach (var obj in other.Functions)
             {
                 var clone = obj.Clone() as Function;
                 clone.Parent = this;
-                Methods.Add(clone);
+                Functions.Add(clone);
             }
             foreach (var obj in other.Classes)
             {
@@ -66,7 +87,7 @@ namespace Sumi
             }
             foreach (var obj in other.Extensions)
             {
-                var clone = obj.Clone() as Extension;
+                var clone = obj.Clone() as Class;
                 clone.Parent = this;
                 Extensions.Add(clone);
             }
@@ -81,6 +102,27 @@ namespace Sumi
         }
 
         public override Runnable Clone() { return new Block(this); }
+
+        public void Test()
+        {
+            foreach (var test in Tests)
+            {
+                test.ForceExecute();
+                if ((bool)test.ReturnedValue == false)
+                {
+                    Log.Error("{0}のテストに失敗", test.FullName);
+                }
+            }
+
+            foreach (var classDef in Classes)
+            {
+                classDef.Test();
+            }
+            foreach (var ex in Extensions)
+            {
+                ex.Test();
+            }
+        }
 
         public override void OnEntered()
         {
@@ -122,8 +164,7 @@ namespace Sumi
             if (name == "this")
             {
                 if (this is Function) target = (this as Function).Caller;
-                else target = GetParentMethod().Caller;
-                if (target == null) throw new Exception("this not found");
+                else if (GetParentMethod() != null) target = GetParentMethod().Caller;
             }
 
             if (target == null)
@@ -133,7 +174,7 @@ namespace Sumi
                 {
                     var caller = new Caller(this, name);
                     caller.ForceExecute();
-                    target = new Value("", caller.Method.ReturnedValue);
+                    target = new Value("", caller.Function.ReturnedValue);
                 }
                 else
                 {
@@ -209,7 +250,7 @@ namespace Sumi
                 }
                 return FindExtensionMethod(name);
             }
-            var target = Methods.FirstOrDefault(method => method.Name == name);
+            var target = Functions.FirstOrDefault(method => method.Name == name);
             if (target == null && GetParentBlock() != null)
             {
                 target = GetParentBlock().FindMethod(name);
@@ -223,7 +264,7 @@ namespace Sumi
             {
                 var value = FindValue(name.PoCut('.'));
                 if (value == null) return null;
-                Extension ex = null;
+                Class ex = null;
                 if (value.Object is List<Value>) ex = FindExtension("array");
                 if (value.Object is string) ex = FindExtension("string");
                 if (ex == null) Log.Error("Extension not found");
@@ -232,7 +273,7 @@ namespace Sumi
             return null;
         }
 
-        public Extension FindExtension(string name)
+        public Class FindExtension(string name)
         {
             var target = Extensions.FirstOrDefault(ex => ex.Name == name);
             if (target == null && GetParentBlock() != null)
@@ -269,10 +310,10 @@ namespace Sumi
                 if (FindValue(value.Name) != null) continue;
                 Values.Add(value);
             }
-            foreach (var method in block.Methods)
+            foreach (var method in block.Functions)
             {
                 if (FindMethod(method.Name) != null) continue;
-                Methods.Add(method);
+                Functions.Add(method);
             }
             foreach (var classDef in block.Classes)
             {
@@ -302,7 +343,7 @@ namespace Sumi
             {
                 Log.Debug(ConsoleColor.DarkBlue, "{0}var {1}/{2}", Util.String.GetIndentSpace(tree), value.Name, value.Object.ToString());
             }
-            foreach (var method in parent.Methods)
+            foreach (var method in parent.Functions)
             {
                 PrintBlockTree(method, tree + 1);
             }

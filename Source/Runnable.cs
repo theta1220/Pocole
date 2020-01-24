@@ -103,7 +103,6 @@ namespace Sumi
         {
             ExecuteCount = Runnables.Count;
         }
-
         public void ResetExecute()
         {
             ExecuteCount = 0;
@@ -156,6 +155,16 @@ namespace Sumi
                 return (Class)Parent;
             }
             return Parent.GetParentClass();
+        }
+
+        public LoopBlock GetParentLoopBlock()
+        {
+            if (Parent == null) { return null; }
+            if (Parent is LoopBlock)
+            {
+                return (LoopBlock)Parent;
+            }
+            return Parent.GetParentLoopBlock();
         }
 
         public Block GetRootBlock()

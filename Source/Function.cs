@@ -14,7 +14,8 @@ namespace Sumi
         public Function(Runnable parent, string source) : base(parent, source.PoExtract('{', '}'))
         {
             // func hoge(){ ... }
-            Name = source.Split('(')[0].Split(' ')[1];
+            var names = source.PoCut('(').Split(' ');
+            Name = names[1];
             ArgNames = source.PoRemove(' ').PoExtract('(', ')').Split(',');
 
             var typeName = source.PoCut('{').PoRemove(' ').PoSplit(':').Last();
@@ -22,6 +23,11 @@ namespace Sumi
             else if (typeName == "string") ReturnType = typeof(string);
             else if (typeName == "bool") ReturnType = typeof(bool);
             else ReturnType = typeof(object);
+
+            if (names[0] == "test")
+            {
+                ReturnType = typeof(bool);
+            }
         }
 
         public Function(Function other) : base(other)

@@ -7,6 +7,17 @@ extension string
         return arr;
     }
 
+    test to_array()
+    {
+        var text = "hoge";
+        var arr = text.to_array();
+        if (arr.len() == 4)
+        {
+            return true;
+        }
+        return false;
+    }
+
     func split(sep)
     {
         var res = [];

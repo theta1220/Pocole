@@ -51,7 +51,7 @@ namespace Sumi
             {
                 executedInitSource = true;
 
-                targetArray = FindValue(ArrayName).Object as List<Value>;
+                targetArray = Calc.Execute(GetParentBlock(), ArrayName, typeof(object)).Object as List<Value>;
                 if (targetArray == null)
                 {
                     Log.Error("配列が見つかりませんでした:{0}", ArrayName);

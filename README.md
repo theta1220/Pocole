@@ -4,20 +4,35 @@ sumiとは、C#上で動作するインタプリタ言語です。
 
 ## 使い方
 
+### サンプル
+```C#
+class main : object
+{
+    func hello()
+    {
+        log("hello sumi.");
+    }
+}
+
+var _main = main.new();
+_main.hello();
+```
+```bash
+hello sumi.
+```
+
+### 組み込み方法
+sumiを１ファイルにまとめる `sumi_build` を実行しておきます。
+```bash
+sumi_build out.so
+```
+
 C#に組み込むことが前提であるため、
 sumiの実行にはC#でsumiのインスタンスを生成する必要があります。
 ```C#
 var script = Sumi.Loader("out.so");
 script.ForceExecute();
 ```
-
-sumiを１ファイルにまとめてる `sumi_build` を実行し、
-dotnetやUnityから、sumiを呼び出します。
-```bash
-sumi_build out.so
-dotnet run
-```
-
 
 ## 言語仕様
 
@@ -30,14 +45,86 @@ var text = "hello.";
 var boolean = false;
 var func_result = foo.bar();
 var class_instance = hoge.new();
+var array = [123,456,789];
 ```
 
-#### サポートされている型
+### 配列
+```C#
+// 空でも宣言可能です。
+var array = [];
+
+// pushで末尾に値を追加できます。
+array.push(123);
+array.push(456);
+
+// popで末尾の値を取り出すことができます
+var res = array.pop();
+
+// firstで先頭の値にアクセスできます
+var res = array.first();
+
+// lastで末尾の値にアクセスできます
+var res = array.last();
+
+// クラスインスタンスを扱うこともできます。
+var class_arr = [hoge.new(), hoge.new()];
+array.push(hoge.new());
+```
+
+#### 変数としてサポートされている型
 * int
 * string
 * bool
 * class
 * array
+
+### 処理文
+#### if
+```C#
+if (hoge == false)
+{
+    ...
+}
+else if ((foo == true) && (hoge == true))
+{
+    ...
+}
+else
+{
+    ...
+}
+```
+
+#### for
+```C#
+var arr = [123, 456, 789];
+for(var i=0; i<arr.Len(); i=i+1)
+{
+    log("arr:{0}/{1}", i, arr[i]);
+}
+```
+
+#### foreach
+`:` で仕切られた順に `変数名` `配列名` `インデックス変数名` を指定します。
+変数及び、インデックス変数には、事前に宣言する必要はありません。
+```C#
+var arr = [123, 456, 789];
+foreach(item : arr : i)
+{
+    log("arr:{0}/{1}", i, item.num);
+}
+```
+
+#### while
+```C#
+var arr = [123, 456, 789];
+var cnt = 0;
+while(cnt < arr.Len())
+{
+    log("arr:{0}/{1}", cnt, arr[cnt]);
+    cnt = cnt + 1;
+}
+```
 
 ### 関数
 `func` キーワードを使用して、関数を定義できます。

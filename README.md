@@ -5,6 +5,8 @@ sumiとは、C#上で動作するインタプリタ言語です。
 ## 使い方
 
 ### サンプル
+`main.ss`
+sumiソースファイルの拡張子は `ss` (sumi script)を指定してください
 ```C#
 class main : object
 {

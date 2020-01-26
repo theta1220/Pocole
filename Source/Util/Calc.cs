@@ -31,7 +31,7 @@ namespace Sumi.Util
             // 括弧を計算
             source = ExecuteBracketCalc(parentBlock, source, type);
 
-            if (source == "null") return null;
+            if (source == "null") return new Value("");
             if (type == typeof(int)) return new Value("", ExecuteCalcInt(parentBlock, source));
             if (type == typeof(bool)) return new Value("", ExecuteCalcBool(parentBlock, source));
             if (type == typeof(string)) return new Value("", ExecuteCalcString(parentBlock, source));

@@ -28,11 +28,11 @@ namespace Sumi
 
         public override void OnEntered()
         {
-            Function = GetParentBlock().FindMethod(Name);
+            Function = GetParentBlock().FindFunction(Name);
 
             if (Function == null)
             {
-                Log.Error("メソッドの呼び出しに失敗しました: {0}", Name);
+                Log.Error("メソッドの呼び出しに失敗しました: {0}->{1}", GetParentBlock().FullName, Name);
                 return;
             }
             Runnables.Add(Function);

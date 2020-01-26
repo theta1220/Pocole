@@ -37,9 +37,6 @@ namespace Sumi
             ArrayName = other.ArrayName;
             CountName = other.CountName;
             Count = other.Count;
-            targetValue = other.targetValue;
-            other.targetArray.ForEach(obj => targetArray.Add(new Value(obj)));
-            countValue = new Value(other.countValue);
             executedInitSource = other.executedInitSource;
         }
 

@@ -78,9 +78,9 @@ namespace Sumi
             {
                 return typeof(bool);
             }
-            else if (parentBlock != null && parentBlock.FindMethod(value.PoCut('(')) != null)
+            else if (parentBlock != null && parentBlock.FindFunction(value.PoCut('(')) != null)
             {
-                return parentBlock.FindMethod(value.PoCut('(')).ReturnType;
+                return parentBlock.FindFunction(value.PoCut('(')).ReturnType;
             }
             else if (parentBlock != null && parentBlock.FindValue(value) != null)
             {

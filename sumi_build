@@ -1,5 +1,4 @@
 #!/bin/bash
-cd `dirname $0`
 out="$1"
 if [ -z $1 ]; then
     echo "出力ファイル名を入力してください"

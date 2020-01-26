@@ -165,6 +165,11 @@ namespace Sumi
             {
                 if (this is Function) target = (this as Function).Caller;
                 else if (GetParentMethod() != null) target = GetParentMethod().Caller;
+
+                if (target == null)
+                {
+                    target = new Value("", this);
+                }
             }
 
             if (target == null)
@@ -182,15 +187,7 @@ namespace Sumi
                     {
                         var split = name.PoSplitOnceTail('.');
                         var instance = FindValue(split[0]);
-                        if (instance == null)
-                        {
-                            var classDef = FindClass(split[0]);
-                            if (classDef == null)
-                            {
-                                target = new Value(split[0], classDef);
-                            }
-                        }
-                        else
+                        if (instance != null)
                         {
                             target = (instance.Object as Block).FindValue(split[1]);
                         }
@@ -229,7 +226,7 @@ namespace Sumi
             return target.ToArray();
         }
 
-        public Function FindMethod(string name)
+        public Function FindFunction(string name)
         {
             // 無駄な検索はしない
             if (name.PoMatchHead("[") || name.PoMatchHead("\"") || name.PoMatchHead("(")) return null;
@@ -239,21 +236,25 @@ namespace Sumi
             {
                 var split = name.PoSplitOnceTail('.');
                 var value = FindValue(split[0]);
-                if (value == null)
+                if (value == null || value.Object == null)
                 {
-                    return FindClass(split[0]).FindMethod(split[1]);
+                    var classDef = FindClass(split[0]);
+                    if (classDef != null)
+                    {
+                        return classDef.FindFunction(split[1]);
+                    }
                 }
                 var instance = value.Object as Block;
                 if (instance != null)
                 {
-                    return instance.FindMethod(split[1]);
+                    return instance.FindFunction(split[1]);
                 }
                 return FindExtensionMethod(name);
             }
             var target = Functions.FirstOrDefault(method => method.Name == name);
             if (target == null && GetParentBlock() != null)
             {
-                target = GetParentBlock().FindMethod(name);
+                target = GetParentBlock().FindFunction(name);
             }
             return target;
         }
@@ -268,7 +269,7 @@ namespace Sumi
                 if (value.Object is List<Value>) ex = FindExtension("array");
                 if (value.Object is string) ex = FindExtension("string");
                 if (ex == null) Log.Error("Extension not found");
-                return ex.FindMethod(name.PoSplit('.').Last());
+                return ex.FindFunction(name.PoSplit('.').Last());
             }
             return null;
         }
@@ -304,7 +305,6 @@ namespace Sumi
 
         public void Using(Block block)
         {
-            block.Parent = this;
             foreach (var value in block.Values)
             {
                 if (FindValue(value.Name) != null) continue;
@@ -312,8 +312,10 @@ namespace Sumi
             }
             foreach (var method in block.Functions)
             {
-                if (FindMethod(method.Name) != null) continue;
-                Functions.Add(method);
+                if (FindFunction(method.Name) != null) continue;
+                var clone = method.Clone() as Function;
+                clone.Parent = this;
+                Functions.Add(clone);
             }
             foreach (var classDef in block.Classes)
             {
@@ -338,7 +340,7 @@ namespace Sumi
 
         public void PrintBlockTree(Block parent, int tree)
         {
-            Log.Debug(ConsoleColor.DarkBlue, "{0}{1}::{2}", Util.String.GetIndentSpace(tree), parent.GetType(), parent.Name);
+            Log.Debug(ConsoleColor.DarkBlue, "{0}{1}::{2}", Util.String.GetIndentSpace(tree), parent.GetType(), parent.FullName);
             foreach (var value in parent.Values)
             {
                 Log.Debug(ConsoleColor.DarkBlue, "{0}var {1}/{2}", Util.String.GetIndentSpace(tree), value.Name, value.Object.ToString());

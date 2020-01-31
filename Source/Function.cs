@@ -11,11 +11,17 @@ namespace Sumi
         public System.Type ReturnType { get; private set; }
         public Value Caller { get; set; }
 
-        public Function(Runnable parent, string source) : base(parent, source.PoExtract('{', '}'))
+        private static string ReadName(string source)
         {
             // func hoge(){ ... }
             var names = source.PoCut('(').Split(' ');
-            Name = names[1];
+            return names[1];
+        }
+
+        public Function(Runnable parent, string source) : base(parent, source.PoExtract('{', '}'), ReadName(source))
+        {
+            // func hoge(){ ... }
+            var names = source.PoCut('(').Split(' ');
             ArgNames = source.PoRemove(' ').PoExtract('(', ')').Split(',');
 
             var typeName = source.PoCut('{').PoRemove(' ').PoSplit(':').Last();

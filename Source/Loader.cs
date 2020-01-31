@@ -14,8 +14,11 @@ namespace Sumi
         {
             var text = Util.File.Open(file);
             text = RemoveExtraText(text);
-            var block = new Block(null, text, GetName(file));
-            block.Test();
+            text = "class " + GetName(file) + "{" + text + "}";
+            var block = new Class(null, text);
+            block.Extend();
+            block.ClassTest();
+            Class.ExtensionTest();
             return block;
         }
 

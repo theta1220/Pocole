@@ -32,7 +32,7 @@ namespace Sumi
 
             if (Function == null)
             {
-                Log.Error("メソッドの呼び出しに失敗しました: {0}->{1}", GetParentBlock().FullName, Name);
+                Log.Error("メソッドの呼び出しに失敗しました: {0}->{1}", GetParentClass().FullName, Name);
                 return;
             }
             Runnables.Add(Function);
@@ -49,7 +49,7 @@ namespace Sumi
                     }
                     else
                     {
-                        var classDef = GetParentBlock().FindClass(valueName);
+                        var classDef = GetParentClass().FindClass(valueName);
                         if (classDef == null)
                         {
                             Log.Error("呼び出し元を特定できませんでした {0}", valueName);

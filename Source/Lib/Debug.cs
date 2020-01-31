@@ -13,5 +13,11 @@ namespace Sumi.Lib
             }
             block.PrintBlockTree();
         }
+
+        public static void Error(Value[] args)
+        {
+            var text = args[0].Object as string;
+            Log.Error(text);
+        }
     }
 }

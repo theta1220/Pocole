@@ -7,7 +7,7 @@ namespace Sumi
     {
         public bool IsContinuous { get; set; }
 
-        public LoopBlock(Runnable parent, string source) : base(parent, source.PoExtract('{', '}'))
+        public LoopBlock(Runnable parent, string source) : base(parent, source.PoExtract('{', '}'), "loop")
         {
             IsContinuous = true;
         }

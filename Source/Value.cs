@@ -62,8 +62,11 @@ namespace Sumi
         {
             var value = GetFirstCalcSource(source);
 
+            // null
+            if (value == "null") return typeof(Class);
+
             // 配列
-            if ((source.Contains(",") && source.Contains('[')) || source == "[]")
+            if ((value.Contains(",") && value.Contains('[')) || value == "[]")
             {
                 return typeof(List<Value>);
             }

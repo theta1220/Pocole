@@ -114,24 +114,6 @@ namespace Sumi
             Log.Info(string.Format("{0}", text), list.ToArray());
         }
 
-        public void PrintClassTree(object[] args)
-        {
-            _PrintClassTree(GetParentBlock(), 0);
-        }
-
-        private void _PrintClassTree(Block parent, int tree)
-        {
-            Log.Info("{0}{1}", GetIndent(tree), parent.Name);
-            foreach (var method in parent.Functions)
-            {
-                Log.Debug("{0}- {1}", GetIndent(tree), method.Name);
-            }
-            foreach (var classDef in parent.Classes)
-            {
-                _PrintClassTree(classDef, tree + 1);
-            }
-        }
-
         private string GetIndent(int count)
         {
             var space = "";

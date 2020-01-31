@@ -15,7 +15,7 @@ namespace Sumi
         public ProcessType ProcessType { get; private set; }
         public string Formula { get; private set; }
 
-        public If(Runnable parent, string source) : base(parent, source.PoExtract('{', '}'))
+        public If(Runnable parent, string source) : base(parent, source.PoExtract('{', '}'), "if")
         {
             var name = source.PoCut('(').PoRemove(' ');
             if (name == "if") ProcessType = ProcessType.If;

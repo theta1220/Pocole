@@ -24,8 +24,6 @@ namespace Sumi
         public List<Value> Values { get; private set; } = new List<Value>();
         public List<Function> Functions { get; private set; } = new List<Function>();
         public List<Function> Tests { get; private set; } = new List<Function>();
-        public List<Class> Classes { get; private set; } = new List<Class>();
-        public List<Class> Extensions { get; private set; } = new List<Class>();
         public List<UsingLoader> Usings { get; private set; } = new List<UsingLoader>();
         public bool LastIfResult { get; set; } = false;
         public object ReturnedValue { get; set; }
@@ -41,17 +39,28 @@ namespace Sumi
                 else if (source.PoMatchHead("test")) Tests.Add(new Function(this, source));
                 else if (source.PoMatchHead("class"))
                 {
-                    var classDef = new Class(this, source);
-                    var already = FindClass(classDef.Name);
-                    if (already == null) Classes.Add(classDef);
-                    else already.Using(classDef);
+                    var def = new Class(this, source);
+                    var fullName = string.Format("{0}.{1}", FullName, def.Name);
+                    if (!Class.ExistsStaticClass(fullName))
+                    {
+                        Class.AddStaticClass(fullName, def);
+                    }
+                    else
+                    {
+                        Class.GetStaticClass(fullName).Using(def);
+                    }
                 }
                 else if (source.PoMatchHead("extension"))
                 {
-                    var ex = new Class(this, source);
-                    var already = FindExtension(ex.Name);
-                    if (already == null) Extensions.Add(ex);
-                    else already.Using(ex);
+                    var def = new Class(this, source);
+                    if (!Class.ExistsStaticExtension(def.Name))
+                    {
+                        Class.AddStaticExtension(def);
+                    }
+                    else
+                    {
+                        Class.GetStaticExtension(def.Name).Using(def);
+                    }
                 }
                 else if (source.PoMatchHead("using")) Usings.Add(new UsingLoader(this, source));
                 else if (source.PoMatchHead("if") ||
@@ -79,18 +88,6 @@ namespace Sumi
                 clone.Parent = this;
                 Functions.Add(clone);
             }
-            foreach (var obj in other.Classes)
-            {
-                var clone = obj.Clone() as Class;
-                clone.Parent = this;
-                Classes.Add(clone);
-            }
-            foreach (var obj in other.Extensions)
-            {
-                var clone = obj.Clone() as Class;
-                clone.Parent = this;
-                Extensions.Add(clone);
-            }
             foreach (var obj in other.Usings)
             {
                 var clone = obj.Clone() as UsingLoader;
@@ -103,7 +100,7 @@ namespace Sumi
 
         public override Runnable Clone() { return new Block(this); }
 
-        public void Test()
+        public void ExecuteTest()
         {
             foreach (var test in Tests)
             {
@@ -113,15 +110,6 @@ namespace Sumi
                     Log.Error("{0}のテストに失敗", test.FullName);
                 }
             }
-
-            foreach (var classDef in Classes)
-            {
-                classDef.Test();
-            }
-            foreach (var ex in Extensions)
-            {
-                ex.Test();
-            }
         }
 
         public override void OnEntered()
@@ -129,10 +117,6 @@ namespace Sumi
             foreach (var use in Usings)
             {
                 use.ForceExecute();
-            }
-            foreach (var classDef in Classes)
-            {
-                classDef.Extend();
             }
         }
 
@@ -150,7 +134,8 @@ namespace Sumi
         {
             // 無駄な検索はしない
             if (name.PoMatchHead("[") || name.PoMatchHead("\"") || name.PoMatchHead("(")) return null;
-            if (Regex.IsMatch(name, "^[0-9.]+$") || name == "null") return null;
+            if (Regex.IsMatch(name, "^[0-9.]+$")) return null;
+            if (name == "null") return new Value("", null);
 
             bool isRef = true;
             // @がついている変数はコピーが作成される
@@ -238,10 +223,14 @@ namespace Sumi
                 var value = FindValue(split[0]);
                 if (value == null || value.Object == null)
                 {
-                    var classDef = FindClass(split[0]);
+                    Class parent = null;
+                    if (this is Class) parent = this as Class;
+                    else parent = GetParentClass();
+                    var classDef = parent.FindClass(split[0]);
                     if (classDef != null)
                     {
-                        return classDef.FindFunction(split[1]);
+                        var func = classDef.FindFunction(split[1]);
+                        if (func != null) return func;
                     }
                 }
                 var instance = value.Object as Block;
@@ -266,70 +255,27 @@ namespace Sumi
                 var value = FindValue(name.PoCut('.'));
                 if (value == null) return null;
                 Class ex = null;
-                if (value.Object is List<Value>) ex = FindExtension("array");
-                if (value.Object is string) ex = FindExtension("string");
+                if (value.Object is List<Value>) ex = Class.FindExtension("array");
+                if (value.Object is string) ex = Class.FindExtension("string");
                 if (ex == null) Log.Error("Extension not found");
                 return ex.FindFunction(name.PoSplit('.').Last());
             }
             return null;
         }
 
-        public Class FindExtension(string name)
-        {
-            var target = Extensions.FirstOrDefault(ex => ex.Name == name);
-            if (target == null && GetParentBlock() != null)
-            {
-                target = GetParentBlock().FindExtension(name);
-            }
-            return target;
-        }
-
-        public Class FindClass(string name)
-        {
-            // 無駄な検索はしない
-            if (name.PoMatchHead("[") || name.PoMatchHead("\"") || name.PoMatchHead("(")) return null;
-            if (Regex.IsMatch(name, "^[0-9.]+$") || name == "null") return null;
-
-            var split = name.PoSplitOnce('.');
-            if (split.Length > 1)
-            {
-                return FindClass(split[0]).FindClass(split[1]);
-            }
-            var target = Classes.FirstOrDefault(classDef => classDef.Name == name);
-            if (target == null && GetParentBlock() != null)
-            {
-                target = GetParentBlock().FindClass(name);
-            }
-            return target;
-        }
-
         public void Using(Block block)
         {
             foreach (var value in block.Values)
             {
-                if (FindValue(value.Name) != null) continue;
+                if (Values.Find(o => o.Name == value.Name) != null) continue;
                 Values.Add(value);
             }
-            foreach (var method in block.Functions)
+            foreach (var func in block.Functions)
             {
-                if (FindFunction(method.Name) != null) continue;
-                var clone = method.Clone() as Function;
+                if (Values.Find(o => o.Name == func.Name) != null) continue;
+                var clone = func.Clone() as Function;
                 clone.Parent = this;
                 Functions.Add(clone);
-            }
-            foreach (var classDef in block.Classes)
-            {
-                if (FindClass(classDef.Name) != null)
-                {
-                    FindClass(classDef.Name).Using(classDef);
-                    continue;
-                }
-                Classes.Add(classDef);
-            }
-            foreach (var ex in block.Extensions)
-            {
-                if (FindExtension(ex.Name) != null) continue;
-                Extensions.Add(ex);
             }
         }
 
@@ -348,14 +294,6 @@ namespace Sumi
             foreach (var method in parent.Functions)
             {
                 PrintBlockTree(method, tree + 1);
-            }
-            foreach (var classDef in parent.Classes)
-            {
-                PrintBlockTree(classDef, tree + 1);
-            }
-            foreach (var ex in parent.Extensions)
-            {
-                PrintBlockTree(ex, tree + 1);
             }
         }
     }

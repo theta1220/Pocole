@@ -59,3 +59,13 @@ extension string
         return true;
     }
 }
+
+class string
+{
+    func format(text, args)
+    {
+        var res = "";
+        system_call("Sumi.Lib.String.Format", res, text, args);
+        return res;
+    }
+}

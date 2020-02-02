@@ -219,7 +219,8 @@ namespace Sumi
             if (value == null) return null;
             Class ex = null;
             if (value.Object is List<Value>) ex = Class.FindExtension("array");
-            if (value.Object is string) ex = Class.FindExtension("string");
+            else if (value.Object is string) ex = Class.FindExtension("string");
+            else return null;
             Log.Assert(ex != null, "拡張メソッドがみつかりませんでした:{0}", name);
             return ex.FindFunction(name.PoSplit('.').Last());
         }

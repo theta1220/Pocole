@@ -98,7 +98,7 @@ namespace Sumi.Util
                 var rType = Value.GetValueType(splitedFormula[1], parentBlock);
 
                 // 型の違う者同士は比較しないことにする
-                if (rType != lType) return false;
+                Log.Assert(rType == lType, "型が違うので比較できません {0} --- {1}", lType.ToString(), rType.ToString());
 
                 var l = Execute(parentBlock, splitedFormula[0], lType).Object;
                 var r = Execute(parentBlock, splitedFormula[1], rType).Object;
@@ -110,27 +110,25 @@ namespace Sumi.Util
                     else if (ope == ">") return (int)l > (int)r;
                     else if (ope == "<=") return (int)l <= (int)r;
                     else if (ope == ">=") return (int)l >= (int)r;
-                    else { Log.Error("{0}型で 比較できる演算子ではない:{1}", rType.ToString(), ope); return false; }
                 }
                 else if (rType == typeof(string))
                 {
                     if (ope == "==") return (string)l == (string)r;
                     else if (ope == "!=") return (string)l != (string)r;
-                    else { Log.Error("{0}型で 比較できる演算子ではない:{1}", rType.ToString(), ope); return false; }
                 }
                 else if (rType == typeof(bool))
                 {
                     if (ope == "&&") return (bool)l && (bool)r;
                     if (ope == "||") return (bool)l || (bool)r;
-                    throw new System.Exception("比較できない演算子");
+                    if (ope == "==") return (bool)l == (bool)r;
+                    if (ope == "!=") return (bool)l != (bool)r;
                 }
                 else
                 {
                     if (ope == "==") return l == r;
                     if (ope == "!=") return l != r;
-
-                    throw new System.Exception("比較できない");
                 }
+                Log.Error("{0}型で 比較できる演算子ではない:{1}", rType.ToString(), ope);
             }
             return bool.Parse(source);
         }

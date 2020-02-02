@@ -28,7 +28,7 @@ namespace Sumi
             if (typeName == "int") ReturnType = typeof(int);
             else if (typeName == "string") ReturnType = typeof(string);
             else if (typeName == "bool") ReturnType = typeof(bool);
-            else ReturnType = typeof(object);
+            else ReturnType = typeof(Class);
 
             if (names[0] == "test")
             {

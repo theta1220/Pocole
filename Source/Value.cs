@@ -13,7 +13,7 @@ namespace Sumi
             {
                 if (Object == null)
                 {
-                    return typeof(object);
+                    return typeof(Class);
                 }
                 return Object.GetType();
             }
@@ -61,6 +61,8 @@ namespace Sumi
         public static Type GetValueType(string source, Block parentBlock = null)
         {
             var valueName = GetFirstCalcSource(source);
+            // 比較
+            if (Calc.ContainsCompareOpeartor(source)) return typeof(bool);
             // null
             if (valueName == "null") return typeof(Class);
             // 配列
@@ -69,17 +71,15 @@ namespace Sumi
             var resBool = false;
             if (int.TryParse(valueName, out resInt)) return typeof(int);
             if (bool.TryParse(valueName, out resBool)) return typeof(bool);
-            if (Calc.ContainsCompareOpeartor(valueName)) return typeof(bool);
-            if (source.Contains("\"")) return typeof(string);
+            if (valueName.PoMatchHead("\"") && valueName.PoMatchTail("\"")) return typeof(string);
             if (parentBlock != null)
             {
                 var v = parentBlock.FindValue(valueName);
                 if (v != null) return v.ValueType;
                 var func = parentBlock.FindFunction(valueName.PoCut('('));
                 if (func != null) return func.ReturnType;
-                return typeof(object);
             }
-            return typeof(object);
+            return typeof(Class);
         }
 
         public static string GetFirstCalcSource(string source)

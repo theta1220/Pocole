@@ -22,8 +22,7 @@ namespace Sumi
 
             if (methodName == "system_call") Runnables.Add(new SystemCaller(this, Source));
             else if (IsSetter(Source)) Runnables.Add(new ValueSetter(this, Source));
-            else if (IsMethod(Source)) Runnables.Add(new Caller(this, Source));
-            else throw new System.Exception(string.Format("理解できないTerm {0}", Source));
+            else Runnables.Add(new Caller(this, Source));
         }
 
         public override void OnLeaved()
@@ -38,14 +37,10 @@ namespace Sumi
             return buf.Last();
         }
 
-        public static bool IsSetter(string source)
+        public bool IsSetter(string source)
         {
-            return source.PoRemoveString().Contains("=");
-        }
-
-        public static bool IsMethod(string source)
-        {
-            return source.PoRemoveString().Contains("(");
+            var name = source.PoRemove(' ').PoCut('=');
+            return source.PoMatchHead("var ") || GetParentBlock().FindValue(name) != null;
         }
     }
 }

@@ -24,7 +24,7 @@ extension string
         var buf = "";
         foreach(c : this.to_array())
         {
-            if(c == " ")
+            if(c == sep)
             {
                 res.push(buf);
                 buf = "";
@@ -53,6 +53,45 @@ extension string
             return false;
         }
         if(arr[2] != "bar")
+        {
+            return false;
+        }
+        return true;
+    }
+
+    func split_once(sep)
+    {
+        var res = [];
+        var buf = "";
+        var read_num = 1;
+
+        foreach(c : this.to_array())
+        {
+            if((read_num > res.len()) && (c == sep))
+            {
+                res.push(buf);
+                buf = "";
+                continue;
+            }
+            buf = buf + c;
+        }
+        if(buf != "")
+        {
+            res.push(buf);
+        }
+        return res;
+    }
+
+    test split_once()
+    {
+        var text = "hoge foo bar";
+        var arr = text.split_once(" ");
+
+        if(arr[0] != "hoge")
+        {
+            return false;
+        }
+        if(arr[1] != "foo bar")
         {
             return false;
         }

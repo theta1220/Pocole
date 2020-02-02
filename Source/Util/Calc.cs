@@ -25,6 +25,11 @@ namespace Sumi.Util
                 {
                     return new Value("", ExecuteArray(parentBlock, formula));
                 }
+                // 括弧
+                else if (formula.Length >= 2 && formula.First() == '(' && formula.Last() == ')')
+                {
+                    return Execute(parentBlock, formula.PoExtract('(', ')'), type);
+                }
                 // 関数
                 else if (formula.Last() == ')')
                 {
@@ -233,6 +238,18 @@ namespace Sumi.Util
             }
             if (buf != "") list.Add(buf);
             return list.ToArray();
+        }
+
+        public static bool ContainsCompareOpeartor(string formula)
+        {
+            foreach (var ope in CompareOpes)
+            {
+                if (formula.Contains(ope))
+                {
+                    return true;
+                }
+            }
+            return false;
         }
     }
 }

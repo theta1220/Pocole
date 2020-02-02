@@ -69,6 +69,7 @@ namespace Sumi
             var resBool = false;
             if (int.TryParse(valueName, out resInt)) return typeof(int);
             if (bool.TryParse(valueName, out resBool)) return typeof(bool);
+            if (Calc.ContainsCompareOpeartor(valueName)) return typeof(bool);
             if (source.Contains("\"")) return typeof(string);
             if (parentBlock != null)
             {

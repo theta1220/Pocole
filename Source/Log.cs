@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 
 namespace Sumi
@@ -42,7 +43,7 @@ namespace Sumi
         }
         private static void _Print(Util.Reflect.Info stackInfo, ConsoleColor color, string title, string text, params object[] args)
         {
-            Console.ForegroundColor = ConsoleColor.Red;
+            Console.ForegroundColor = color;
             var info = string.Format("[Sumi {0}]:{1}/{2}({3})",
                 title,
                 stackInfo.ClassName,
@@ -51,6 +52,35 @@ namespace Sumi
             var message = string.Format("{0}: \"{1}\"", info, text);
             Console.WriteLine(message, args);
             Console.ResetColor();
+        }
+
+        public static void SumiPrint(Value[] args)
+        {
+            var title = args[0].Object as string;
+            var text = args[1].Object as string;
+            var list = new List<object>();
+            for (var i = 2; i < args.Length; i++) list.Add(args[i].Object);
+            _Print(title, text, list.ToArray());
+        }
+
+        public static void SumiError(Value[] args)
+        {
+            var text = args[0].Object as string;
+            var list = new List<object>();
+            for (var i = 1; i < args.Length; i++) list.Add(args[i].Object);
+            var info = _Print("Error", text, list.ToArray());
+            throw new Exception(info);
+        }
+
+        private static string _Print(string title, string text, params object[] args)
+        {
+            var message = "";
+            if (args.Length > 0) message = string.Format(text, args);
+            else message = text;
+
+            var info = string.Format("[sumi {0}]:{1}", title, message);
+            Console.WriteLine(info);
+            return info;
         }
     }
 }

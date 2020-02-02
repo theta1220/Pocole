@@ -12,7 +12,7 @@ class main : object
 {
     func hello()
     {
-        log("hello sumi.");
+        log.info("hello sumi.");
     }
 }
 
@@ -102,7 +102,7 @@ else
 var arr = [123, 456, 789];
 for(var i=0; i<arr.Len(); i=i+1)
 {
-    log("arr:{0}/{1}", i, arr[i]);
+    log.info("arr:{0}/{1}", i, arr[i]);
 }
 ```
 
@@ -113,7 +113,7 @@ for(var i=0; i<arr.Len(); i=i+1)
 var arr = [123, 456, 789];
 foreach(item : arr : i)
 {
-    log("arr:{0}/{1}", i, item.num);
+    log.info("arr:{0}/{1}", i, item.num);
 }
 ```
 
@@ -123,7 +123,7 @@ var arr = [123, 456, 789];
 var cnt = 0;
 while(cnt < arr.Len())
 {
-    log("arr:{0}/{1}", cnt, arr[cnt]);
+    log,info("arr:{0}/{1}", cnt, arr[cnt]);
     cnt = cnt + 1;
 }
 ```

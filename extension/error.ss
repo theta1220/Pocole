@@ -14,5 +14,5 @@ class error
     func no_impl()
     {
         log("未実装の関数です");
-}
+    }
 }

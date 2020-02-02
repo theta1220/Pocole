@@ -36,44 +36,34 @@ namespace Sumi
                 return;
             }
             Runnables.Add(Function);
+            SetCaller();
+            SetArgs();
+        }
 
-            // 呼び出しもとを特定してセット
+        private void SetCaller()
+        {
+            if (Name.Contains("."))
             {
                 var valueName = Name.PoSplitOnceTail('.')[0];
-                if (Name.Contains("."))
-                {
-                    var value = GetParentBlock().FindValue(valueName);
-                    if (value != null)
-                    {
-                        Function.Caller = value;
-                    }
-                    else
-                    {
-                        var classDef = GetParentClass().FindClass(valueName);
-                        if (classDef == null)
-                        {
-                            Log.Error("呼び出し元を特定できませんでした {0}", valueName);
-                        }
-                        Function.Caller = new Value("", classDef);
-                    }
-                }
-                else
-                {
-                    // NOTE: nullが帰ってくる場合もあるっちゃある
-                    var value = GetParentBlock().FindValue("this");
-                    Function.Caller = value;
-                }
+                Function.Caller =
+                    GetParentBlock().FindValue(valueName) ??
+                    new Value("", GetParentClass().FindClass(valueName));
             }
-
-            // 引数をセット
+            else
             {
-                var objs = new List<object>();
-                foreach (var arg in Args)
-                {
-                    objs.Add(Util.Calc.Execute(GetParentBlock(), arg, Value.GetValueType(arg, GetParentBlock())).Object);
-                }
-                Function.SetArgs(objs.ToArray());
+                Function.Caller = GetParentBlock().FindValue("this");
             }
+            Log.Assert(Function.Caller != null, "呼び出し元を特定できませんでした {0}", Name);
+        }
+
+        private void SetArgs()
+        {
+            var objs = new List<object>();
+            foreach (var arg in Args)
+            {
+                objs.Add(Util.Calc.Execute(GetParentBlock(), arg, Value.GetValueType(arg, GetParentBlock())).Object);
+            }
+            Function.SetArgs(objs.ToArray());
         }
     }
 }

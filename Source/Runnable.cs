@@ -46,16 +46,17 @@ namespace Sumi
             {
                 ExecuteCount++;
             }
+            var isContinueBlock = true;
             if (IsCompleted())
             {
                 OnLeave();
                 if (!CheckContinue())
                 {
-                    return false;
+                    Reset();
+                    isContinueBlock = false;
                 }
-                else ResetExecute();
             }
-            return true;
+            return isContinueBlock;
         }
 
         public void ForceExecute()
@@ -67,6 +68,7 @@ namespace Sumi
         public virtual void OnEntered() { }
         public virtual void OnLeaved() { }
         public virtual bool CheckContinue() { return false; }
+        public virtual void OnReset() { }
 
         private void ExecuteRun()
         {
@@ -103,9 +105,21 @@ namespace Sumi
         {
             ExecuteCount = Runnables.Count;
         }
-        public void ResetExecute()
+
+        public void ContinueExecute()
         {
+            ExecuteCount = Runnables.Count;
+        }
+
+        public void Reset()
+        {
+            foreach (var child in Runnables)
+            {
+                child.Reset();
+            }
             ExecuteCount = 0;
+            _isEntered = false;
+            OnReset();
         }
 
         private int ParentCount()
@@ -137,14 +151,14 @@ namespace Sumi
             return Parent.GetParentBlock();
         }
 
-        public Function GetParentMethod()
+        public Function GetParentFunction()
         {
             if (Parent == null) { return null; }
             if (Parent is Function)
             {
                 return (Function)Parent;
             }
-            return Parent.GetParentMethod();
+            return Parent.GetParentFunction();
         }
 
         public Class GetParentClass()

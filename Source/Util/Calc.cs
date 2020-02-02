@@ -20,13 +20,25 @@ namespace Sumi.Util
             {
                 var formula = splitedFormula[0];
 
+                // 配列
                 if (formula.Length >= 2 && formula.First() == '[' && formula.Last() == ']')
                 {
                     return new Value("", ExecuteArray(parentBlock, formula));
                 }
-
-                var value = parentBlock.FindValue(formula);
-                if (value != null) return value;
+                // 関数
+                else if (formula.Last() == ')')
+                {
+                    var caller = new Caller(parentBlock, formula);
+                    caller.ForceExecute();
+                    Log.Assert(caller.Function != null, "呼ぼうとした関数が見つかりませんでした:{0}->{1}", parentBlock.FullName, caller.Name);
+                    return new Value("", caller.Function.ReturnedValue);
+                }
+                // 変数
+                else
+                {
+                    var value = parentBlock.FindValue(formula);
+                    if (value != null) return value;
+                }
             }
             // 括弧を計算
             source = ExecuteBracketCalc(parentBlock, source, type);
@@ -36,9 +48,8 @@ namespace Sumi.Util
             if (type == typeof(bool)) return new Value("", ExecuteCalcBool(parentBlock, source));
             if (type == typeof(string)) return new Value("", ExecuteCalcString(parentBlock, source));
 
-            parentBlock.GetParentBlock().PrintBlockTree();
-
-            throw new System.Exception(string.Format("理解できない計算式を演算しようとした:{0} / {1}", source, type.ToString()));
+            Log.Error("理解できない計算式を演算しようとした:{0} / {1}", source, type.ToString());
+            return null;
         }
 
         public static string ExecuteBracketCalc(Block parentBlock, string source, System.Type type)

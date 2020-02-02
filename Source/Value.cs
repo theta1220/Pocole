@@ -60,43 +60,25 @@ namespace Sumi
 
         public static Type GetValueType(string source, Block parentBlock = null)
         {
-            var value = GetFirstCalcSource(source);
-
+            var valueName = GetFirstCalcSource(source);
             // null
-            if (value == "null") return typeof(Class);
-
+            if (valueName == "null") return typeof(Class);
             // 配列
-            if ((value.Contains(",") && value.Contains('[')) || value == "[]")
-            {
-                return typeof(List<Value>);
-            }
-
+            if ((valueName.Contains(",") && valueName.Contains('[')) || valueName == "[]") return typeof(List<Value>);
             var resInt = 0;
             var resBool = false;
-            if (int.TryParse(value, out resInt))
+            if (int.TryParse(valueName, out resInt)) return typeof(int);
+            if (bool.TryParse(valueName, out resBool)) return typeof(bool);
+            if (source.Contains("\"")) return typeof(string);
+            if (parentBlock != null)
             {
-                return typeof(int);
-            }
-            else if (bool.TryParse(value, out resBool))
-            {
-                return typeof(bool);
-            }
-            else if (parentBlock != null && parentBlock.FindFunction(value.PoCut('(')) != null)
-            {
-                return parentBlock.FindFunction(value.PoCut('(')).ReturnType;
-            }
-            else if (parentBlock != null && parentBlock.FindValue(value) != null)
-            {
-                return parentBlock.FindValue(value).ValueType;
-            }
-            else if (source.Contains("\""))
-            {
-                return typeof(string);
-            }
-            else
-            {
+                var v = parentBlock.FindValue(valueName);
+                if (v != null) return v.ValueType;
+                var func = parentBlock.FindFunction(valueName.PoCut('('));
+                if (func != null) return func.ReturnType;
                 return typeof(object);
             }
+            return typeof(object);
         }
 
         public static string GetFirstCalcSource(string source)

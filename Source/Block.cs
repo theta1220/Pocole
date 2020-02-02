@@ -41,26 +41,14 @@ namespace Sumi
                 {
                     var def = new Class(this, source);
                     var fullName = string.Format("{0}.{1}", FullName, def.Name);
-                    if (!Class.ExistsStaticClass(fullName))
-                    {
-                        Class.AddStaticClass(fullName, def);
-                    }
-                    else
-                    {
-                        Class.GetStaticClass(fullName).Using(def);
-                    }
+                    if (!Class.ExistsStaticClass(fullName)) Class.AddStaticClass(fullName, def);
+                    else Class.GetStaticClass(fullName).Using(def);
                 }
                 else if (source.PoMatchHead("extension"))
                 {
                     var def = new Class(this, source);
-                    if (!Class.ExistsStaticExtension(def.Name))
-                    {
-                        Class.AddStaticExtension(def);
-                    }
-                    else
-                    {
-                        Class.GetStaticExtension(def.Name).Using(def);
-                    }
+                    if (!Class.ExistsStaticExtension(def.Name)) Class.AddStaticExtension(def);
+                    else Class.GetStaticExtension(def.Name).Using(def);
                 }
                 else if (source.PoMatchHead("using")) Usings.Add(new UsingLoader(this, source));
                 else if (source.PoMatchHead("if") ||
@@ -105,10 +93,7 @@ namespace Sumi
             foreach (var test in Tests)
             {
                 test.ForceExecute();
-                if ((bool)test.ReturnedValue == false)
-                {
-                    Log.Error("{0}のテストに失敗", test.FullName);
-                }
+                Log.Assert((bool)test.ReturnedValue == true, "{0}のテストに失敗", test.FullName);
             }
         }
 
@@ -125,6 +110,11 @@ namespace Sumi
             Values.Clear();
         }
 
+        public override void OnReset()
+        {
+            Values.Clear();
+        }
+
         public void AddValue(Value value)
         {
             Values.Add(value);
@@ -136,6 +126,7 @@ namespace Sumi
             if (name.PoMatchHead("[") || name.PoMatchHead("\"") || name.PoMatchHead("(")) return null;
             if (Regex.IsMatch(name, "^[0-9.]+$")) return null;
             if (name == "null") return new Value("", null);
+            if (name.PoMatchTail(")")) return null;
 
             bool isRef = true;
             // @がついている変数はコピーが作成される
@@ -148,42 +139,31 @@ namespace Sumi
 
             if (name == "this")
             {
-                if (this is Function) target = (this as Function).Caller;
-                else if (GetParentMethod() != null) target = GetParentMethod().Caller;
-
-                if (target == null)
-                {
-                    target = new Value("", this);
-                }
+                var func = (this as Function) ?? GetParentFunction();
+                if (func != null) target = func.Caller;
+                else target = new Value("", this);
             }
 
             if (target == null)
             {
-                // ")"で終わるってことは関数の結果を変数として利用したいってこと
-                if (name.PoMatchTail(")"))
+                if (name.PoRemoveInBlock().Contains('.'))
                 {
-                    var caller = new Caller(this, name);
-                    caller.ForceExecute();
-                    target = new Value("", caller.Function.ReturnedValue);
+                    var split = name.PoSplitOnceTail('.');
+                    var instance = FindValue(split[0]);
+                    if (instance != null)
+                    {
+                        target = (instance.Object as Block).FindValue(split[1]);
+                    }
                 }
-                else
+                else if (name.PoCut('[').Length > 0 && name.PoMatchTail("]"))
                 {
-                    if (name.PoRemoveInBlock().Contains('.'))
-                    {
-                        var split = name.PoSplitOnceTail('.');
-                        var instance = FindValue(split[0]);
-                        if (instance != null)
-                        {
-                            target = (instance.Object as Block).FindValue(split[1]);
-                        }
-                    }
-                    else if (name.PoCut('[').Length > 0 && name.PoMatchTail("]"))
-                    {
-                        var arrName = name.PoCut('[');
-                        var source = name.PoExtract('[', ']');
-                        var index = (int)Util.Calc.Execute(this, source, typeof(int)).Object;
-                        target = (FindValue(arrName).Object as List<Value>)[index];
-                    }
+                    var arrName = name.PoCut('[');
+                    var source = name.PoExtract('[', ']');
+                    var index = (int)Util.Calc.Execute(this, source, typeof(int)).Object;
+                    var arr = FindValue(arrName).Object as List<Value>;
+                    Log.Assert(arr != null, "配列がみつかりませんでした:{0}", arrName);
+                    Log.Assert(arr.Count > index && index >= 0, "out of range... count:{0} / index:{1}", arr.Count, index);
+                    target = arr[index];
                 }
             }
             if (target == null && GetParentBlock() != null)
@@ -211,6 +191,39 @@ namespace Sumi
             return target.ToArray();
         }
 
+        public Function FindInstanceFunction(string name)
+        {
+            if (!name.PoRemoveInBlock().Contains(".")) return null;
+            var split = name.PoSplitOnceTail('.');
+            var value = FindValue(split[0]);
+            if (value == null || value.Object == null || value.Object as Block == null) return null;
+            return (value.Object as Block).FindFunction(split[1]);
+        }
+
+        public Function FindClassFunction(string name)
+        {
+            if (!name.PoRemoveInBlock().Contains(".")) return null;
+            var split = name.PoSplitOnceTail('.');
+            Class parent = null;
+            if (this is Class) parent = this as Class;
+            else parent = GetParentClass();
+            var classDef = parent.FindClass(split[0]);
+            if (classDef == null) return null;
+            return classDef.FindFunction(split[1]);
+        }
+
+        public Function FindExtensionFunction(string name)
+        {
+            if (!name.PoRemoveString().Contains(".")) return null;
+            var value = FindValue(name.PoCut('.'));
+            if (value == null) return null;
+            Class ex = null;
+            if (value.Object is List<Value>) ex = Class.FindExtension("array");
+            if (value.Object is string) ex = Class.FindExtension("string");
+            Log.Assert(ex != null, "拡張メソッドがみつかりませんでした:{0}", name);
+            return ex.FindFunction(name.PoSplit('.').Last());
+        }
+
         public Function FindFunction(string name)
         {
             // 無駄な検索はしない
@@ -219,52 +232,22 @@ namespace Sumi
 
             if (name.PoRemoveInBlock().Contains("."))
             {
-                var split = name.PoSplitOnceTail('.');
-                var value = FindValue(split[0]);
-                if (value == null || value.Object == null)
-                {
-                    Class parent = null;
-                    if (this is Class) parent = this as Class;
-                    else parent = GetParentClass();
-                    var classDef = parent.FindClass(split[0]);
-                    if (classDef != null)
-                    {
-                        var func = classDef.FindFunction(split[1]);
-                        if (func != null) return func;
-                    }
-                }
-                var instance = value.Object as Block;
-                if (instance != null)
-                {
-                    return instance.FindFunction(split[1]);
-                }
-                return FindExtensionMethod(name);
+                return FindInstanceFunction(name) ?? FindClassFunction(name) ?? FindExtensionFunction(name);
             }
             var target = Functions.FirstOrDefault(method => method.Name == name);
             if (target == null && GetParentBlock() != null)
             {
-                target = GetParentBlock().FindFunction(name);
+                return GetParentBlock().FindFunction(name);
             }
             return target;
         }
 
-        public Function FindExtensionMethod(string name)
-        {
-            if (name.PoRemoveString().Contains("."))
-            {
-                var value = FindValue(name.PoCut('.'));
-                if (value == null) return null;
-                Class ex = null;
-                if (value.Object is List<Value>) ex = Class.FindExtension("array");
-                if (value.Object is string) ex = Class.FindExtension("string");
-                if (ex == null) Log.Error("Extension not found");
-                return ex.FindFunction(name.PoSplit('.').Last());
-            }
-            return null;
-        }
-
         public void Using(Block block)
         {
+            foreach (var runnable in block.Runnables)
+            {
+                Runnables.Add(runnable);
+            }
             foreach (var value in block.Values)
             {
                 if (Values.Find(o => o.Name == value.Name) != null) continue;
@@ -286,10 +269,10 @@ namespace Sumi
 
         public void PrintBlockTree(Block parent, int tree)
         {
-            Log.Debug(ConsoleColor.DarkBlue, "{0}{1}::{2}", Util.String.GetIndentSpace(tree), parent.GetType(), parent.FullName);
+            Log.Debug("{0}{1}::{2}", Util.String.GetIndentSpace(tree), parent.GetType(), parent.FullName);
             foreach (var value in parent.Values)
             {
-                Log.Debug(ConsoleColor.DarkBlue, "{0}var {1}/{2}", Util.String.GetIndentSpace(tree), value.Name, value.Object.ToString());
+                Log.Debug("{0}var {1}/{2}", Util.String.GetIndentSpace(tree), value.Name, value.Object.ToString());
             }
             foreach (var method in parent.Functions)
             {

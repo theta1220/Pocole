@@ -27,12 +27,13 @@ namespace Sumi
 
         protected override void Run()
         {
-            var res = Util.Calc.Execute(GetParentBlock(), Formula, GetParentMethod().ReturnType);
+            var res = Util.Calc.Execute(GetParentBlock(), Formula, GetParentFunction().ReturnType);
             if (res != null)
             {
-                GetParentMethod().ReturnedValue = res.Object;
+                GetParentFunction().ReturnedValue = res.Object;
             }
-            GetParentMethod().SkipExecute();
+            var func = GetParentFunction();
+            func.SkipExecute();
         }
     }
 }

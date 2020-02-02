@@ -14,7 +14,7 @@ namespace Sumi
 
         protected override void Run()
         {
-            GetParentLoopBlock().SkipExecute();
+            GetParentLoopBlock().ContinueExecute();
         }
     }
 }

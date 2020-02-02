@@ -5,43 +5,43 @@ namespace Sumi
 {
     public class Count : LoopBlock
     {
-        private string _valueName;
-        private string _maxFormula;
-        private Value _countValue;
-        private Value _maxValue;
-        private bool _executedInitSource = false;
+        private string valueName;
+        private string maxFormula;
+        private Value countValue;
+        private Value maxValue;
+        private bool executedInitSource = false;
 
         public Count(Runnable parent, string source) : base(parent, source)
         {
             var split = source.Remove(' ').PoExtract('(', ')').Split(':');
-            _valueName = split[0];
-            _maxFormula = split[1];
-            _executedInitSource = false;
+            valueName = split[0];
+            maxFormula = split[1];
+            executedInitSource = false;
         }
 
         public Count(Count other) : base(other)
         {
-            _valueName = other._valueName;
-            _maxFormula = other._maxFormula;
-            _countValue = new Value(other._countValue);
-            _maxValue = new Value(other._maxValue);
-            _executedInitSource = other._executedInitSource;
+            valueName = other.valueName;
+            maxFormula = other.maxFormula;
+            countValue = new Value(other.countValue);
+            maxValue = new Value(other.maxValue);
+            executedInitSource = other.executedInitSource;
         }
 
         public override Runnable Clone() { return new Count(this); }
 
         public override void OnEntered()
         {
-            if (!_executedInitSource)
+            if (!executedInitSource)
             {
-                _executedInitSource = true;
-                _countValue = new Value(_valueName, 0);
-                AddValue(_countValue);
+                executedInitSource = true;
+                countValue = new Value(valueName, 0);
+                AddValue(countValue);
 
-                _maxValue = Util.Calc.Execute(GetParentBlock(), _maxFormula, typeof(int));
+                maxValue = Util.Calc.Execute(GetParentBlock(), maxFormula, typeof(int));
             }
 
-            var isContinuous = (int)_countValue.Object < (int)_maxValue.Object;
+            var isContinuous = (int)countValue.Object < (int)maxValue.Object;
             if (!isContinuous)
             {
                 IsContinuous = false;
@@ -51,7 +51,13 @@ namespace Sumi
 
         public override void OnLeaved()
         {
-            _countValue.Object = (int)_countValue.Object + 1;
+            countValue.Object = (int)countValue.Object + 1;
+        }
+
+        public override void OnReset()
+        {
+            base.OnReset();
+            executedInitSource = false;
         }
     }
 }

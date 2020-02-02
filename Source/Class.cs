@@ -11,7 +11,7 @@ namespace Sumi
 
         private string[] _extendNames = new string[] { };
         private bool _extended = false;
-        private bool _isInstance = false;
+        public bool IsInstance { get; private set; }
 
         private static Dictionary<string, Class> StaticClasses = new Dictionary<string, Class>();
         private static List<Class> StaticExtensions = new List<Class>();
@@ -85,7 +85,7 @@ namespace Sumi
         public Class(Class other) : base(other)
         {
             _extendNames = other._extendNames.ToArray();
-            _isInstance = true;
+            IsInstance = true;
         }
 
         public override Runnable Clone() { return new Class(this); }
@@ -166,7 +166,12 @@ namespace Sumi
 
         public override void OnLeaved()
         {
-            // なにもしないのがみそ
+            // なにもしない
+        }
+
+        public override void OnReset()
+        {
+            // なにもしない
         }
     }
 }

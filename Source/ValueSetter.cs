@@ -53,24 +53,20 @@ namespace Sumi
             Value target = null;
             if (ValueSetterType == ValueSetterType.Declare)
             {
-                target = new Value(Name, GetParentBlock());
-                GetParentBlock().AddValue(target);
-            }
-            else if (ValueSetterType == ValueSetterType.Assign)
-            {
-                target = GetParentBlock().FindValue(Name);
-                if (target == null)
-                {
-                    Log.Error("変数が見つかりませんでした:{0}", Name);
-                }
+                target = new Value(Name, null);
             }
             else
             {
-                Log.Error("ValueSetterTypeがInvalid");
+                target = GetParentBlock().FindValue(Name);
+                Log.Assert(target != null, "変数が見つかりませんでした:{0}", Name);
             }
             var valueType = Value.GetValueType(Formula, GetParentBlock());
             var res = Util.Calc.Execute(GetParentBlock(), Formula, valueType);
             target.Object = res.Object;
+            if (ValueSetterType == ValueSetterType.Declare)
+            {
+                GetParentBlock().AddValue(target);
+            }
         }
     }
 }

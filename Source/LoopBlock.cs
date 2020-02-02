@@ -26,10 +26,13 @@ namespace Sumi
 
         public override void OnLeaved()
         {
-            if (!IsContinuous)
-            {
-                base.OnLeaved();
-            }
+            base.OnLeaved();
+        }
+
+        public override void OnReset()
+        {
+            base.OnReset();
+            IsContinuous = true;
         }
     }
 }

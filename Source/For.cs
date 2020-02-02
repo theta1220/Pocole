@@ -54,8 +54,13 @@ namespace Sumi
         {
             var setter = new ValueSetter(this, LoopSource);
             setter.ForceExecute();
-
             base.OnLeaved();
+        }
+
+        public override void OnReset()
+        {
+            base.OnReset();
+            executedInitSource = false;
         }
     }
 }

@@ -15,6 +15,7 @@ namespace Sumi
             var text = Util.File.Open(file);
             text = RemoveExtraText(text);
             text = "class " + GetName(file) + "{" + text + "}";
+            Class.Clear();
             var block = new Class(null, text);
             block.Extend();
             block.ClassTest();

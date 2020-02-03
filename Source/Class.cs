@@ -16,6 +16,12 @@ namespace Sumi
         private static Dictionary<string, Class> StaticClasses = new Dictionary<string, Class>();
         private static List<Class> StaticExtensions = new List<Class>();
 
+        public static void Clear()
+        {
+            StaticClasses.Clear();
+            StaticExtensions.Clear();
+        }
+
         public static void AddStaticClass(string fullName, Class classDef)
         {
             AddStatic(StaticClasses, fullName, classDef);

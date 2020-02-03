@@ -7,7 +7,7 @@ fi
 
 echo "" > ${out}
 for file in `find . -type f -name '*.ss'`; do
-    echo ${file}
+    # echo ${file}
     nkf --overwrite --oc=UTF-8 ${file}
     echo "// ${file}" >> ${out}
     cat ${file} >> ${out}

@@ -71,6 +71,12 @@ namespace Sumi
                 Initialize();
             }
 
+            if (targetArray.Count == 0 || targetArray.Count <= Count)
+            {
+                SkipExecute();
+                return;
+            }
+
             PickValue();
         }
 

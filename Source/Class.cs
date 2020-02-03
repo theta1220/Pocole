@@ -117,15 +117,20 @@ namespace Sumi
             if (name.Contains("."))
             {
                 var split = name.PoSplitOnce('.');
-                return FindClass(split[0]).FindClass(split[1]);
+                var self = FindClass(split[0]);
+                if (self == null) return null;
+                return self.FindClass(split[1]);
             }
-            var target = ChildClasses.FirstOrDefault(o => o.Name == name);
-            var parent = GetParentClass();
-            if (target == null && parent != null)
+            else
             {
-                return parent.FindClass(name);
+                var target = ChildClasses.FirstOrDefault(o => o.Name == name);
+                var parent = GetParentClass();
+                if (target == null && parent != null)
+                {
+                    return parent.FindClass(name);
+                }
+                return target;
             }
-            return target;
         }
 
         public static Class FindExtension(string name)
@@ -178,6 +183,24 @@ namespace Sumi
         public override void OnReset()
         {
             // なにもしない
+        }
+
+        public static bool HasValue(Value[] args)
+        {
+            Log.Assert(args.Length >= 2, "引数が足りません");
+            var target = args[0].Object as Class;
+            Log.Assert(target != null, "ターゲットはnull");
+            var text = args[1].Object as string;
+            return target.FindValue(text) != null;
+        }
+
+        public static bool HasFunction(Value[] args)
+        {
+            Log.Assert(args.Length >= 2, "引数が足りません");
+            var target = args[0].Object as Class;
+            Log.Assert(target != null, "ターゲットはnull");
+            var text = args[1].Object as string;
+            return target.FindFunction(text) != null;
         }
     }
 }

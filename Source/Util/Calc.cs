@@ -96,12 +96,9 @@ namespace Sumi.Util
             {
                 var lType = Value.GetValueType(splitedFormula[0], parentBlock);
                 var rType = Value.GetValueType(splitedFormula[1], parentBlock);
-
-                // 型の違う者同士は比較しないことにする
-                Log.Assert(rType == lType, "型が違うので比較できません {0} --- {1}", lType.ToString(), rType.ToString());
-
                 var l = Execute(parentBlock, splitedFormula[0], lType).Object;
                 var r = Execute(parentBlock, splitedFormula[1], rType).Object;
+
                 if (rType == typeof(int))
                 {
                     if (ope == "==") return (int)l == (int)r;

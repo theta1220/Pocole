@@ -24,7 +24,6 @@ namespace Sumi
         public List<Value> Values { get; private set; } = new List<Value>();
         public List<Function> Functions { get; private set; } = new List<Function>();
         public List<Function> Tests { get; private set; } = new List<Function>();
-        public List<UsingLoader> Usings { get; private set; } = new List<UsingLoader>();
         public bool LastIfResult { get; set; } = false;
         public object ReturnedValue { get; set; }
 
@@ -50,7 +49,6 @@ namespace Sumi
                     if (!Class.ExistsStaticExtension(def.Name)) Class.AddStaticExtension(def);
                     else Class.GetStaticExtension(def.Name).Using(def);
                 }
-                else if (source.PoMatchHead("using")) Usings.Add(new UsingLoader(this, source));
                 else if (source.PoMatchHead("if") ||
                          source.PoMatchHead("else if") ||
                          source.PoMatchHead("else")) Runnables.Add(new If(this, source));
@@ -76,12 +74,6 @@ namespace Sumi
                 clone.Parent = this;
                 Functions.Add(clone);
             }
-            foreach (var obj in other.Usings)
-            {
-                var clone = obj.Clone() as UsingLoader;
-                clone.Parent = this;
-                Usings.Add(clone);
-            }
             LastIfResult = other.LastIfResult;
             ReturnedValue = other.ReturnedValue;
         }
@@ -99,10 +91,6 @@ namespace Sumi
 
         public override void OnEntered()
         {
-            foreach (var use in Usings)
-            {
-                use.ForceExecute();
-            }
         }
 
         public override void OnLeaved()

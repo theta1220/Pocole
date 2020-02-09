@@ -10,13 +10,12 @@ namespace Sumi
         {
         }
 
-        public Runnable Load(string file)
+        public Runnable Load(string name, string source)
         {
-            var text = Util.File.Open(file);
-            text = RemoveExtraText(text);
-            text = "class " + GetName(file) + "{" + text + "}";
+            source = RemoveExtraText(source);
+            source = "class " + GetName(name) + "{" + source + "}";
             Class.Clear();
-            var block = new Class(null, text);
+            var block = new Class(null, source);
             block.Extend();
             block.ClassTest();
             Class.ExtensionTest();

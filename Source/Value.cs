@@ -66,7 +66,7 @@ namespace Sumi
             // null
             if (valueName == "null") return typeof(Class);
             // 配列
-            if ((valueName.Contains(",") && valueName.Contains('[')) || valueName == "[]") return typeof(List<Value>);
+            if ((valueName.Contains(",") && valueName.Contains("[")) || valueName == "[]") return typeof(List<Value>);
             var resInt = 0;
             var resBool = false;
             if (int.TryParse(valueName, out resInt)) return typeof(int);

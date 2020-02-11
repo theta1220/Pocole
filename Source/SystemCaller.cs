@@ -12,7 +12,8 @@ namespace Sumi
         public string Name { get; private set; }
         public string[] Args { get; private set; }
 
-        private Value _returnValue;
+        private Value _sourceValue = null;
+        private Value _returnValue = null;
 
         public SystemCaller(Runnable parent, string source) : base(parent, source)
         {
@@ -36,6 +37,10 @@ namespace Sumi
                     Name = name.Last();
                 }
                 else if (count == 1)
+                {
+                    if (arg != "null") _sourceValue = GetParentBlock().FindValue(arg);
+                }
+                else if (count == 2)
                 {
                     if (arg != "null") _returnValue = GetParentBlock().FindValue(arg);
                 }

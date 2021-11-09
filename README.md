@@ -23,11 +23,23 @@ _main.hello();
 hello sumi.
 ```
 
+### 特徴
+sumiはメソッドとして、どこにでもテスト関数を記載することができます。
+sumiの実行時にテスト関数がすべて実行されます。
+```
+test hoge()
+{
+    ...
+    return true;
+}
+```
+
 ### 組み込み方法
 sumiを１ファイルにまとめる `sumi_build` を実行しておきます。
 ```bash
 sumi_build out.so
 ```
+※sumi_build ファイルは現在公開しておりません
 
 C#に組み込むことが前提であるため、
 sumiの実行にはC#でsumiのインスタンスを生成する必要があります。
